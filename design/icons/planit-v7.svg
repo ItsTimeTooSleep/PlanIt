@@ -1,0 +1,29 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    @media (prefers-color-scheme: light) {
+      .bg { fill: #0A0A0A; }
+      .line { stroke: #FFFFFF; }
+    }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #FFFFFF; }
+      .line { stroke: #0A0A0A; }
+    }
+  </style>
+  <rect class="bg" width="180" height="180" rx="90"/>
+  <g transform="translate(90, 90)">
+    <!-- 外框：正六边形 -->
+    <path class="line" d="M0 -52 L45 -26 L45 26 L0 52 L-45 26 L-45 -26 Z" 
+          stroke-width="5" stroke-linejoin="miter" fill="none"/>
+    <!-- 内部P形：垂直主干 -->
+    <path class="line" d="M-20 -35 L-20 40" 
+          stroke-width="5" stroke-linecap="butt"/>
+    <!-- P形头部：矩形结构 -->
+    <path class="line" d="M-20 -35 L25 -35 L25 -10 L-20 -10" 
+          stroke-width="5" stroke-linejoin="miter" fill="none"/>
+    <!-- 内部连接线 -->
+    <path class="line" d="M-20 0 L10 0" 
+          stroke-width="5"/>
+    <path class="line" d="M-5 15 L15 15" 
+          stroke-width="5"/>
+  </g>
+</svg>

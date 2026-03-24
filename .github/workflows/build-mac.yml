@@ -1,0 +1,99 @@
+name: Build Mac App
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Build target (aarch64-apple-darwin for Apple Silicon, x86_64-apple-darwin for Intel)'
+        required: true
+        default: 'aarch64-apple-darwin'
+        type: choice
+        options:
+          - aarch64-apple-darwin
+          - x86_64-apple-darwin
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+        id: pnpm-cache
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Setup Node modules cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ github.event.inputs.target }}
+
+      - name: Setup Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            src-tauri
+          key: ${{ github.event.inputs.target }}
+
+      - name: Cache Tauri build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            src-tauri/target
+          key: ${{ runner.os }}-tauri-build-${{ github.event.inputs.target }}-${{ hashFiles('**/Cargo.lock', 'src-tauri/src/**/*') }}
+          restore-keys: |
+            ${{ runner.os }}-tauri-build-${{ github.event.inputs.target }}-
+            ${{ runner.os }}-tauri-build-
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'PlanIt v__VERSION__'
+          releaseBody: 'See the assets to download this version.'
+          releaseDraft: true
+          prerelease: false
+          args: --target ${{ github.event.inputs.target }}
+
+      - name: Upload macOS app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PlanIt-macOS-${{ github.event.inputs.target }}
+          path: |
+            src-tauri/target/${{ github.event.inputs.target }}/release/bundle/macos/*.app
+            src-tauri/target/${{ github.event.inputs.target }}/release/bundle/dmg/*.dmg
+          retention-days: 7

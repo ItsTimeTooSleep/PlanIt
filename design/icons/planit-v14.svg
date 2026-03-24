@@ -1,0 +1,29 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    @media (prefers-color-scheme: light) {
+      .bg { fill: #0A0A0A; }
+      .line { stroke: #FFFFFF; }
+    }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #FFFFFF; }
+      .line { stroke: #0A0A0A; }
+    }
+  </style>
+  <rect class="bg" width="180" height="180" rx="90"/>
+  <g transform="translate(90, 90)">
+    <!-- 螺旋轨道 -->
+    <path class="line" d="M0 0 L0 -15" stroke-width="4"/>
+    <path class="line" d="M0 -15 L15 -15 L15 15 L-15 15 L-15 -30 L30 -30 L30 30 L-30 30" 
+          stroke-width="4" stroke-linejoin="miter" fill="none"/>
+    <!-- 外框圆环 -->
+    <circle class="line" cx="0" cy="0" r="48" 
+            stroke-width="4" fill="none"/>
+    <!-- 轨迹点 -->
+    <circle class="line" cx="0" cy="-30" r="3" 
+            stroke="none" fill="currentColor"/>
+    <circle class="line" cx="30" cy="0" r="3" 
+            stroke="none" fill="currentColor"/>
+    <circle class="line" cx="0" cy="30" r="3" 
+            stroke="none" fill="currentColor" opacity="0.6"/>
+  </g>
+</svg>

@@ -1,0 +1,33 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    @media (prefers-color-scheme: light) {
+      .bg { fill: #0A0A0A; }
+      .line { stroke: #FFFFFF; }
+    }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #FFFFFF; }
+      .line { stroke: #0A0A0A; }
+    }
+  </style>
+  <rect class="bg" width="180" height="180" rx="90"/>
+  <g transform="translate(90, 90)">
+    <!-- 外环 - 计划边界 -->
+    <circle class="line" cx="0" cy="0" r="50" 
+            stroke-width="4" fill="none"/>
+    <!-- P形轨迹 -->
+    <path class="line" d="M-15 -35 L-15 40" stroke-width="5"/>
+    <path class="line" d="M-15 -35 L30 -35" stroke-width="5"/>
+    <path class="line" d="M30 -35 L30 0" stroke-width="5"/>
+    <path class="line" d="M30 0 L-15 0" stroke-width="5"/>
+    <!-- 弧形轨道装饰 -->
+    <path class="line" d="M15 15 A 20 20 0 0 1 35 35" 
+          stroke-width="4" stroke-linecap="round" fill="none"/>
+    <path class="line" d="M-25 15 A 15 15 0 0 0 -40 30" 
+          stroke-width="4" stroke-linecap="round" fill="none"/>
+    <!-- 星球点 -->
+    <circle class="line" cx="35" cy="35" r="4" 
+            stroke="none" fill="currentColor"/>
+    <circle class="line" cx="-40" cy="30" r="3" 
+            stroke="none" fill="currentColor" opacity="0.6"/>
+  </g>
+</svg>

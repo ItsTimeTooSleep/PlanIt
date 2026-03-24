@@ -1,0 +1,26 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    @media (prefers-color-scheme: light) {
+      .bg { fill: #0A0A0A; }
+      .line { stroke: #FFFFFF; }
+    }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #FFFFFF; }
+      .line { stroke: #0A0A0A; }
+    }
+  </style>
+  <rect class="bg" width="180" height="180" rx="90"/>
+  <g transform="translate(90, 90)">
+    <!-- 方形外框 - 方正感 -->
+    <path class="line" d="M-45 -45 L45 -45 L45 45 L-45 45 Z" 
+          stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <!-- 内部斜向P形 -->
+    <path class="line" d="M-30 -10 L-30 35" 
+          stroke-width="6" stroke-linecap="round"/>
+    <path class="line" d="M-30 -10 L15 -35 L40 -10 L40 15 L15 40 L-10 25" 
+          stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <!-- 对角线连接 -->
+    <path class="line" d="M-45 -45 L45 45" 
+          stroke-width="3" stroke-linecap="round" opacity="0.3"/>
+  </g>
+</svg>

@@ -1,0 +1,29 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    @media (prefers-color-scheme: light) {
+      .bg { fill: #0A0A0A; }
+      .line { stroke: #FFFFFF; }
+    }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #FFFFFF; }
+      .line { stroke: #0A0A0A; }
+    }
+  </style>
+  <rect class="bg" width="180" height="180" rx="90"/>
+  <g transform="translate(90, 90)">
+    <!-- 外轨道 -->
+    <ellipse class="line" cx="0" cy="0" rx="55" ry="20" 
+             stroke-width="4" fill="none" transform="rotate(-30)"/>
+    <!-- 内轨道 -->
+    <ellipse class="line" cx="0" cy="0" rx="38" ry="14" 
+             stroke-width="4" fill="none" transform="rotate(-30)"/>
+    <!-- 中心星球 -->
+    <circle class="line" cx="0" cy="0" r="12" 
+            stroke-width="5" fill="none"/>
+    <!-- 轨道上的点 -->
+    <circle class="line" cx="42" cy="-24" r="4" 
+            stroke="none" fill="currentColor"/>
+    <circle class="line" cx="-35" cy="20" r="3" 
+            stroke="none" fill="currentColor" opacity="0.6"/>
+  </g>
+</svg>
