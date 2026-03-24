@@ -104,7 +104,7 @@ export function findNonOverlappingPosition(
 ): Position {
   const meta = WIDGET_METADATA[newWidget.type]
   const minSize = meta.minSize
-  let position = { ...newWidget.position }
+  const position = { ...newWidget.position }
   let attempts = 0
   const maxAttempts = 100
 

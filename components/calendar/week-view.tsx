@@ -1,9 +1,9 @@
 'use client'
 
-import { useRef, useEffect, useState, useCallback, useMemo } from 'react'
+import { useRef, useEffect, useState, useCallback } from 'react'
 import { format, startOfWeek, addDays, isToday } from 'date-fns'
 import type { Task, Tag, DateNote } from '@/lib/types'
-import { timeToMinutes, minutesToTime, sortTasksByTime, generateId } from '@/lib/task-utils'
+import { timeToMinutes, minutesToTime, sortTasksByTime } from '@/lib/task-utils'
 import { calculateTaskLayoutsGrouped, type TaskLayoutInfo } from '@/lib/task-layout'
 import { useStore, useLanguage } from '@/lib/store'
 import { useTranslations } from '@/lib/i18n'
@@ -11,7 +11,6 @@ import { cn } from '@/lib/utils'
 import { Edit3, StickyNote } from 'lucide-react'
 import { DEFAULT_TAG_COLOR } from '@/lib/colors'
 
-const TOTAL_HOURS = 24
 const TIME_COL_W = 44    // px for time label column
 
 interface WeekViewProps {
@@ -75,7 +74,7 @@ export function WeekView({
 }: WeekViewProps) {
   const lang = useLanguage()
   const t = useTranslations(lang)
-  const { addTask, updateTask } = useStore()
+  const { updateTask } = useStore()
   const scrollRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
   const dayLabels = lang === 'zh' ? SHORT_DAYS_ZH : SHORT_DAYS_EN
@@ -89,6 +88,18 @@ export function WeekView({
   const TOP_PADDING = 20
   
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null)
+  const [gridWidth, setGridWidth] = useState(0)
+
+  useEffect(() => {
+    const el = gridRef.current
+    if (!el) return
+    const observer = new ResizeObserver(() => {
+      setGridWidth(el.clientWidth ?? 0)
+    })
+    observer.observe(el)
+    setGridWidth(el.clientWidth ?? 0)
+    return () => observer.disconnect()
+  }, [])
 
   /**
    * 键盘事件处理：Delete键删除选中的任务
@@ -639,9 +650,6 @@ export function WeekView({
 
                 {/* Task blocks with collision layout */}
                 {taskLayouts.map(layout => {
-                  const isBeingDragged = ghost && ghost.dateStr === dateStr && 
-                    timeToMinutes(layout.task.startTime!) === ghost.startMin && 
-                    timeToMinutes(layout.task.endTime!) === ghost.endMin
                   return (
                   <WeekTaskBlock
                     key={layout.task.id}
@@ -711,9 +719,9 @@ export function WeekView({
             <div
               className="absolute pointer-events-none z-50"
               style={{
-                left: TIME_COL_W + snapLine.colIndex * ((gridRef.current?.clientWidth ?? 0 - TIME_COL_W) / 7),
+                left: TIME_COL_W + snapLine.colIndex * ((gridWidth - TIME_COL_W) / 7),
                 top: snapLine.y,
-                width: (gridRef.current?.clientWidth ?? 0 - TIME_COL_W) / 7,
+                width: (gridWidth - TIME_COL_W) / 7,
               }}
             >
               <div className="w-full h-0.5 bg-primary shadow-lg shadow-primary/50" />

@@ -51,7 +51,6 @@ export interface WidgetStoreActions {
 export type WidgetStoreContextValue = WidgetStoreState & WidgetStoreActions
 
 const WIDGET_STORE_KEY = 'planit-widget-store'
-const DEFAULT_LAYOUT_NAME = 'Default Layout'
 
 function generateId(): string {
   return `widget-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
@@ -187,12 +186,68 @@ export function useWidgetStore(): WidgetStoreContextValue {
   return ctx
 }
 
+/**
+ * 检测两个组件在X轴上是否有重叠
+ * @param widget1 - 组件1
+ * @param widget2 - 组件2
+ * @param canvasSize - 画布尺寸
+ * @returns 是否有重叠
+ */
+function hasXOverlap(
+  widget1: WidgetInstance,
+  widget2: WidgetInstance,
+  canvasSize: CanvasSize
+): boolean {
+  const x1Start = percentToPixel(widget1.position.x, canvasSize.width)
+  const x1End = x1Start + percentToPixel(widget1.size.width, canvasSize.width)
+  const x2Start = percentToPixel(widget2.position.x, canvasSize.width)
+  const x2End = x2Start + percentToPixel(widget2.size.width, canvasSize.width)
+  
+  return x1Start < x2End && x1End > x2Start
+}
+
+/**
+ * 检测组件移动后是否会与其他组件发生碰撞
+ * @param widget - 要移动的组件
+ * @param newY - 新的 Y 位置（像素）
+ * @param newHeight - 新的高度（像素，折叠时使用 actualHeight）
+ * @param otherWidgets - 其他组件列表
+ * @param canvasSize - 画布尺寸
+ * @param excludeIds - 排除的组件ID列表
+ * @returns 是否会发生碰撞
+ */
+function wouldCollide(
+  widget: WidgetInstance,
+  newY: number,
+  newHeight: number,
+  otherWidgets: WidgetInstance[],
+  canvasSize: CanvasSize,
+  excludeIds: string[]
+): boolean {
+  const widgetYEnd = newY + newHeight
+
+  for (const other of otherWidgets) {
+    if (excludeIds.includes(other.id)) continue
+    if (!hasXOverlap(widget, other, canvasSize)) continue
+
+    const otherY = percentToPixel(other.position.y, canvasSize.height)
+    const otherHeight = other.collapsed && other.actualHeight
+      ? other.actualHeight
+      : percentToPixel(other.size.height, canvasSize.height)
+    const otherYEnd = otherY + otherHeight
+
+    const yOverlaps = newY < otherYEnd && widgetYEnd > otherY
+    if (yOverlaps) return true
+  }
+
+  return false
+}
+
 export function useWidgetStoreState(): WidgetStoreContextValue {
   const [state, setState] = useState<WidgetStoreState>(loadFromStorage)
   const historyRef = useRef<HistoryState[]>([])
   const historyIndexRef = useRef<number>(-1)
   const isUndoRedoRef = useRef<boolean>(false)
-  const isInitializedRef = useRef<boolean>(false)
   const prevStateRef = useRef<string>('')
   const isBatchUpdateRef = useRef<boolean>(false)
   const batchStartStateRef = useRef<HistoryState | null>(null)
@@ -461,65 +516,6 @@ export function useWidgetStoreState(): WidgetStoreContextValue {
   const updateWidgetZIndex = useCallback((id: string, zIndex: number): void => {
     updateWidget(id, { zIndex })
   }, [updateWidget])
-
-  /**
-   * 检测两个组件在 X 轴上是否有重叠
-   * @param widget1 - 组件1
-   * @param widget2 - 组件2
-   * @param canvasSize - 画布尺寸
-   * @returns 是否有重叠
-   */
-  function hasXOverlap(
-    widget1: WidgetInstance,
-    widget2: WidgetInstance,
-    canvasSize: CanvasSize
-  ): boolean {
-    const x1Start = percentToPixel(widget1.position.x, canvasSize.width)
-    const x1End = x1Start + percentToPixel(widget1.size.width, canvasSize.width)
-    const x2Start = percentToPixel(widget2.position.x, canvasSize.width)
-    const x2End = x2Start + percentToPixel(widget2.size.width, canvasSize.width)
-    
-    return x1Start < x2End && x1End > x2Start
-  }
-
-  /**
-   * 检测组件移动后是否会与其他组件发生碰撞
-   * @param widget - 要移动的组件
-   * @param newY - 新的 Y 位置（像素）
-   * @param newHeight - 新的高度（像素，折叠时使用 actualHeight）
-   * @param otherWidgets - 其他组件列表
-   * @param canvasSize - 画布尺寸
-   * @param excludeIds - 排除的组件ID列表
-   * @returns 是否会发生碰撞
-   */
-  function wouldCollide(
-    widget: WidgetInstance,
-    newY: number,
-    newHeight: number,
-    otherWidgets: WidgetInstance[],
-    canvasSize: CanvasSize,
-    excludeIds: string[]
-  ): boolean {
-    const widgetXStart = percentToPixel(widget.position.x, canvasSize.width)
-    const widgetXEnd = widgetXStart + percentToPixel(widget.size.width, canvasSize.width)
-    const widgetYEnd = newY + newHeight
-
-    for (const other of otherWidgets) {
-      if (excludeIds.includes(other.id)) continue
-      if (!hasXOverlap(widget, other, canvasSize)) continue
-
-      const otherY = percentToPixel(other.position.y, canvasSize.height)
-      const otherHeight = other.collapsed && other.actualHeight
-        ? other.actualHeight
-        : percentToPixel(other.size.height, canvasSize.height)
-      const otherYEnd = otherY + otherHeight
-
-      const yOverlaps = newY < otherYEnd && widgetYEnd > otherY
-      if (yOverlaps) return true
-    }
-
-    return false
-  }
 
   /**
    * 更新组件折叠状态

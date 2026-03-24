@@ -1,5 +1,5 @@
-import type { Task, RepeatRule } from './types'
-import { addDays, addWeeks, addMonths, addYears, format, parseISO, isAfter, isBefore, isEqual } from 'date-fns'
+import type { Task } from './types'
+import { addDays, addWeeks, addMonths, addYears, format, parseISO, isAfter } from 'date-fns'
 
 export function generateId(): string {
   return Math.random().toString(36).slice(2) + Date.now().toString(36)

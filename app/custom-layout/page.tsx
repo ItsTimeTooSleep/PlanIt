@@ -26,7 +26,7 @@ import { WidgetLayerManager } from '@/components/widget-panel/widget-layer-manag
 import { WidgetStoreProvider, useWidgetStore } from '@/components/widget-store-provider'
 import { useLanguage } from '@/lib/store'
 import { cn } from '@/lib/utils'
-import type { WidgetType, CanvasSize } from '@/lib/widget-types'
+import type { WidgetType } from '@/lib/widget-types'
 import { DEFAULT_CANVAS_SIZE } from '@/lib/widget-layout-manager'
 
 interface LayoutMenuItemProps {

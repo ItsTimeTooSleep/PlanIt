@@ -103,10 +103,19 @@ export function TodoWidget({ id, config, className, onCollapsedChange, onTaskCli
 
   const overdueTasks = useMemo(() => {
     if (!showOverdue) return []
+    const now = new Date()
     return state.tasks
       .filter(task => {
+        if (task.status !== 'pending') return false
         const taskDate = parseISO(task.date)
-        return task.status === 'pending' && isBefore(taskDate, today)
+        if (isBefore(taskDate, today)) return true
+        if (isToday(taskDate) && !task.isAllDay && task.endTime) {
+          const [hours, minutes] = task.endTime.split(':').map(Number)
+          const endDateTime = new Date()
+          endDateTime.setHours(hours, minutes, 0, 0)
+          if (now > endDateTime) return true
+        }
+        return false
       })
       .sort((a, b) => a.date.localeCompare(b.date))
       .slice(0, 3)
@@ -153,10 +162,7 @@ export function TodoWidget({ id, config, className, onCollapsedChange, onTaskCli
   const showFutureLink = futureTasksCount > 0 && containerSize.height >= 150
   const headerHeight = headerRef.current?.offsetHeight || (sizeMode === 'compact' ? 32 : 48)
   const contentPadding = sizeMode === 'compact' ? 8 : 16
-  const overdueSectionHeight = showOverdueSection ? 40 : 0
-  const futureLinkHeight = showFutureLink ? (sizeMode === 'compact' ? 28 : 36) : 0
-  const staticContentHeight = overdueSectionHeight + futureLinkHeight + contentPadding
-  const availableHeight = Math.max(containerSize.height - headerHeight - staticContentHeight, 100)
+  const availableHeight = Math.max(containerSize.height - headerHeight - contentPadding, 100)
   const showTaskTime = showTime && sizeMode !== 'compact'
   const showTaskTags = showTags && sizeMode !== 'compact'
 
@@ -296,12 +302,12 @@ export function TodoWidget({ id, config, className, onCollapsedChange, onTaskCli
                       ))}
                     </div>
                   </div>
-                ) : (
+                ) : !showOverdueSection ? (
                   <div className={cn('text-center', sizeMode === 'compact' ? 'py-3' : 'py-6')}>
                     <CheckSquare className={cn('mx-auto text-muted-foreground/30 mb-2', sizeMode === 'compact' ? 'w-5 h-5' : 'w-8 h-8')} />
                     <p className={cn('text-muted-foreground', taskTitleSize)}>{t.todo.noTasks}</p>
                   </div>
-                )}
+                ) : null}
 
                 {showFutureLink && (
                   <div

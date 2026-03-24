@@ -70,6 +70,13 @@ export interface PlatformCapabilities {
   supportsFocusMode: boolean
 }
 
+export interface TrayMenuState {
+  pomodoroRunning: boolean
+  pomodoroPhase: string
+  focusModeActive: boolean
+  windowVisible: boolean
+}
+
 export interface PlatformAPI {
   capabilities: PlatformCapabilities
   
@@ -84,6 +91,8 @@ export interface PlatformAPI {
   getCloseBehavior: () => Promise<'exit' | 'tray'>
   
   onTrayEvent: (callback: (eventId: string) => void) => () => void
+  
+  updateTrayMenu: (state: TrayMenuState) => Promise<void>
   
   registerGlobalShortcut: (config: GlobalShortcutConfig) => Promise<boolean>
   unregisterGlobalShortcut: (accelerator: string) => Promise<void>
@@ -166,6 +175,10 @@ const webAPI: PlatformAPI = {
     return () => {}
   },
   
+  updateTrayMenu: async () => {
+    console.warn('[Platform] System tray is not supported on web platform')
+  },
+  
   registerGlobalShortcut: async () => {
     console.warn('[Platform] Global shortcuts are not supported on web platform')
     return false
@@ -246,7 +259,6 @@ const webAPI: PlatformAPI = {
 }
 
 let cachedPlatformAPI: PlatformAPI | null = null
-let cachedCapabilities: PlatformCapabilities | null = null
 
 /**
  * 检测当前平台类型
@@ -429,6 +441,17 @@ async function createTauriAPI(platform: PlatformType): Promise<PlatformAPI> {
       }
     },
     
+    updateTrayMenu: async (state: TrayMenuState) => {
+      await invoke('update_tray_menu', {
+        state: {
+          pomodoro_running: state.pomodoroRunning,
+          pomodoro_phase: state.pomodoroPhase,
+          focus_mode_active: state.focusModeActive,
+          window_visible: state.windowVisible,
+        },
+      })
+    },
+    
     registerGlobalShortcut: async (config: GlobalShortcutConfig) => {
       return await invoke<boolean>('register_global_shortcut', {
         accelerator: config.accelerator,
@@ -509,6 +532,11 @@ async function createTauriAPI(platform: PlatformType): Promise<PlatformAPI> {
       await getCurrentWindow().close()
     },
     
+    hideWindow: async () => {
+      const win = getCurrentWindow()
+      await win.hide()
+    },
+    
     writeToClipboard: async (text: string) => {
       await invoke('write_clipboard', { text })
     },
@@ -558,6 +586,7 @@ interface TauriGlobalAPI {
       minimize: () => Promise<void>
       close: () => Promise<void>
       show: () => Promise<void>
+      hide: () => Promise<void>
       setFocus: () => Promise<void>
       setPosition: (pos: { type: 'Physical'; x: number; y: number }) => Promise<void>
       setSize: (size: { type: 'Physical'; width: number; height: number }) => Promise<void>
@@ -600,6 +629,7 @@ async function loadTauriModules(): Promise<{
     minimize: () => Promise<void>
     close: () => Promise<void>
     show: () => Promise<void>
+    hide: () => Promise<void>
     setFocus: () => Promise<void>
     setPosition: (pos: { type: 'Physical'; x: number; y: number }) => Promise<void>
     setSize: (size: { type: 'Physical'; width: number; height: number }) => Promise<void>
@@ -626,7 +656,6 @@ async function loadTauriModules(): Promise<{
  */
 export function resetPlatformCache(): void {
   cachedPlatformAPI = null
-  cachedCapabilities = null
 }
 
 export const platform = {

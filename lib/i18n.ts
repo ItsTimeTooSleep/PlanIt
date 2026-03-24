@@ -243,7 +243,7 @@ const zh = {
     importPomodoro: '番茄钟状态',
     about: '关于',
     aboutDesc: 'PlanIt — 学生个人时间管理应用',
-    version: '版本 0.0.1',
+    versionPrefix: '版本 ',
     madeWith: '用心制作',
     author: '作者',
     sponsor: '赞助支持',
@@ -625,7 +625,7 @@ const en = {
     importPomodoro: 'Pomodoro State',
     about: 'About',
     aboutDesc: 'PlanIt — Student Time Management App',
-    version: 'Version 0.0.1',
+    versionPrefix: 'Version ',
     madeWith: 'Made with care',
     author: 'Author',
     sponsor: 'Sponsor',
@@ -996,7 +996,7 @@ export type Translations = {
     readonly importPomodoro: string
     readonly about: string
     readonly aboutDesc: string
-    readonly version: string
+    readonly versionPrefix: string
     readonly madeWith: string
     readonly author: string
     readonly sponsor: string

@@ -6,7 +6,6 @@ import type {
   WidgetCategory,
   WidgetMetadata,
   BaseWidgetProps,
-  DEFAULT_WIDGET_CONFIGS,
 } from './widget-types'
 
 export const WIDGET_METADATA: Record<WidgetType, WidgetMetadata> = {

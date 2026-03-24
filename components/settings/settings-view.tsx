@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useLanguage } from '@/lib/store'
 import { useTranslations } from '@/lib/i18n'
 import { ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { AppIcon } from '@/components/app-icon'
+import { getAppVersion } from '@/lib/version'
 import {
   GeneralSettings,
   TagManagement,
@@ -18,6 +19,11 @@ export function SettingsView() {
   const lang = useLanguage()
   const t = useTranslations(lang)
   const [expandedSection, setExpandedSection] = useState<string | null>('general')
+  const [appVersion, setAppVersion] = useState<string>('')
+
+  useEffect(() => {
+    getAppVersion().then(setAppVersion).catch(() => setAppVersion(''))
+  }, [])
 
   return (
     <div className="flex flex-col h-[calc(100vh-2.25rem)] overflow-y-auto ml-16">
@@ -83,7 +89,9 @@ export function SettingsView() {
               <AppIcon size={32} variant="inverted" />
               <div>
                 <p className="text-sm font-medium">PlanIt</p>
-                <p className="text-xs text-muted-foreground">{t.settings.version}</p>
+                <p className="text-xs text-muted-foreground">
+                  {appVersion ? `${t.settings.versionPrefix || (lang === 'zh' ? '版本 ' : 'Version ')}${appVersion}` : ''}
+                </p>
               </div>
             </div>
             <p className="text-xs text-muted-foreground">{t.settings.madeWith}</p>

@@ -5,7 +5,7 @@ import { isDesktop } from './platform'
 
 const LOG_PREFIX = '[PlanIt Notification]'
 
-let scheduledIds: Map<string, ReturnType<typeof setTimeout>> = new Map()
+const scheduledIds: Map<string, ReturnType<typeof setTimeout>> = new Map()
 let permissionChecked = false
 
 async function checkAndRequestPermission(): Promise<boolean> {

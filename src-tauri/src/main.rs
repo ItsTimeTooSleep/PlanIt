@@ -5,8 +5,8 @@ use planit_lib::{
     is_focus_mode_active_impl, open_file_picker_impl, read_clipboard_impl, read_file_impl,
     register_global_shortcut_impl, save_file_picker_impl, set_auto_launch_impl,
     show_notification_impl, unregister_global_shortcut_impl, write_clipboard_impl,
-    write_file_impl, set_close_behavior_impl, get_close_behavior_impl,
-    FileDialogOptions, PlatformInfo,
+    write_file_impl, set_close_behavior_impl, get_close_behavior_impl, update_tray_menu_impl,
+    FileDialogOptions, PlatformInfo, TrayMenuState,
 };
 
 #[tauri::command]
@@ -112,6 +112,14 @@ async fn get_close_behavior() -> Result<String, String> {
     get_close_behavior_impl()
 }
 
+#[tauri::command]
+async fn update_tray_menu(
+    app: tauri::AppHandle,
+    state: TrayMenuState,
+) -> Result<(), String> {
+    update_tray_menu_impl(&app, state)
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
@@ -144,11 +152,12 @@ fn main() {
             is_focus_mode_active,
             set_close_behavior,
             get_close_behavior,
+            update_tray_menu,
         ])
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                 let close_behavior = planit_lib::CLOSE_BEHAVIOR.read().unwrap();
-                if close_behavior == "tray" {
+                if &*close_behavior == "tray" {
                     api.prevent_close();
                     window.hide().unwrap();
                 }

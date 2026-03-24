@@ -15,7 +15,7 @@ import { DateNoteModal } from './date-note-modal'
 import type { Task } from '@/lib/types'
 import {
   addWeeks, subWeeks, addMonths, subMonths,
-  startOfWeek, endOfWeek, startOfMonth, endOfMonth,
+  startOfWeek, endOfWeek,
   format,
 } from 'date-fns'
 
@@ -24,7 +24,7 @@ type CalView = 'week' | 'month'
 export function CalendarView() {
   const lang = useLanguage()
   const t = useTranslations(lang)
-  const { state, updateTask, deleteTasks, updateSettings, undo, redo, canUndo, canRedo } = useStore()
+  const { state, deleteTasks, updateSettings, undo, redo, canUndo, canRedo } = useStore()
 
   const [view, setView] = useState<CalView>('week')
   const [referenceDate, setReferenceDate] = useState(new Date())
@@ -205,18 +205,13 @@ export function CalendarView() {
   }, [selectMode])
 
   // Title
-  let title = ''
-  if (view === 'week') {
-    const start = startOfWeek(referenceDate, { weekStartsOn: 0 })
-    const end = endOfWeek(referenceDate, { weekStartsOn: 0 })
-    if (lang === 'zh') {
-      title = `${format(start, 'M月d日')} – ${format(end, 'M月d日')}`
-    } else {
-      title = `${format(start, 'MMM d')} – ${format(end, 'MMM d, yyyy')}`
-    }
-  } else {
-    title = lang === 'zh' ? format(referenceDate, 'yyyy年M月') : format(referenceDate, 'MMMM yyyy')
-  }
+  const title = view === 'week'
+    ? lang === 'zh'
+      ? `${format(startOfWeek(referenceDate, { weekStartsOn: 0 }), 'M月d日')} – ${format(endOfWeek(referenceDate, { weekStartsOn: 0 }), 'M月d日')}`
+      : `${format(startOfWeek(referenceDate, { weekStartsOn: 0 }), 'MMM d')} – ${format(endOfWeek(referenceDate, { weekStartsOn: 0 }), 'MMM d, yyyy')}`
+    : lang === 'zh'
+      ? format(referenceDate, 'yyyy年M月')
+      : format(referenceDate, 'MMMM yyyy')
 
   return (
     <div className="flex flex-col h-[calc(100vh-2.25rem)] ml-16">
@@ -503,7 +498,7 @@ export function CalendarView() {
             {t.task.deleteConfirm}
             {taskToDelete && (
               <span className="block mt-2 font-medium text-foreground">
-                "{taskToDelete.title}"
+                &ldquo;{taskToDelete.title}&rdquo;
               </span>
             )}
           </p>

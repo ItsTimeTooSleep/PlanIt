@@ -14,6 +14,8 @@ export default [
       "src-tauri/**",
       "*.config.*",
       "public/**",
+      "out/**",
+      "scripts/**",
     ],
   },
   js.configs.recommended,

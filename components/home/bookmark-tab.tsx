@@ -36,7 +36,7 @@ export function BookmarkTab({ className }: BookmarkTabProps) {
 
   return (
     <div
-      className={cn('fixed right-0 top-4 z-50', className)}
+      className={cn('fixed right-0 top-12 z-50', className)}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -44,9 +44,9 @@ export function BookmarkTab({ className }: BookmarkTabProps) {
         onClick={handleClick}
         className="relative flex items-center justify-center transition-all duration-300 ease-out"
         style={{
-          width: isHovered ? '120px' : '32px',
-          height: '64px',
-          borderRadius: isHovered ? '12px 0 0 12px' : '8px 0 0 8px',
+          width: isHovered ? '100px' : '28px',
+          height: '52px',
+          borderRadius: isHovered ? '10px 0 0 10px' : '6px 0 0 6px',
           backgroundColor: 'oklch(0.52 0.18 260)',
           color: 'white',
           boxShadow: '0 4px 20px rgba(0,0,0,0.15)',

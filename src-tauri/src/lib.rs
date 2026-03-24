@@ -1,16 +1,35 @@
 use serde::{Deserialize, Serialize};
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::RwLock;
+use std::sync::{LazyLock, RwLock};
 use tauri::{
     menu::{Menu, MenuItem, Submenu},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    AppHandle, Emitter, Manager, Runtime,
+    AppHandle, Emitter, Manager, Wry,
 };
 
 mod keyboard_hook;
 
 pub static FOCUS_MODE_ACTIVE: AtomicBool = AtomicBool::new(false);
-pub static CLOSE_BEHAVIOR: RwLock<String> = RwLock::new(String::from("exit"));
+pub static CLOSE_BEHAVIOR: LazyLock<RwLock<String>> = LazyLock::new(|| RwLock::new(String::from("exit")));
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TrayMenuState {
+    pub pomodoro_running: bool,
+    pub pomodoro_phase: String,
+    pub focus_mode_active: bool,
+    pub window_visible: bool,
+}
+
+pub struct TrayMenuItems {
+    pub show_item: MenuItem<Wry>,
+    pub hide_item: MenuItem<Wry>,
+    pub start_focus_item: MenuItem<Wry>,
+    pub stop_focus_item: MenuItem<Wry>,
+    pub short_break_item: MenuItem<Wry>,
+    pub long_break_item: MenuItem<Wry>,
+    pub enter_focus_mode_item: MenuItem<Wry>,
+    pub exit_focus_mode_item: MenuItem<Wry>,
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct PlatformInfo {
@@ -243,12 +262,12 @@ pub fn get_close_behavior_impl() -> Result<String, String> {
     Ok(close_behavior.clone())
 }
 
-pub fn setup_system_tray<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn std::error::Error>> {
+pub fn setup_system_tray(app: &AppHandle<Wry>) -> Result<(), Box<dyn std::error::Error>> {
     let show_item = MenuItem::with_id(app, "show", "显示主窗口", true, None::<&str>)?;
     let hide_item = MenuItem::with_id(app, "hide", "隐藏到托盘", true, None::<&str>)?;
     
     let start_focus_item = MenuItem::with_id(app, "start-focus", "开始专注", true, None::<&str>)?;
-    let stop_focus_item = MenuItem::with_id(app, "stop-focus", "停止专注", true, None::<&str>)?;
+    let stop_focus_item = MenuItem::with_id(app, "stop-focus", "停止专注", false, None::<&str>)?;
     let short_break_item = MenuItem::with_id(app, "short-break", "休息5分钟", true, None::<&str>)?;
     let long_break_item = MenuItem::with_id(app, "long-break", "休息15分钟", true, None::<&str>)?;
     let pomodoro_submenu = Submenu::with_items(
@@ -264,7 +283,7 @@ pub fn setup_system_tray<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn s
     )?;
     
     let enter_focus_mode_item = MenuItem::with_id(app, "enter-focus-mode", "进入聚焦模式", true, None::<&str>)?;
-    let exit_focus_mode_item = MenuItem::with_id(app, "exit-focus-mode", "退出聚焦模式", true, None::<&str>)?;
+    let exit_focus_mode_item = MenuItem::with_id(app, "exit-focus-mode", "退出聚焦模式", false, None::<&str>)?;
     let focus_mode_submenu = Submenu::with_items(
         app,
         "聚焦模式",
@@ -292,7 +311,20 @@ pub fn setup_system_tray<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn s
         ],
     )?;
     
-    let _tray = TrayIconBuilder::new()
+    let menu_items = TrayMenuItems {
+        show_item: show_item.clone(),
+        hide_item: hide_item.clone(),
+        start_focus_item: start_focus_item.clone(),
+        stop_focus_item: stop_focus_item.clone(),
+        short_break_item: short_break_item.clone(),
+        long_break_item: long_break_item.clone(),
+        enter_focus_mode_item: enter_focus_mode_item.clone(),
+        exit_focus_mode_item: exit_focus_mode_item.clone(),
+    };
+    
+    app.manage(menu_items);
+    
+    let _tray = TrayIconBuilder::with_id("main")
         .icon(app.default_window_icon().unwrap().clone())
         .tooltip("PlanIt - 专注效率")
         .menu(&menu)
@@ -366,6 +398,21 @@ pub fn setup_system_tray<R: Runtime>(app: &AppHandle<R>) -> Result<(), Box<dyn s
             }
         })
         .build(app)?;
+    
+    Ok(())
+}
+
+pub fn update_tray_menu_impl(app: &AppHandle<Wry>, state: TrayMenuState) -> Result<(), String> {
+    let menu_items = app.state::<TrayMenuItems>();
+    
+    let _ = menu_items.show_item.set_enabled(!state.window_visible);
+    let _ = menu_items.hide_item.set_enabled(state.window_visible);
+    let _ = menu_items.start_focus_item.set_enabled(!state.pomodoro_running);
+    let _ = menu_items.stop_focus_item.set_enabled(state.pomodoro_running);
+    let _ = menu_items.short_break_item.set_enabled(!state.pomodoro_running);
+    let _ = menu_items.long_break_item.set_enabled(!state.pomodoro_running);
+    let _ = menu_items.enter_focus_mode_item.set_enabled(!state.focus_mode_active);
+    let _ = menu_items.exit_focus_mode_item.set_enabled(state.focus_mode_active);
     
     Ok(())
 }

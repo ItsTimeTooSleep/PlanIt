@@ -1,10 +1,12 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { SystemTrayManager } from '@/components/desktop'
 import { usePlatform, useDesktopOnly } from '@/components/platform-provider'
 import { usePomodoroDialog } from '@/lib/pomodoro-context'
+import { useStore } from '@/lib/store'
+import type { TrayMenuState } from '@/lib/platform'
 
 /**
  * 桌面端管理组件
@@ -15,14 +17,56 @@ export function DesktopManager() {
   const router = useRouter()
   const { api } = usePlatform()
   const { startPomodoro, startShortBreak, startLongBreak, stopPomodoro } = usePomodoroDialog()
+  const { state } = useStore()
+  const { pomodoro } = state
+  
+  const [focusModeActive, setFocusModeActive] = useState(false)
+  const [windowVisible, setWindowVisible] = useState(true)
+
+  useEffect(() => {
+    if (!api) return
+    
+    const checkFocusMode = async () => {
+      try {
+        const isActive = await api.isFocusModeActive()
+        setFocusModeActive(isActive)
+      } catch (error) {
+        console.error('[DesktopManager] Failed to check focus mode:', error)
+      }
+    }
+    
+    checkFocusMode()
+  }, [api])
+
+  useEffect(() => {
+    if (!api) return
+    
+    const updateMenu = async () => {
+      const menuState: TrayMenuState = {
+        pomodoroRunning: pomodoro.status === 'running' || pomodoro.status === 'paused',
+        pomodoroPhase: pomodoro.phase,
+        focusModeActive,
+        windowVisible,
+      }
+      
+      try {
+        await api.updateTrayMenu(menuState)
+      } catch (error) {
+        console.error('[DesktopManager] Failed to update tray menu:', error)
+      }
+    }
+    
+    updateMenu()
+  }, [api, pomodoro.status, pomodoro.phase, focusModeActive, windowVisible])
 
   const handleShowWindow = useCallback(async () => {
     if (!api) return
-    await api.getWindowState()
+    setWindowVisible(true)
   }, [api])
 
   const handleHideWindow = useCallback(async () => {
     if (!api) return
+    setWindowVisible(false)
   }, [api])
 
   const handleStartPomodoro = useCallback(() => {
@@ -44,11 +88,13 @@ export function DesktopManager() {
   const handleEnterFocusMode = useCallback(async () => {
     if (!api) return
     await api.enterFocusMode()
+    setFocusModeActive(true)
   }, [api])
 
   const handleExitFocusMode = useCallback(async () => {
     if (!api) return
     await api.exitFocusMode()
+    setFocusModeActive(false)
   }, [api])
 
   const handleOpenSettings = useCallback(() => {

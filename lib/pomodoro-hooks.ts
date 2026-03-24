@@ -143,7 +143,7 @@ export function usePomodoro() {
 
   const startPomodoro = useCallback((taskId?: string) => {
     let duration: number
-    let targetTaskId: string | null = taskId ?? null
+    const targetTaskId: string | null = taskId ?? null
     let initialStatus: 'idle' | 'running' = 'idle'
 
     if (taskId) {

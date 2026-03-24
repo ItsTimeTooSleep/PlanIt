@@ -1,14 +1,13 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Progress } from '@/components/ui/progress'
-import { useDesktopOnly, usePlatform } from '@/components/platform-provider'
+import { usePlatform } from '@/components/platform-provider'
 import { useLanguage } from '@/lib/store'
 import { FocusModeExitDialog } from './focus-mode-exit-dialog'
-import { Play, Pause, Square, Shield, Zap, Target, Timer, AlertCircle } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Play, Pause, Shield, Zap, Target, Timer, AlertCircle } from 'lucide-react'
 import { POMODORO_COLORS } from '@/lib/colors'
 
 interface FocusModeProps {
@@ -63,19 +62,24 @@ export function FocusMode({
 }: FocusModeProps) {
   const lang = useLanguage()
   const isZh = lang === 'zh'
-  const { api, capabilities } = usePlatform()
+  const { api } = usePlatform()
   const [showEnterConfirm, setShowEnterConfirm] = useState(false)
   const [showExitDialog, setShowExitDialog] = useState(false)
-  const [isExiting, setIsExiting] = useState(false)
   const [enterEncouragement, setEnterEncouragement] = useState('')
   const [focusModeActive, setFocusModeActive] = useState(false)
+
+  const randomizeEnterEncouragement = useCallback(() => {
+    const phrases = isZh ? ENTER_ENCOURAGEMENT_ZH : ENTER_ENCOURAGEMENT_EN
+    const randomIndex = Math.floor(Math.random() * phrases.length)
+    setEnterEncouragement(phrases[randomIndex])
+  }, [isZh])
 
   useEffect(() => {
     if (isOpen) {
       setShowEnterConfirm(true)
       randomizeEnterEncouragement()
     }
-  }, [isOpen])
+  }, [isOpen, randomizeEnterEncouragement])
 
   useEffect(() => {
     return () => {
@@ -84,12 +88,6 @@ export function FocusMode({
       }
     }
   }, [focusModeActive, api])
-
-  function randomizeEnterEncouragement() {
-    const phrases = isZh ? ENTER_ENCOURAGEMENT_ZH : ENTER_ENCOURAGEMENT_EN
-    const randomIndex = Math.floor(Math.random() * phrases.length)
-    setEnterEncouragement(phrases[randomIndex])
-  }
 
   const handleEnterConfirm = useCallback(async () => {
     setShowEnterConfirm(false)
@@ -117,7 +115,6 @@ export function FocusMode({
 
   const handleExitConfirm = useCallback(async () => {
     setShowExitDialog(false)
-    setIsExiting(true)
     if (api?.capabilities.supportsFocusMode) {
       try {
         await api.exitFocusMode()
