@@ -1,6 +1,6 @@
 [package]
 name = "planit"
-version = "1.0.0"
+version = "0.1.0"
 description = "PlanIt - 智能时间管理应用"
 authors = ["ItsTimeTooSleep"]
 edition = "2021"
