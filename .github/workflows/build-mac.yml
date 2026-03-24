@@ -1,6 +1,9 @@
 name: Build Mac App
 
 on:
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch:
     inputs:
       target:
@@ -15,6 +18,9 @@ on:
 jobs:
   build-mac:
     runs-on: macos-latest
+    strategy:
+      matrix:
+        target: [aarch64-apple-darwin, x86_64-apple-darwin]
 
     steps:
       - name: Checkout repository
@@ -55,45 +61,54 @@ jobs:
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ github.event.inputs.target }}
+          targets: ${{ matrix.target }}
 
       - name: Setup Rust cache
         uses: swatinem/rust-cache@v2
         with:
           workspaces: |
             src-tauri
-          key: ${{ github.event.inputs.target }}
+          key: ${{ matrix.target }}
 
       - name: Cache Tauri build artifacts
         uses: actions/cache@v4
         with:
           path: |
             src-tauri/target
-          key: ${{ runner.os }}-tauri-build-${{ github.event.inputs.target }}-${{ hashFiles('**/Cargo.lock', 'src-tauri/src/**/*') }}
+          key: ${{ runner.os }}-tauri-build-${{ matrix.target }}-${{ hashFiles('**/Cargo.lock', 'src-tauri/src/**/*') }}
           restore-keys: |
-            ${{ runner.os }}-tauri-build-${{ github.event.inputs.target }}-
+            ${{ runner.os }}-tauri-build-${{ matrix.target }}-
             ${{ runner.os }}-tauri-build-
 
       - name: Install frontend dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Sync version
+        run: node scripts/sync-version.js
+
+      - name: Read version
+        id: version
+        run: |
+          VERSION=$(cat VERSION)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: 'PlanIt v__VERSION__'
+          tagName: v${{ steps.version.outputs.version }}
+          releaseName: 'PlanIt v${{ steps.version.outputs.version }}'
           releaseBody: 'See the assets to download this version.'
           releaseDraft: true
           prerelease: false
-          args: --target ${{ github.event.inputs.target }}
+          args: --target ${{ matrix.target }}
 
       - name: Upload macOS app artifact
         uses: actions/upload-artifact@v4
         with:
-          name: PlanIt-macOS-${{ github.event.inputs.target }}
+          name: PlanIt-macOS-${{ matrix.target }}
           path: |
-            src-tauri/target/${{ github.event.inputs.target }}/release/bundle/macos/*.app
-            src-tauri/target/${{ github.event.inputs.target }}/release/bundle/dmg/*.dmg
+            src-tauri/target/${{ matrix.target }}/release/bundle/macos/*.app
+            src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
           retention-days: 7
