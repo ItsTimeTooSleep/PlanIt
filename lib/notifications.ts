@@ -1,11 +1,17 @@
 'use client'
 
-import type { Task } from './types'
+import type { Task, NotificationSettings } from './types'
 import { isDesktop } from './platform'
 
 const LOG_PREFIX = '[PlanIt Notification]'
 
-const scheduledIds: Map<string, ReturnType<typeof setTimeout>> = new Map()
+interface ScheduledNotification {
+  advanceTimeoutId?: ReturnType<typeof setTimeout>
+  startTimeoutId?: ReturnType<typeof setTimeout>
+  endTimeoutId?: ReturnType<typeof setTimeout>
+}
+
+const scheduledIds: Map<string, ScheduledNotification> = new Map()
 let permissionChecked = false
 
 async function checkAndRequestPermission(): Promise<boolean> {
@@ -136,7 +142,14 @@ async function showNotification(title: string, body: string, tag: string): Promi
   }
 }
 
-export function scheduleTaskNotification(task: Task, title: string, body?: string) {
+export function scheduleTaskNotification(
+  task: Task, 
+  startTitle: string, 
+  startBody?: string, 
+  settings?: NotificationSettings,
+  endTitle?: string,
+  endBody?: string
+) {
   console.log(`${LOG_PREFIX} scheduleTaskNotification called for task:`, {
     taskId: task.id,
     taskTitle: task.title,
@@ -144,8 +157,7 @@ export function scheduleTaskNotification(task: Task, title: string, body?: strin
     startTime: task.startTime,
     endTime: task.endTime,
     isAllDay: task.isAllDay,
-    notificationTitle: title,
-    notificationBody: body,
+    settings,
   })
   
   if (typeof window === 'undefined') {
@@ -181,52 +193,112 @@ export function scheduleTaskNotification(task: Task, title: string, body?: strin
     return
   }
 
-  const [year, month, day] = task.date.split('-').map(Number)
-  const [h, m] = task.startTime.split(':').map(Number)
-  const taskDate = new Date(year, month - 1, day, h, m, 0, 0)
-
-  const now = Date.now()
-  const delay = taskDate.getTime() - now
-  
-  console.log(`${LOG_PREFIX} Task scheduled time:`, taskDate.toISOString())
-  console.log(`${LOG_PREFIX} Current time:`, new Date(now).toISOString())
-  console.log(`${LOG_PREFIX} Delay until notification:`, delay, 'ms', `(${Math.round(delay / 1000)} seconds)`)
-  
-  if (delay < 0) {
-    console.warn(`${LOG_PREFIX} Task time is in the past, skipping notification`)
-    return
-  }
-
   cancelTaskNotification(task.id)
   console.log(`${LOG_PREFIX} Cancelled any existing notification for task ${task.id}`)
 
-  const id = setTimeout(() => {
-    console.log(`${LOG_PREFIX} Timer fired for task ${task.id}, showing notification...`)
-    showNotification(
-      title,
-      body ?? `${task.startTime} – ${task.endTime ?? ''}`,
-      task.id
-    ).catch((error) => {
-      console.error(`${LOG_PREFIX} Error in showNotification promise:`, error)
-    })
-    scheduledIds.delete(task.id)
-    console.log(`${LOG_PREFIX} Removed task ${task.id} from scheduled notifications`)
-  }, delay)
+  const [year, month, day] = task.date.split('-').map(Number)
+  const [startH, startM] = task.startTime.split(':').map(Number)
+  const taskStartDate = new Date(year, month - 1, day, startH, startM, 0, 0)
 
-  scheduledIds.set(task.id, id)
-  console.log(`${LOG_PREFIX} Notification scheduled for task ${task.id}, timeout ID:`, id)
-  console.log(`${LOG_PREFIX} Total scheduled notifications:`, scheduledIds.size)
+  const now = Date.now()
+  const scheduled: ScheduledNotification = {}
+  const safeSettings = settings || { enabled: false, advanceMinutes: null, showStartNotification: false, showEndNotification: false }
+
+  if (safeSettings.advanceMinutes !== null && safeSettings.advanceMinutes !== undefined) {
+    const advanceDate = new Date(taskStartDate.getTime() - safeSettings.advanceMinutes * 60 * 1000)
+    const advanceDelay = advanceDate.getTime() - now
+    
+    console.log(`${LOG_PREFIX} Advance notification time:`, advanceDate.toISOString())
+    console.log(`${LOG_PREFIX} Advance delay:`, advanceDelay, 'ms')
+    
+    if (advanceDelay >= 0) {
+      scheduled.advanceTimeoutId = setTimeout(() => {
+        console.log(`${LOG_PREFIX} Advance timer fired for task ${task.id}, showing notification...`)
+        showNotification(
+          startTitle,
+          startBody ?? `${task.startTime} – ${task.endTime ?? ''}`,
+          `${task.id}-advance`
+        ).catch((error) => {
+          console.error(`${LOG_PREFIX} Error in advance showNotification promise:`, error)
+        })
+        const current = scheduledIds.get(task.id)
+        if (current) {
+          delete current.advanceTimeoutId
+        }
+      }, advanceDelay)
+    }
+  }
+
+  if (safeSettings.showStartNotification) {
+    const startDelay = taskStartDate.getTime() - now
+    
+    console.log(`${LOG_PREFIX} Task start time:`, taskStartDate.toISOString())
+    console.log(`${LOG_PREFIX} Start delay:`, startDelay, 'ms')
+    
+    if (startDelay >= 0) {
+      scheduled.startTimeoutId = setTimeout(() => {
+        console.log(`${LOG_PREFIX} Start timer fired for task ${task.id}, showing notification...`)
+        showNotification(
+          startTitle,
+          startBody ?? `${task.startTime} – ${task.endTime ?? ''}`,
+          `${task.id}-start`
+        ).catch((error) => {
+          console.error(`${LOG_PREFIX} Error in start showNotification promise:`, error)
+        })
+        const current = scheduledIds.get(task.id)
+        if (current) {
+          delete current.startTimeoutId
+        }
+      }, startDelay)
+    }
+  }
+
+  if (safeSettings.showEndNotification && task.endTime) {
+    const [endH, endM] = task.endTime.split(':').map(Number)
+    const taskEndDate = new Date(year, month - 1, day, endH, endM, 0, 0)
+    const endDelay = taskEndDate.getTime() - now
+    
+    console.log(`${LOG_PREFIX} Task end time:`, taskEndDate.toISOString())
+    console.log(`${LOG_PREFIX} End delay:`, endDelay, 'ms')
+    
+    if (endDelay >= 0) {
+      scheduled.endTimeoutId = setTimeout(() => {
+        console.log(`${LOG_PREFIX} End timer fired for task ${task.id}, showing notification...`)
+        showNotification(
+          endTitle ?? startTitle,
+          endBody ?? `${task.startTime} – ${task.endTime}`,
+          `${task.id}-end`
+        ).catch((error) => {
+          console.error(`${LOG_PREFIX} Error in end showNotification promise:`, error)
+        })
+        const current = scheduledIds.get(task.id)
+        if (current) {
+          delete current.endTimeoutId
+        }
+      }, endDelay)
+    }
+  }
+
+  scheduledIds.set(task.id, scheduled)
+  console.log(`${LOG_PREFIX} Notifications scheduled for task ${task.id}`)
+  console.log(`${LOG_PREFIX} Total tasks with scheduled notifications:`, scheduledIds.size)
 }
 
 export function cancelTaskNotification(taskId: string) {
   const existing = scheduledIds.get(taskId)
-  if (existing !== undefined) {
-    clearTimeout(existing)
+  if (existing) {
+    if (existing.advanceTimeoutId) clearTimeout(existing.advanceTimeoutId)
+    if (existing.startTimeoutId) clearTimeout(existing.startTimeoutId)
+    if (existing.endTimeoutId) clearTimeout(existing.endTimeoutId)
     scheduledIds.delete(taskId)
   }
 }
 
 export function cancelAllNotifications() {
-  scheduledIds.forEach(id => clearTimeout(id))
+  scheduledIds.forEach((scheduled) => {
+    if (scheduled.advanceTimeoutId) clearTimeout(scheduled.advanceTimeoutId)
+    if (scheduled.startTimeoutId) clearTimeout(scheduled.startTimeoutId)
+    if (scheduled.endTimeoutId) clearTimeout(scheduled.endTimeoutId)
+  })
   scheduledIds.clear()
 }

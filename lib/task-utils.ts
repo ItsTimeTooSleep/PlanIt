@@ -28,8 +28,12 @@ export function taskDurationHours(task: Task): number {
 /** Generate all task instances for a repeat rule, up to maxDays out */
 export function expandRepeatTasks(task: Task, maxDays = 90): Task[] {
   if (task.repeatRule.frequency === 'none') return []
+  if (!task.date && !task.dueDate) return []
 
-  const base = parseISO(task.date)
+  const dateToUse = task.date || task.dueDate
+  if (!dateToUse) return []
+
+  const base = parseISO(dateToUse)
   const endDate = task.repeatRule.endDate ? parseISO(task.repeatRule.endDate) : addDays(base, maxDays)
   const instances: Task[] = []
   let current = base
@@ -67,7 +71,8 @@ export function expandRepeatTasks(task: Task, maxDays = 90): Task[] {
     instances.push({
       ...task,
       id: generateId(),
-      date: format(current, 'yyyy-MM-dd'),
+      date: task.date ? format(current, 'yyyy-MM-dd') : undefined,
+      dueDate: task.dueDate ? format(current, 'yyyy-MM-dd') : undefined,
       repeatRule: { frequency: 'none' },
     })
   }

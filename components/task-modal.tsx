@@ -13,7 +13,7 @@ import { useStore, useLanguage } from '@/lib/store'
 import { useTranslations } from '@/lib/i18n'
 import { generateId, expandRepeatTasks } from '@/lib/task-utils'
 import type { Task, TaskStatus, RepeatFrequency } from '@/lib/types'
-import { format } from 'date-fns'
+import { format, addDays } from 'date-fns'
 import { Plus, Trash2 } from 'lucide-react'
 import { PRESET_TAG_COLORS } from '@/lib/colors'
 
@@ -35,9 +35,11 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
   const { state, addTask, updateTask, deleteTask, deleteTasks } = useStore()
 
   const today = format(new Date(), 'yyyy-MM-dd')
+  const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd')
 
   const [title, setTitle] = useState('')
-  const [date, setDate] = useState(today)
+  const [date, setDate] = useState<string>(today)
+  const [dueDate, setDueDate] = useState<string>(tomorrow)
   const [startTime, setStartTime] = useState('09:00')
   const [endTime, setEndTime] = useState('10:00')
   const [isAllDay, setIsAllDay] = useState(false)
@@ -65,7 +67,8 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
     if (!open) return
     if (task) {
       setTitle(task.title)
-      setDate(task.date)
+      setDate(task.date ?? today)
+      setDueDate(task.dueDate ?? tomorrow)
       setStartTime(task.startTime ?? '09:00')
       setEndTime(task.endTime ?? '10:00')
       setIsAllDay(task.isAllDay)
@@ -80,6 +83,7 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
     } else {
       setTitle('')
       setDate(defaultDate ?? today)
+      setDueDate(tomorrow)
       setStartTime(defaultStartTime ?? '09:00')
       setEndTime(defaultEndTime ?? '10:00')
       setIsAllDay(false)
@@ -99,15 +103,17 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
     setUseCustomColor(false)
     setShowDeleteConfirm(false)
     setDeleteAllRecurring(false)
-  }, [open, task, defaultDate, defaultStartTime, defaultEndTime, today])
+  }, [open, task, defaultDate, defaultStartTime, defaultEndTime, today, tomorrow])
 
   function handleSave() {
     if (!title.trim()) return
+    if (!date && !dueDate) return
 
     const baseTask: Task = {
       id: task?.id ?? generateId(),
       title: title.trim(),
-      date,
+      date: date || undefined,
+      dueDate: dueDate || undefined,
       startTime: isAllDay ? undefined : startTime,
       endTime: isAllDay ? undefined : endTime,
       isAllDay,
@@ -195,10 +201,16 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
             />
           </div>
 
-          {/* Date */}
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="task-date">{t.task.date}</Label>
-            <Input id="task-date" type="date" value={date} onChange={e => setDate(e.target.value)} />
+          {/* Dates */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="task-date">{t.task.date}</Label>
+              <Input id="task-date" type="date" value={date} onChange={e => setDate(e.target.value)} />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="task-due-date">{t.task.dueDate}</Label>
+              <Input id="task-due-date" type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} />
+            </div>
           </div>
 
           {/* All Day */}
@@ -415,7 +427,7 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
             </Button>
           )}
           <Button variant="outline" onClick={onClose}>{t.common.cancel}</Button>
-          <Button onClick={handleSave} disabled={!title.trim()}>{t.common.save}</Button>
+          <Button onClick={handleSave} disabled={!title.trim() || (!date && !dueDate)} title={(!date && !dueDate) ? t.task.dateOrDueDateRequired : undefined}>{t.common.save}</Button>
         </DialogFooter>
 
         {/* Delete Confirmation Dialog */}

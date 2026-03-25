@@ -29,6 +29,7 @@ export function MonthView({ referenceDate, tasks, tags, dateNotes, onOpenTask, o
   const { updateTask } = useStore()
   const dayLabels = lang === 'zh' ? SHORT_DAYS_ZH : SHORT_DAYS_EN
   const [hoveredDate, setHoveredDate] = useState<string | null>(null)
+  const [hoveredDueDate, setHoveredDueDate] = useState<string | null>(null)
 
   const monthStart = startOfMonth(referenceDate)
   const monthEnd = endOfMonth(referenceDate)
@@ -58,9 +59,11 @@ export function MonthView({ referenceDate, tasks, tags, dateNotes, onOpenTask, o
         {days.map(day => {
           const dateStr = format(day, 'yyyy-MM-dd')
           const dayTasks = tasks.filter(t => t.date === dateStr)
+          const dueTasksForDay = tasks.filter(t => t.dueDate === dateStr && t.status !== 'completed')
           const dateNote = dateNotes.find(n => n.date === dateStr)
           const inMonth = isSameMonth(day, referenceDate)
           const isHovered = hoveredDate === dateStr
+          const isHoveredDue = hoveredDueDate === dateStr
 
           return (
             <div
@@ -82,16 +85,54 @@ export function MonthView({ referenceDate, tasks, tags, dateNotes, onOpenTask, o
                 >
                   {format(day, 'd')}
                 </span>
-
-                {dateNote && (
-                  <button
-                    className="p-0.5 rounded hover:bg-muted transition-colors"
-                    onClick={(e) => { e.stopPropagation(); onOpenDateNote(dateStr) }}
-                    title={dateNote.content}
-                  >
-                    <StickyNote className="w-3 h-3 text-warning" />
-                  </button>
-                )}
+                <div className="flex items-center gap-1">
+                  {dueTasksForDay.length > 0 && (
+                    <div className="relative">
+                      <span 
+                        className="text-xs font-semibold bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center cursor-help"
+                        onMouseEnter={() => setHoveredDueDate(dateStr)}
+                        onMouseLeave={() => setHoveredDueDate(null)}
+                      >
+                        {dueTasksForDay.length}
+                      </span>
+                      {isHoveredDue && (
+                        <div className="absolute top-5 right-0 z-50 bg-popover border border-border rounded-lg shadow-lg p-2 min-w-[140px] max-w-[200px]">
+                          <p className="text-xs font-medium text-muted-foreground mb-1.5 border-b border-border pb-1">
+                            {lang === 'zh' ? '即将截止' : 'Due soon'}
+                          </p>
+                          {dueTasksForDay.slice(0, 6).map(task => {
+                            const tag = tags.find(tg => task.tagIds[0] === tg.id)
+                            const color = tag?.color ?? DEFAULT_TAG_COLOR
+                            return (
+                              <div
+                                key={task.id}
+                                className="flex items-center gap-1.5 py-0.5 cursor-pointer hover:opacity-80"
+                                onClick={e => { e.stopPropagation(); onOpenTask(task) }}
+                              >
+                                <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                                <span className="text-[11px] truncate flex-1">
+                                  {task.title}
+                                </span>
+                              </div>
+                            )
+                          })}
+                          {dueTasksForDay.length > 6 && (
+                            <p className="text-[10px] text-muted-foreground mt-0.5">+{dueTasksForDay.length - 6} more</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {dateNote && (
+                    <button
+                      className="p-0.5 rounded hover:bg-muted transition-colors"
+                      onClick={(e) => { e.stopPropagation(); onOpenDateNote(dateStr) }}
+                      title={dateNote.content}
+                    >
+                      <StickyNote className="w-3 h-3 text-warning" />
+                    </button>
+                  )}
+                </div>
               </div>
 
               {dateNote && (

@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { usePlatform, useDesktopOnly } from '@/components/platform-provider'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
+import { useLanguage } from '@/lib/store'
+import { useTranslations } from '@/lib/i18n'
 
 interface AutoLaunchToggleProps {
   className?: string
@@ -19,6 +21,8 @@ interface AutoLaunchToggleProps {
 export function AutoLaunchToggle({ className, disabled }: AutoLaunchToggleProps) {
   const shouldRender = useDesktopOnly()
   const { api, isReady } = usePlatform()
+  const { language } = useLanguage()
+  const t = useTranslations(language)
   const [isEnabled, setIsEnabled] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -52,9 +56,9 @@ export function AutoLaunchToggle({ className, disabled }: AutoLaunchToggleProps)
   return (
     <div className={`flex items-center justify-between ${className || ''}`}>
       <div className="space-y-0.5">
-        <Label htmlFor="auto-launch">开机自启</Label>
+        <Label htmlFor="auto-launch">{t.settings.autoLaunch}</Label>
         <p className="text-xs text-muted-foreground">
-          应用将在系统启动时自动运行
+          {t.settings.autoLaunchDesc}
         </p>
       </div>
       <Switch

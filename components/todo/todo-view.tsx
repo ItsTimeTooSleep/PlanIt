@@ -11,7 +11,7 @@ import { Card } from '@/components/ui/card'
 import { Empty } from '@/components/ui/empty'
 import { Progress } from '@/components/ui/progress'
 import { TaskModal } from '@/components/task-modal'
-import { FilterBar, type TimeFilter, type StatusFilter, type SortBy, type GroupBy } from './filter-bar'
+import { FilterBar, type TimeFilter, type StatusFilter, type SortBy, type GroupBy, type ViewMode } from './filter-bar'
 import { TaskItem } from './task-item'
 import { CheckSquare, Calendar, Clock, ListTodo, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -28,6 +28,7 @@ export function TodoView() {
   const [tagFilter, setTagFilter] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<SortBy>('date')
   const [groupBy, setGroupBy] = useState<GroupBy>('date')
+  const [viewMode, setViewMode] = useState<ViewMode>('byDate')
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
 
@@ -38,7 +39,10 @@ export function TodoView() {
     let tasks = [...state.tasks]
 
     tasks = tasks.filter(task => {
-      const taskDate = parseISO(task.date)
+      const dateToUse = viewMode === 'byDate' ? task.date : task.dueDate
+      if (!dateToUse) return viewMode === 'byDate' ? task.dueDate !== undefined : task.date !== undefined
+      
+      const taskDate = parseISO(dateToUse)
       
       if (timeFilter === 'today') {
         return isWithinInterval(taskDate, { start: startOfToday(), end: endOfToday() })
@@ -64,10 +68,18 @@ export function TodoView() {
 
     tasks.sort((a, b) => {
       if (sortBy === 'date') {
-        return a.date.localeCompare(b.date)
+        const dateA = viewMode === 'byDate' ? a.date : a.dueDate
+        const dateB = viewMode === 'byDate' ? b.date : b.dueDate
+        if (!dateA) return 1
+        if (!dateB) return -1
+        return dateA.localeCompare(dateB)
       } else if (sortBy === 'time') {
-        if (a.date !== b.date) {
-          return a.date.localeCompare(b.date)
+        const dateA = viewMode === 'byDate' ? a.date : a.dueDate
+        const dateB = viewMode === 'byDate' ? b.date : b.dueDate
+        if (!dateA || !dateB || dateA !== dateB) {
+          if (!dateA) return 1
+          if (!dateB) return -1
+          return dateA.localeCompare(dateB)
         }
         if (a.isAllDay && !b.isAllDay) return -1
         if (!a.isAllDay && b.isAllDay) return 1
@@ -83,7 +95,7 @@ export function TodoView() {
     })
 
     return tasks
-  }, [state.tasks, timeFilter, statusFilter, tagFilter, sortBy, today])
+  }, [state.tasks, timeFilter, statusFilter, tagFilter, sortBy, today, viewMode])
 
   const groupedTasks = useMemo(() => {
     const grouped: GroupedTasks = {}
@@ -91,7 +103,8 @@ export function TodoView() {
     filteredAndSortedTasks.forEach(task => {
       let key: string
       if (groupBy === 'date') {
-        key = task.date
+        const dateKey = viewMode === 'byDate' ? task.date : task.dueDate
+        key = dateKey || 'unscheduled'
       } else if (groupBy === 'status') {
         key = task.status
       } else if (groupBy === 'tag') {
@@ -107,7 +120,7 @@ export function TodoView() {
     })
 
     return grouped
-  }, [filteredAndSortedTasks, groupBy])
+  }, [filteredAndSortedTasks, groupBy, viewMode])
 
   const completedCount = useMemo(() => {
     return filteredAndSortedTasks.filter(t => t.status === 'completed').length
@@ -117,7 +130,10 @@ export function TodoView() {
     let tasks = [...state.tasks]
 
     tasks = tasks.filter(task => {
-      const taskDate = parseISO(task.date)
+      const dateToUse = viewMode === 'byDate' ? task.date : task.dueDate
+      if (!dateToUse) return true
+      
+      const taskDate = parseISO(dateToUse)
       
       if (timeFilter === 'today') {
         return isWithinInterval(taskDate, { start: startOfToday(), end: endOfToday() })
@@ -138,7 +154,7 @@ export function TodoView() {
     }
 
     return tasks
-  }, [state.tasks, timeFilter, tagFilter, today])
+  }, [state.tasks, timeFilter, tagFilter, today, viewMode])
 
   const allTasksCompletedCount = useMemo(() => {
     return allTasksWithTimeAndTagFilter.filter(t => t.status === 'completed').length
@@ -146,6 +162,9 @@ export function TodoView() {
 
   const getGroupLabel = useCallback((key: string) => {
     if (groupBy === 'date') {
+      if (key === 'unscheduled') {
+        return lang === 'zh' ? '未规划' : 'Unscheduled'
+      }
       const date = parseISO(key)
       return format(date, lang === 'zh' ? 'yyyy年M月d日 EEEE' : 'EEEE, MMMM d, yyyy', { locale })
     } else if (groupBy === 'status') {
@@ -179,12 +198,14 @@ export function TodoView() {
         tagFilter={tagFilter}
         sortBy={sortBy}
         groupBy={groupBy}
+        viewMode={viewMode}
         tags={state.tags}
         onTimeFilterChange={setTimeFilter}
         onStatusFilterChange={setStatusFilter}
         onTagFilterChange={setTagFilter}
         onSortByChange={setSortBy}
         onGroupByChange={setGroupBy}
+        onViewModeChange={setViewMode}
         onAddTask={handleAddTask}
       />
 

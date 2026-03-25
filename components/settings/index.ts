@@ -1,4 +1,5 @@
 export { GeneralSettings } from './general-settings'
+export { NotificationSettings } from './notification-settings'
 export { TagManagement } from './tag-management'
 export { CalendarSettings } from './calendar-settings'
 export { PomodoroSettings } from './pomodoro-settings'

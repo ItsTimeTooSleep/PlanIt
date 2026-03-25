@@ -1,5 +1,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use tauri::Manager;
 use planit_lib::{
     enter_focus_mode_impl, exit_focus_mode_impl, get_auto_launch_impl, get_platform_info_impl,
     is_focus_mode_active_impl, open_file_picker_impl, read_clipboard_impl, read_file_impl,
@@ -8,6 +9,7 @@ use planit_lib::{
     write_file_impl, set_close_behavior_impl, get_close_behavior_impl, update_tray_menu_impl,
     FileDialogOptions, PlatformInfo, TrayMenuState,
 };
+use tauri_plugin_autostart::MacosLauncher;
 
 #[tauri::command]
 async fn get_platform_info(app: tauri::AppHandle) -> PlatformInfo {
@@ -26,13 +28,13 @@ async fn show_notification(
 }
 
 #[tauri::command]
-async fn set_auto_launch(enabled: bool, _minimized: bool) -> Result<(), String> {
-    set_auto_launch_impl(enabled)
+async fn set_auto_launch(app: tauri::AppHandle, enabled: bool, _minimized: bool) -> Result<(), String> {
+    set_auto_launch_impl(&app, enabled)
 }
 
 #[tauri::command]
-async fn get_auto_launch() -> Result<bool, String> {
-    get_auto_launch_impl()
+async fn get_auto_launch(app: tauri::AppHandle) -> Result<bool, String> {
+    get_auto_launch_impl(&app)
 }
 
 #[tauri::command]
@@ -127,7 +129,20 @@ fn main() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        .plugin(tauri_plugin_autostart::init(
+            MacosLauncher::LaunchAgent,
+            Some(vec!["--minimized"]),
+        ))
         .setup(|app| {
+            let args: Vec<String> = std::env::args().collect();
+            let start_minimized = args.contains(&"--minimized".to_string());
+            
+            if let Some(window) = app.get_webview_window("main") {
+                if start_minimized {
+                    window.hide().map_err(|e| format!("Failed to hide window: {}", e))?;
+                }
+            }
+            
             #[cfg(not(target_os = "linux"))]
             {
                 planit_lib::setup_system_tray(app.handle())?;

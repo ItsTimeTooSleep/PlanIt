@@ -89,6 +89,7 @@ export function WeekView({
   
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null)
   const [gridWidth, setGridWidth] = useState(0)
+  const [hoveredDueDate, setHoveredDueDate] = useState<string | null>(null)
 
   useEffect(() => {
     const el = gridRef.current
@@ -470,26 +471,67 @@ export function WeekView({
         {days.map(day => {
           const dateStr = format(day, 'yyyy-MM-dd')
           const allDayForDay = tasks.filter(t => t.date === dateStr && t.isAllDay)
+          const dueTasksForDay = tasks.filter(t => t.dueDate === dateStr && t.status !== 'completed')
           const dateNote = dateNotes.find(n => n.date === dateStr)
           const _isToday = isToday(day)
+          const isHoveredDue = hoveredDueDate === dateStr
           return (
             <div key={dateStr} className="flex-1 border-l border-border min-w-0 px-0.5 py-1.5">
-              <div className="flex flex-col items-center justify-center">
-                <button
-                  className={cn(
-                    'flex flex-col items-center justify-center w-9 h-9 rounded-full transition-colors cursor-pointer',
-                    _isToday ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'
+              <div className="flex flex-col items-center">
+                <div className="flex items-center justify-center w-full px-1 gap-2 relative">
+                  <button
+                    className={cn(
+                      'flex flex-col items-center justify-center w-9 h-9 rounded-full transition-colors cursor-pointer shrink-0',
+                      _isToday ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted'
+                    )}
+                    onClick={() => onOpenDateNote(dateStr)}
+                    title={dateNote ? dateNote.content : (lang === 'zh' ? '添加日期备注' : 'Add date note')}
+                  >
+                    <span className={cn('text-[10px] font-medium', _isToday ? 'text-primary-foreground/80' : 'text-muted-foreground/70')}>
+                      {dayLabels[day.getDay()]}
+                    </span>
+                    <span className={cn('text-sm font-semibold leading-none', _isToday ? 'text-primary-foreground' : 'text-foreground')}>
+                      {format(day, 'd')}
+                    </span>
+                  </button>
+                  {dueTasksForDay.length > 0 && (
+                    <div className="relative">
+                      <span 
+                        className="text-xs font-semibold bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center cursor-help"
+                        onMouseEnter={() => setHoveredDueDate(dateStr)}
+                        onMouseLeave={() => setHoveredDueDate(null)}
+                      >
+                        {dueTasksForDay.length}
+                      </span>
+                      {isHoveredDue && (
+                        <div className="absolute top-6 right-0 z-50 bg-popover border border-border rounded-lg shadow-lg p-2 min-w-[140px] max-w-[200px]">
+                          <p className="text-xs font-medium text-muted-foreground mb-1.5 border-b border-border pb-1">
+                            {lang === 'zh' ? '即将截止' : 'Due soon'}
+                          </p>
+                          {dueTasksForDay.slice(0, 6).map(task => {
+                            const tag = tags.find(tg => task.tagIds[0] === tg.id)
+                            const color = tag?.color ?? DEFAULT_TAG_COLOR
+                            return (
+                              <div
+                                key={task.id}
+                                className="flex items-center gap-1.5 py-0.5 cursor-pointer hover:opacity-80"
+                                onClick={e => { e.stopPropagation(); onOpenTask(task) }}
+                              >
+                                <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                                <span className="text-[11px] truncate flex-1">
+                                  {task.title}
+                                </span>
+                              </div>
+                            )
+                          })}
+                          {dueTasksForDay.length > 6 && (
+                            <p className="text-[10px] text-muted-foreground mt-0.5">+{dueTasksForDay.length - 6} more</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   )}
-                  onClick={() => onOpenDateNote(dateStr)}
-                  title={dateNote ? dateNote.content : (lang === 'zh' ? '添加日期备注' : 'Add date note')}
-                >
-                  <span className={cn('text-[10px] font-medium', _isToday ? 'text-primary-foreground/80' : 'text-muted-foreground/70')}>
-                    {dayLabels[day.getDay()]}
-                  </span>
-                  <span className={cn('text-sm font-semibold leading-none', _isToday ? 'text-primary-foreground' : 'text-foreground')}>
-                    {format(day, 'd')}
-                  </span>
-                </button>
+                </div>
                 {dateNote && (
                   <div 
                     className="flex items-center justify-center mt-0.5"
@@ -1060,7 +1102,7 @@ function WeekTaskBlock({ task, tags, hourHeight, selectMode, selected, isActive,
 
           <div className={paddingClass}>
             <p className={cn(
-              'font-semibold leading-tight truncate',
+              'font-semibold leading-tight truncate pr-4',
               titleFontSize,
               isSkipped && 'line-through'
             )} style={{ color: primaryColor }}>

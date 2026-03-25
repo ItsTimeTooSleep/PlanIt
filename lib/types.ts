@@ -69,7 +69,8 @@ export interface CalendarSettings {
 export interface Task {
   id: string
   title: string
-  date: string       // YYYY-MM-DD
+  date?: string      // YYYY-MM-DD (计划日期，可选但至少一个)
+  dueDate?: string   // YYYY-MM-DD (截止日期，可选但至少一个)
   startTime?: string // HH:mm (undefined if allDay)
   endTime?: string   // HH:mm (undefined if allDay)
   isAllDay: boolean
@@ -82,11 +83,26 @@ export interface Task {
 
 export type CloseBehavior = 'exit' | 'tray'
 
+export interface NotificationSettings {
+  enabled: boolean
+  advanceMinutes: number | null // null 表示不提前通知
+  showStartNotification: boolean
+  showEndNotification: boolean
+}
+
+export interface SoundSettings {
+  enabled: boolean
+  playOnTaskStart: boolean
+  playOnTaskEnd: boolean
+  playOnTaskComplete: boolean
+}
+
 export interface AppSettings {
   language: Language
-  notificationsEnabled: boolean
+  notifications: NotificationSettings
   calendar: CalendarSettings
   closeBehavior: CloseBehavior
+  sound: SoundSettings
 }
 
 export interface PomodoroSettings {

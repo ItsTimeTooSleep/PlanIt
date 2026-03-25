@@ -1,10 +1,15 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
-import { ChevronLeft, ChevronRight, Columns, Grid, Settings, Undo2, Redo2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Columns, Grid, Settings, Undo2, Redo2, Bell, AlertCircle } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { useStore, useLanguage } from '@/lib/store'
 import { useTranslations } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
@@ -15,8 +20,7 @@ import { DateNoteModal } from './date-note-modal'
 import type { Task } from '@/lib/types'
 import {
   addWeeks, subWeeks, addMonths, subMonths,
-  startOfWeek, endOfWeek,
-  format,
+  startOfWeek, endOfWeek, addDays, format,
 } from 'date-fns'
 
 type CalView = 'week' | 'month'
@@ -48,6 +52,16 @@ export function CalendarView() {
   const [isBatchMenuSticky, setIsBatchMenuSticky] = useState(false)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null)
+
+  const tomorrow = useMemo(() => format(addDays(new Date(), 1), 'yyyy-MM-dd'), [])
+
+  const pendingDueTasks = useMemo(() => {
+    return state.tasks.filter(task => 
+      task.dueDate === tomorrow && 
+      !task.date && 
+      task.status !== 'completed'
+    )
+  }, [state.tasks, tomorrow])
   const viewContainerRef = useRef<HTMLDivElement>(null)
   const batchMenuRef = useRef<HTMLDivElement>(null)
   const prevScrollTopRef = useRef(0)
@@ -252,6 +266,41 @@ export function CalendarView() {
           >
             <Redo2 className="w-4 h-4" />
           </Button>
+          {pendingDueTasks.length > 0 && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="w-8 h-8 relative"
+                  title={t.calendar.smartReminderTooltip(pendingDueTasks.length)}
+                >
+                  <Bell className="w-4 h-4" />
+                  <span className="absolute -top-0.5 -right-0.5 text-[10px] font-semibold bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
+                    {pendingDueTasks.length}
+                  </span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64">
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-sm flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-red-500" />
+                    {t.calendar.smartReminder}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    {t.calendar.smartReminderTooltip(pendingDueTasks.length)}
+                  </p>
+                  <div className="mt-2 space-y-1 max-h-40 overflow-y-auto">
+                    {pendingDueTasks.map(task => (
+                      <div key={task.id} className="text-sm py-1 px-2 hover:bg-muted rounded cursor-pointer" onClick={() => { setEditTask(task); setModalOpen(true); }}>
+                        {task.title}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
           <Button
             variant={view === 'week' ? 'default' : 'ghost'}
             size="icon"

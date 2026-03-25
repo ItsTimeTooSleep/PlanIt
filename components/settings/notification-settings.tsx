@@ -1,23 +1,28 @@
 'use client'
 
 import { Switch } from '@/components/ui/switch'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { useStore, useLanguage } from '@/lib/store'
 import { useTranslations } from '@/lib/i18n'
 import { isDesktop } from '@/lib/platform'
 import { useDesktopOnly, usePlatform } from '@/components/platform-provider'
-import { AutoLaunchToggle } from '@/components/desktop/auto-launch-toggle'
 import { cn } from '@/lib/utils'
 import { useState, useEffect, useCallback } from 'react'
-import type { CloseBehavior } from '@/lib/types'
+import { ChevronDown } from 'lucide-react'
 
 const LOG_PREFIX = '[PlanIt Notification Settings]'
 
-const LANGUAGES: { value: 'zh' | 'en'; label: string }[] = [
-  { value: 'zh', label: '简体中文' },
-  { value: 'en', label: 'English' },
-]
+const ADVANCE_MINUTE_OPTIONS = [5, 10, 15, 30, 60]
 
-export function GeneralSettings() {
+export function NotificationSettings() {
   const lang = useLanguage()
   const t = useTranslations(lang)
   const { state, updateSettings } = useStore()
@@ -38,23 +43,6 @@ export function GeneralSettings() {
       })
     }
   }, [])
-
-  useEffect(() => {
-    if (shouldShowDesktopSettings && api) {
-      api.getCloseBehavior().then((behavior) => {
-        if (behavior !== state.settings.closeBehavior) {
-          updateSettings({ closeBehavior: behavior as CloseBehavior })
-        }
-      }).catch(console.error)
-    }
-  }, [shouldShowDesktopSettings, api])
-
-  const handleCloseBehaviorChange = useCallback((behavior: CloseBehavior) => {
-    updateSettings({ closeBehavior: behavior })
-    if (api) {
-      api.setCloseBehavior(behavior).catch(console.error)
-    }
-  }, [updateSettings, api])
 
   async function handleToggleNotifications(enabled: boolean) {
     console.log(`${LOG_PREFIX} handleToggleNotifications called with enabled:`, enabled)
@@ -78,7 +66,12 @@ export function GeneralSettings() {
           
           if (granted) {
             console.log(`${LOG_PREFIX} Permission granted, enabling notifications`)
-            updateSettings({ notificationsEnabled: true })
+            updateSettings({ 
+              notifications: { 
+                ...state.settings.notifications, 
+                enabled: true 
+              } 
+            })
             setDesktopPermission('granted')
           } else {
             console.warn(`${LOG_PREFIX} Permission denied`)
@@ -90,14 +83,24 @@ export function GeneralSettings() {
         }
       } else {
         console.log(`${LOG_PREFIX} Disabling notifications`)
-        updateSettings({ notificationsEnabled: false })
+        updateSettings({ 
+          notifications: { 
+            ...state.settings.notifications, 
+            enabled: false 
+          } 
+        })
       }
     } else if (enabled && 'Notification' in window) {
       console.log(`${LOG_PREFIX} Browser environment, current permission:`, Notification.permission)
       
       if (Notification.permission === 'granted') {
         console.log(`${LOG_PREFIX} Permission already granted, enabling notifications`)
-        updateSettings({ notificationsEnabled: true })
+        updateSettings({ 
+          notifications: { 
+            ...state.settings.notifications, 
+            enabled: true 
+          } 
+        })
       } else if (Notification.permission === 'denied') {
         console.warn(`${LOG_PREFIX} Permission denied by user, cannot enable notifications`)
         alert(t.settings.notificationsDeniedWeb)
@@ -109,7 +112,12 @@ export function GeneralSettings() {
           
           if (perm === 'granted') {
             console.log(`${LOG_PREFIX} Permission granted, enabling notifications`)
-            updateSettings({ notificationsEnabled: true })
+            updateSettings({ 
+              notifications: { 
+                ...state.settings.notifications, 
+                enabled: true 
+              } 
+            })
           } else if (perm === 'denied') {
             console.warn(`${LOG_PREFIX} Permission denied by user`)
             alert(t.settings.notificationsDeniedAlert)
@@ -122,7 +130,12 @@ export function GeneralSettings() {
       }
     } else {
       console.log(`${LOG_PREFIX} Notifications not supported or disabling, updating settings`)
-      updateSettings({ notificationsEnabled: enabled })
+      updateSettings({ 
+        notifications: { 
+          ...state.settings.notifications, 
+          enabled: enabled 
+        } 
+      })
     }
   }
 
@@ -134,33 +147,45 @@ export function GeneralSettings() {
     ? Notification.permission
     : 'default'
     
-  console.log(`${LOG_PREFIX} Current state - notificationsEnabled:`, state.settings.notificationsEnabled, 'permission:', notifPermission)
+  console.log(`${LOG_PREFIX} Current state - notificationsEnabled:`, state.settings.notifications?.enabled, 'permission:', notifPermission)
+
+  const handleAdvanceMinutesChange = (minutes: number | null) => {
+    updateSettings({
+      notifications: {
+        ...state.settings.notifications,
+        advanceMinutes: minutes
+      }
+    })
+  }
+
+  const handleShowStartNotificationChange = (show: boolean) => {
+    updateSettings({
+      notifications: {
+        ...state.settings.notifications,
+        showStartNotification: show
+      }
+    })
+  }
+
+  const handleShowEndNotificationChange = (show: boolean) => {
+    updateSettings({
+      notifications: {
+        ...state.settings.notifications,
+        showEndNotification: show
+      }
+    })
+  }
+
+  const getAdvanceMinutesLabel = () => {
+    if (state.settings.notifications?.advanceMinutes === null) {
+      return t.settings.never
+    }
+    return `${state.settings.notifications?.advanceMinutes} ${t.settings.minutes}`
+  }
 
   return (
     <div className="space-y-5">
-      <SettingRow label={t.settings.language} description={t.settings.languageDesc}>
-        <div className="flex gap-2">
-          {LANGUAGES.map(l => (
-            <button
-              key={l.value}
-              onClick={() => updateSettings({ language: l.value })}
-              className={cn(
-                'px-3 py-1.5 rounded-md text-sm transition-colors',
-                state.settings.language === l.value
-                  ? 'bg-foreground text-background'
-                  : 'bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground'
-              )}
-            >
-              {l.label}
-            </button>
-          ))}
-        </div>
-      </SettingRow>
-
-      <SettingRow 
-        label={t.settings.enableNotifications} 
-        description={isDesktopEnv ? t.settings.notificationsDesc : t.settings.notificationsDescWeb}
-      >
+      <SettingRow label={t.settings.enableNotifications} description={isDesktopEnv ? t.settings.notificationsDesc : t.settings.notificationsDescWeb}>
         <div className="flex items-center gap-3">
           <span className={cn(
             'text-xs px-2 py-0.5 rounded-full',
@@ -177,97 +202,51 @@ export function GeneralSettings() {
               : t.settings.notificationsDefault}
           </span>
           <Switch
-            checked={state.settings.notificationsEnabled && notifPermission === 'granted'}
+            checked={state.settings.notifications?.enabled && notifPermission === 'granted'}
             onCheckedChange={handleToggleNotifications}
             disabled={notifPermission === 'denied'}
           />
         </div>
       </SettingRow>
 
-      <div className="pt-3 border-t border-border/50">
-        <SettingRow 
-          label={t.settings.sound} 
-          description={t.settings.soundDesc}
-        >
-          <Switch
-            checked={state.settings.sound.enabled}
-            onCheckedChange={(checked) => updateSettings({ 
-              sound: { ...state.settings.sound, enabled: checked } 
-            })}
-          />
-        </SettingRow>
-
-        {state.settings.sound.enabled && (
-          <div className="mt-4 space-y-4 pl-2">
-            <SettingRow 
-              label={t.settings.playOnTaskStart}
-            >
-              <Switch
-                checked={state.settings.sound.playOnTaskStart}
-                onCheckedChange={(checked) => updateSettings({ 
-                  sound: { ...state.settings.sound, playOnTaskStart: checked } 
-                })}
-              />
-            </SettingRow>
-
-            <SettingRow 
-              label={t.settings.playOnTaskEnd}
-            >
-              <Switch
-                checked={state.settings.sound.playOnTaskEnd}
-                onCheckedChange={(checked) => updateSettings({ 
-                  sound: { ...state.settings.sound, playOnTaskEnd: checked } 
-                })}
-              />
-            </SettingRow>
-
-            <SettingRow 
-              label={t.settings.playOnTaskComplete}
-            >
-              <Switch
-                checked={state.settings.sound.playOnTaskComplete}
-                onCheckedChange={(checked) => updateSettings({ 
-                  sound: { ...state.settings.sound, playOnTaskComplete: checked } 
-                })}
-              />
-            </SettingRow>
-          </div>
-        )}
-      </div>
-
-      {shouldShowDesktopSettings && (
-        <div className="pt-3 border-t border-border/50">
-          <AutoLaunchToggle />
-          <SettingRow 
-            label={t.settings.closeBehavior} 
-            description={t.settings.closeBehaviorDesc}
-          >
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleCloseBehaviorChange('exit')}
-                className={cn(
-                  'px-3 py-1.5 rounded-md text-sm transition-colors',
-                  state.settings.closeBehavior === 'exit'
-                    ? 'bg-foreground text-background'
-                    : 'bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground'
-                )}
-              >
-                {t.settings.closeBehaviorExit}
-              </button>
-              <button
-                onClick={() => handleCloseBehaviorChange('tray')}
-                className={cn(
-                  'px-3 py-1.5 rounded-md text-sm transition-colors',
-                  state.settings.closeBehavior === 'tray'
-                    ? 'bg-foreground text-background'
-                    : 'bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground'
-                )}
-              >
-                {t.settings.closeBehaviorTray}
-              </button>
-            </div>
+      {state.settings.notifications?.enabled && (
+        <>
+          <SettingRow label={t.settings.advanceNotification} description={t.settings.advanceNotificationDesc}>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-[140px] justify-between">
+                  {getAdvanceMinutesLabel()}
+                  <ChevronDown className="w-4 h-4 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[140px]">
+                <DropdownMenuItem onClick={() => handleAdvanceMinutesChange(null)}>
+                  {t.settings.never}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                {ADVANCE_MINUTE_OPTIONS.map((minutes) => (
+                  <DropdownMenuItem key={minutes} onClick={() => handleAdvanceMinutesChange(minutes)}>
+                    {minutes} {t.settings.minutes}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </SettingRow>
-        </div>
+
+          <SettingRow label={t.settings.showStartNotification} description={t.settings.showStartNotificationDesc}>
+            <Switch
+              checked={state.settings.notifications?.showStartNotification ?? true}
+              onCheckedChange={handleShowStartNotificationChange}
+            />
+          </SettingRow>
+
+          <SettingRow label={t.settings.showEndNotification} description={t.settings.showEndNotificationDesc}>
+            <Switch
+              checked={state.settings.notifications?.showEndNotification ?? false}
+              onCheckedChange={handleShowEndNotificationChange}
+            />
+          </SettingRow>
+        </>
       )}
     </div>
   )

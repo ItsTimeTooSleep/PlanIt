@@ -49,6 +49,7 @@ export function StatsView() {
 
   function filterTasks(iv: { start: Date; end: Date }): Task[] {
     return state.tasks.filter(task => {
+      if (!task.date) return false
       const d = parseISO(task.date)
       return isWithinInterval(d, { start: iv.start, end: iv.end })
     })

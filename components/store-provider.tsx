@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useCallback, useRef, type ReactNode } from 'react'
 import { StoreContext, type StoreContextValue } from '@/lib/store'
-import type { AppState, Task, Tag, AppSettings, PomodoroState, DateNote, Note, NoteLine, ExportData, ImportOptions } from '@/lib/types'
+import type { AppState, Task, Tag, AppSettings, PomodoroState, DateNote, Note, NoteLine, ExportData, ImportOptions, TaskStatus } from '@/lib/types'
 import { historyManager, type HistoryAction, type HistoryActionData } from '@/lib/history-manager'
 import { DEFAULT_TAGS } from '@/lib/colors'
 import { scheduleTaskNotification, cancelTaskNotification, cancelAllNotifications } from '@/lib/notifications'
+import { playSound, type SoundType } from '@/lib/sound'
 import { translations } from '@/lib/i18n'
 
 const APP_VERSION = '1.0.0'
@@ -36,7 +37,12 @@ const DEFAULT_STATE: AppState = {
   noteLines: [],
   settings: { 
     language: 'zh', 
-    notificationsEnabled: false,
+    notifications: {
+      enabled: false,
+      advanceMinutes: null,
+      showStartNotification: true,
+      showEndNotification: false,
+    },
     closeBehavior: 'exit',
     calendar: { 
       dayStartTime: 0, 
@@ -46,6 +52,12 @@ const DEFAULT_STATE: AppState = {
       timeSnap: 15,
       snapEnabled: true,
       snapThreshold: 10,
+    },
+    sound: {
+      enabled: false,
+      playOnTaskStart: true,
+      playOnTaskEnd: true,
+      playOnTaskComplete: true,
     }
   },
   pomodoro: DEFAULT_POMODORO,
@@ -57,11 +69,23 @@ function load(): AppState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return DEFAULT_STATE
-    const parsed = JSON.parse(raw) as Partial<AppState>
+    const parsed = JSON.parse(raw) as Partial<AppState> & {
+      settings?: { notificationsEnabled?: boolean }
+    }
     const notesWithZIndex = (parsed.notes ?? []).map((note, index) => ({
       ...note,
       zIndex: note.zIndex ?? index + 1,
     }))
+    
+    const migratedSettings: Partial<AppState['settings']> = { ...parsed.settings }
+    
+    if ((migratedSettings as any).notificationsEnabled !== undefined && !migratedSettings.notifications) {
+      migratedSettings.notifications = {
+        ...DEFAULT_STATE.settings.notifications,
+        enabled: (migratedSettings as any).notificationsEnabled
+      }
+    }
+    
     return {
       tasks: parsed.tasks ?? [],
       tags: parsed.tags ?? DEFAULT_TAGS,
@@ -70,10 +94,18 @@ function load(): AppState {
       noteLines: parsed.noteLines ?? [],
       settings: { 
         ...DEFAULT_STATE.settings, 
-        ...(parsed.settings ?? {}),
+        ...migratedSettings,
+        notifications: {
+          ...DEFAULT_STATE.settings.notifications,
+          ...(migratedSettings.notifications ?? {})
+        },
         calendar: {
           ...DEFAULT_STATE.settings.calendar,
-          ...(parsed.settings?.calendar ?? {})
+          ...(migratedSettings.calendar ?? {})
+        },
+        sound: {
+          ...DEFAULT_STATE.settings.sound,
+          ...(migratedSettings.sound ?? {})
         }
       },
       pomodoro: { ...DEFAULT_POMODORO, ...(parsed.pomodoro ?? {}) },
@@ -89,6 +121,50 @@ function save(state: AppState) {
   } catch {}
 }
 
+/**
+ * 播放任务相关的音效
+ * @param task - 任务对象
+ * @param newStatus - 新的任务状态
+ * @param settings - 应用设置
+ */
+function playTaskSound(task: Task, newStatus: TaskStatus, settings: AppSettings) {
+  if (!settings.sound.enabled) return
+  
+  if (newStatus === 'completed' && settings.sound.playOnTaskComplete) {
+    playSound('taskComplete')
+  }
+}
+
+/**
+ * 检查并播放任务开始/结束音效
+ * @param tasks - 所有任务
+ * @param settings - 应用设置
+ */
+function checkAndPlayTaskTimeSounds(tasks: Task[], settings: AppSettings) {
+  if (!settings.sound.enabled) return
+  
+  const now = new Date()
+  const nowMinutes = now.getHours() * 60 + now.getMinutes()
+  const today = now.toISOString().split('T')[0]
+  
+  tasks.forEach(task => {
+    if (task.date !== today || task.isAllDay || !task.startTime || !task.endTime) return
+    
+    const startMinutes = parseInt(task.startTime.split(':')[0]) * 60 + parseInt(task.startTime.split(':')[1])
+    const endMinutes = parseInt(task.endTime.split(':')[0]) * 60 + parseInt(task.endTime.split(':')[1])
+    
+    // 检查任务开始
+    if (Math.abs(nowMinutes - startMinutes) <= 1 && settings.sound.playOnTaskStart) {
+      playSound('taskStart')
+    }
+    
+    // 检查任务结束
+    if (Math.abs(nowMinutes - endMinutes) <= 1 && settings.sound.playOnTaskEnd) {
+      playSound('taskEnd')
+    }
+  })
+}
+
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>(DEFAULT_STATE)
   const [hydrated, setHydrated] = useState(false)
@@ -99,11 +175,26 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setHydrated(true)
   }, [])
 
+  // 定期检查任务时间并播放音效
+  useEffect(() => {
+    if (!hydrated) return
+    
+    // 立即检查一次
+    checkAndPlayTaskTimeSounds(state.tasks, state.settings)
+    
+    // 设置每分钟检查一次
+    const interval = setInterval(() => {
+      checkAndPlayTaskTimeSounds(state.tasks, state.settings)
+    }, 60000) // 60秒
+    
+    return () => clearInterval(interval)
+  }, [hydrated, state.tasks, state.settings])
+
   useEffect(() => {
     if (!hydrated || scheduledRef.current) return
     scheduledRef.current = true
     
-    if (state.settings.notificationsEnabled) {
+    if (state.settings.notifications.enabled) {
       const now = Date.now()
       const t = translations[state.settings.language]
       state.tasks.forEach(task => {
@@ -113,11 +204,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const [h, m] = task.startTime.split(':').map(Number)
         const taskDate = new Date(year, month - 1, day, h, m, 0, 0)
         if (taskDate.getTime() > now) {
-          scheduleTaskNotification(task, t.settings.notificationTitle, `${t.settings.notificationBody}: ${task.title}`)
+          scheduleTaskNotification(
+            task, 
+            t.settings.notificationTitle, 
+            `${t.settings.notificationBody}: ${task.title}`, 
+            state.settings.notifications,
+            t.settings.notificationTitleEnd,
+            `${t.settings.notificationBodyEnd}: ${task.title}`
+          )
         }
       })
     }
-  }, [hydrated, state.settings.notificationsEnabled, state.settings.language, state.tasks])
+  }, [hydrated, state.settings.notifications, state.settings.language, state.tasks])
 
   const set = useCallback((updater: (prev: AppState) => AppState) => {
     setState(prev => {
@@ -137,9 +235,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
     set(prev => {
       const next = { ...prev, tasks: [...prev.tasks, task] }
-      if (next.settings.notificationsEnabled) {
+      if (next.settings.notifications.enabled) {
         const t = translations[next.settings.language]
-        scheduleTaskNotification(task, t.settings.notificationTitle, `${t.settings.notificationBody}: ${task.title}`)
+        scheduleTaskNotification(
+          task, 
+          t.settings.notificationTitle, 
+          `${t.settings.notificationBody}: ${task.title}`, 
+          next.settings.notifications,
+          t.settings.notificationTitleEnd,
+          `${t.settings.notificationBodyEnd}: ${task.title}`
+        )
       }
       return next
     })
@@ -166,11 +271,27 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           ...prev,
           tasks: prev.tasks.map(t => t.id === id ? { ...t, ...updates } : t),
         }
-        if (next.settings.notificationsEnabled) {
+        
+        // 播放任务音效
+        if (updates.status) {
+          const updatedTask = next.tasks.find(t => t.id === id)
+          if (updatedTask) {
+            playTaskSound(updatedTask, updates.status, next.settings)
+          }
+        }
+        
+        if (next.settings.notifications.enabled) {
           const updatedTask = next.tasks.find(t => t.id === id)
           if (updatedTask) {
             const t = translations[next.settings.language]
-            scheduleTaskNotification(updatedTask, t.settings.notificationTitle, `${t.settings.notificationBody}: ${updatedTask.title}`)
+            scheduleTaskNotification(
+              updatedTask, 
+              t.settings.notificationTitle, 
+              `${t.settings.notificationBody}: ${updatedTask.title}`, 
+              next.settings.notifications,
+              t.settings.notificationTitleEnd,
+              `${t.settings.notificationBodyEnd}: ${updatedTask.title}`
+            )
           }
         }
         save(next)
@@ -182,11 +303,27 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           ...prev,
           tasks: prev.tasks.map(t => t.id === id ? { ...t, ...updates } : t),
         }
-        if (next.settings.notificationsEnabled) {
+        
+        // 播放任务音效
+        if (updates.status) {
+          const updatedTask = next.tasks.find(t => t.id === id)
+          if (updatedTask) {
+            playTaskSound(updatedTask, updates.status, next.settings)
+          }
+        }
+        
+        if (next.settings.notifications.enabled) {
           const updatedTask = next.tasks.find(t => t.id === id)
           if (updatedTask) {
             const t = translations[next.settings.language]
-            scheduleTaskNotification(updatedTask, t.settings.notificationTitle, `${t.settings.notificationBody}: ${updatedTask.title}`)
+            scheduleTaskNotification(
+              updatedTask, 
+              t.settings.notificationTitle, 
+              `${t.settings.notificationBody}: ${updatedTask.title}`, 
+              next.settings.notifications,
+              t.settings.notificationTitleEnd,
+              `${t.settings.notificationBodyEnd}: ${updatedTask.title}`
+            )
           }
         }
         return next
@@ -311,7 +448,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [set])
 
   const updateSettings = useCallback((updates: Partial<AppSettings>) => {
-    if (updates.notificationsEnabled === false) {
+    if (updates.notifications?.enabled === false) {
       cancelAllNotifications()
     }
     set(prev => ({ ...prev, settings: { ...prev.settings, ...updates } }))

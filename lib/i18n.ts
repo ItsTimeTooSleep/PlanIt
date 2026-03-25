@@ -55,7 +55,8 @@ const zh = {
     edit: '编辑任务',
     title: '标题',
     titlePlaceholder: '任务名称',
-    date: '日期',
+    date: '计划日期',
+    dueDate: '截止日期',
     startTime: '开始时间',
     endTime: '结束时间',
     allDay: '全天事件',
@@ -73,6 +74,7 @@ const zh = {
     deleteConfirmTitle: '删除任务',
     deleteAllRepeat: '同时删除该任务的所有循环实例',
     noTags: '未添加标签',
+    dateOrDueDateRequired: '至少需要填写计划日期或截止日期',
   },
 
   status: {
@@ -143,6 +145,10 @@ const zh = {
     noTasksWeek: '本周暂无任务',
     allDay: '全天',
     weekOf: (d: string) => `${d} 所在周`,
+    smartReminder: '智能提醒',
+    smartReminderTooltip: (count: number) => `明天有 ${count} 个任务即将截止但未规划`,
+    noPendingDueTasks: '暂无即将截止的任务',
+    dueTasksCount: (count: number) => `${count} 个任务`,
   },
 
   dateNote: {
@@ -196,10 +202,10 @@ const zh = {
     tagNamePlaceholder: '如：学习、运动',
     tagColor: '标签颜色',
     tagDeleteConfirm: '删除标签后，使用该标签的任务将失去此标签，确认删除？',
-    notifications: '提醒设置',
-    notificationsDesc: '任务开始时发送系统通知',
-    notificationsDescWeb: '任务开始时发送浏览器通知',
-    enableNotifications: '开启提醒',
+    notifications: '通知设置',
+    notificationsDesc: '任务开始和结束时发送通知',
+    notificationsDescWeb: '任务开始和结束时发送浏览器通知',
+    enableNotifications: '开启通知',
     notificationsGranted: '已授权',
     notificationsDenied: '已拒绝，请在系统设置中手动开启',
     notificationsDeniedWeb: '已拒绝，请在浏览器设置中手动开启',
@@ -207,6 +213,16 @@ const zh = {
     notificationsDefault: '点击开启后将请求授权',
     notificationTitle: '任务开始',
     notificationBody: '即将开始',
+    notificationTitleEnd: '任务结束',
+    notificationBodyEnd: '已结束',
+    advanceNotification: '提前通知',
+    advanceNotificationDesc: '任务开始前多久发送提醒',
+    never: '永不',
+    minutes: '分钟',
+    showStartNotification: '任务开始通知',
+    showStartNotificationDesc: '任务开始时显示通知',
+    showEndNotification: '任务结束通知',
+    showEndNotificationDesc: '任务结束时显示通知',
     language: '语言 / Language',
     languageDesc: '选择界面语言',
     zh: '简体中文',
@@ -215,6 +231,8 @@ const zh = {
     closeBehaviorDesc: '点击关闭按钮时的行为',
     closeBehaviorExit: '退出程序',
     closeBehaviorTray: '最小化到托盘',
+    autoLaunch: '开机自启',
+    autoLaunchDesc: '应用将在系统启动时自动运行',
     dataManagement: '数据管理',
     export: '导出数据',
     exportDesc: '将所有数据导出为 JSON 文件',
@@ -247,6 +265,12 @@ const zh = {
     madeWith: '用心制作',
     author: '作者',
     sponsor: '赞助支持',
+    sound: '音效设置',
+    soundDesc: '任务事件音效提醒',
+    enableSound: '开启音效',
+    playOnTaskStart: '任务开始时播放',
+    playOnTaskEnd: '任务结束时播放',
+    playOnTaskComplete: '任务完成时播放',
   },
 
   batch: {
@@ -291,6 +315,10 @@ const zh = {
   todo: {
     title: '待办事项',
     subtitle: '管理所有任务',
+    viewMode: {
+      byDate: '按计划日期',
+      byDueDate: '按截止日期',
+    },
     timeFilter: {
       all: '全部',
       today: '今天',
@@ -437,7 +465,8 @@ const en = {
     edit: 'Edit Task',
     title: 'Title',
     titlePlaceholder: 'Task name',
-    date: 'Date',
+    date: 'Plan Date',
+    dueDate: 'Due Date',
     startTime: 'Start Time',
     endTime: 'End Time',
     allDay: 'All-day event',
@@ -455,6 +484,7 @@ const en = {
     deleteConfirmTitle: 'Delete Task',
     deleteAllRepeat: 'Also delete all recurring instances of this task',
     noTags: 'No tags',
+    dateOrDueDateRequired: 'At least one of Plan Date or Due Date is required',
   },
 
   status: {
@@ -525,6 +555,10 @@ const en = {
     noTasksWeek: 'No tasks this week',
     allDay: 'All day',
     weekOf: (d: string) => `Week of ${d}`,
+    smartReminder: 'Smart Reminder',
+    smartReminderTooltip: (count: number) => `You have ${count} task${count > 1 ? 's' : ''} due tomorrow but not scheduled`,
+    noPendingDueTasks: 'No pending due tasks',
+    dueTasksCount: (count: number) => `${count} task${count > 1 ? 's' : ''}`,
   },
 
   dateNote: {
@@ -579,8 +613,8 @@ const en = {
     tagColor: 'Tag Color',
     tagDeleteConfirm: 'Tasks using this tag will lose it. Delete?',
     notifications: 'Notifications',
-    notificationsDesc: 'Get notified when tasks start',
-    notificationsDescWeb: 'Get browser notifications when tasks start',
+    notificationsDesc: 'Get notified when tasks start and end',
+    notificationsDescWeb: 'Get browser notifications when tasks start and end',
     enableNotifications: 'Enable Notifications',
     notificationsGranted: 'Granted',
     notificationsDenied: 'Denied — enable in system settings',
@@ -589,6 +623,16 @@ const en = {
     notificationsDefault: 'Click to request permission',
     notificationTitle: 'Task Starting',
     notificationBody: 'is about to start',
+    notificationTitleEnd: 'Task Ended',
+    notificationBodyEnd: 'has ended',
+    advanceNotification: 'Advance Notification',
+    advanceNotificationDesc: 'How long before task start to send reminder',
+    never: 'Never',
+    minutes: 'minutes',
+    showStartNotification: 'Task Start Notification',
+    showStartNotificationDesc: 'Show notification when task starts',
+    showEndNotification: 'Task End Notification',
+    showEndNotificationDesc: 'Show notification when task ends',
     language: 'Language / 语言',
     languageDesc: 'Choose interface language',
     zh: '简体中文',
@@ -597,6 +641,8 @@ const en = {
     closeBehaviorDesc: 'Action when clicking the close button',
     closeBehaviorExit: 'Exit Application',
     closeBehaviorTray: 'Minimize to Tray',
+    autoLaunch: 'Auto-start on Boot',
+    autoLaunchDesc: 'Application will automatically run on system startup',
     dataManagement: 'Data Management',
     export: 'Export Data',
     exportDesc: 'Export all data as JSON file',
@@ -629,6 +675,12 @@ const en = {
     madeWith: 'Made with care',
     author: 'Author',
     sponsor: 'Sponsor',
+    sound: 'Sound Settings',
+    soundDesc: 'Sound effects for task events',
+    enableSound: 'Enable Sound',
+    playOnTaskStart: 'Play when task starts',
+    playOnTaskEnd: 'Play when task ends',
+    playOnTaskComplete: 'Play when task completes',
   },
 
   batch: {
@@ -673,6 +725,10 @@ const en = {
   todo: {
     title: 'To Do List',
     subtitle: 'Manage all your tasks',
+    viewMode: {
+      byDate: 'By Plan Date',
+      byDueDate: 'By Due Date',
+    },
     timeFilter: {
       all: 'All',
       today: 'Today',
@@ -816,6 +872,7 @@ export type Translations = {
     readonly title: string
     readonly titlePlaceholder: string
     readonly date: string
+    readonly dueDate: string
     readonly startTime: string
     readonly endTime: string
     readonly allDay: string
@@ -833,6 +890,7 @@ export type Translations = {
     readonly deleteConfirmTitle: string
     readonly deleteAllRepeat: string
     readonly noTags: string
+    readonly dateOrDueDateRequired: string
   }
   readonly status: {
     readonly pending: string
@@ -899,6 +957,10 @@ export type Translations = {
     readonly noTasksWeek: string
     readonly allDay: string
     readonly weekOf: (d: string) => string
+    readonly smartReminder: string
+    readonly smartReminderTooltip: (count: number) => string
+    readonly noPendingDueTasks: string
+    readonly dueTasksCount: (count: number) => string
   }
   readonly dateNote: {
     readonly title: string
@@ -960,6 +1022,16 @@ export type Translations = {
     readonly notificationsDefault: string
     readonly notificationTitle: string
     readonly notificationBody: string
+    readonly notificationTitleEnd: string
+    readonly notificationBodyEnd: string
+    readonly advanceNotification: string
+    readonly advanceNotificationDesc: string
+    readonly never: string
+    readonly minutes: string
+    readonly showStartNotification: string
+    readonly showStartNotificationDesc: string
+    readonly showEndNotification: string
+    readonly showEndNotificationDesc: string
     readonly language: string
     readonly languageDesc: string
     readonly zh: string
@@ -968,6 +1040,8 @@ export type Translations = {
     readonly closeBehaviorDesc: string
     readonly closeBehaviorExit: string
     readonly closeBehaviorTray: string
+    readonly autoLaunch: string
+    readonly autoLaunchDesc: string
     readonly dataManagement: string
     readonly export: string
     readonly exportDesc: string
@@ -1000,6 +1074,12 @@ export type Translations = {
     readonly madeWith: string
     readonly author: string
     readonly sponsor: string
+    readonly sound: string
+    readonly soundDesc: string
+    readonly enableSound: string
+    readonly playOnTaskStart: string
+    readonly playOnTaskEnd: string
+    readonly playOnTaskComplete: string
   }
   readonly batch: {
     readonly title: string
@@ -1041,6 +1121,10 @@ export type Translations = {
   readonly todo: {
     readonly title: string
     readonly subtitle: string
+    readonly viewMode: {
+      readonly byDate: string
+      readonly byDueDate: string
+    }
     readonly timeFilter: {
       readonly all: string
       readonly today: string
@@ -1134,5 +1218,5 @@ export type Translations = {
 export const translations: Record<Language, Translations> = { zh, en }
 
 export function useTranslations(lang: Language): Translations {
-  return translations[lang]
+  return translations[lang] ?? translations.zh
 }

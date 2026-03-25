@@ -9,6 +9,7 @@ import { AppIcon } from '@/components/app-icon'
 import { getAppVersion } from '@/lib/version'
 import {
   GeneralSettings,
+  NotificationSettings,
   TagManagement,
   CalendarSettings,
   PomodoroSettings,
@@ -40,6 +41,15 @@ export function SettingsView() {
           onToggle={setExpandedSection}
         >
           <GeneralSettings />
+        </Section>
+
+        <Section
+          id="notifications"
+          title={t.settings.notifications}
+          expanded={expandedSection}
+          onToggle={setExpandedSection}
+        >
+          <NotificationSettings />
         </Section>
 
         <Section

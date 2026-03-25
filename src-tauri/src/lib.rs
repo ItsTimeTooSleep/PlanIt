@@ -75,36 +75,22 @@ pub fn show_notification_impl(app: &AppHandle, title: &str, body: &str) -> Resul
     Ok(())
 }
 
-pub fn set_auto_launch_impl(enabled: bool) -> Result<(), String> {
-    let exe_path = std::env::current_exe().map_err(|e| e.to_string())?;
-    let exe_path_str = exe_path.to_string_lossy();
-    let auto = auto_launch::AutoLaunchBuilder::new()
-        .set_app_name("PlanIt")
-        .set_app_path(&exe_path_str)
-        .set_use_launch_agent(true)
-        .build()
-        .map_err(|e| e.to_string())?;
-
+pub fn set_auto_launch_impl(app: &AppHandle, enabled: bool) -> Result<(), String> {
+    use tauri_plugin_autostart::ManagerExt;
+    
     if enabled {
-        auto.enable().map_err(|e| e.to_string())?;
+        app.autolaunch().enable().map_err(|e| e.to_string())?;
     } else {
-        auto.disable().map_err(|e| e.to_string())?;
+        app.autolaunch().disable().map_err(|e| e.to_string())?;
     }
 
     Ok(())
 }
 
-pub fn get_auto_launch_impl() -> Result<bool, String> {
-    let exe_path = std::env::current_exe().map_err(|e| e.to_string())?;
-    let exe_path_str = exe_path.to_string_lossy();
-    let auto = auto_launch::AutoLaunchBuilder::new()
-        .set_app_name("PlanIt")
-        .set_app_path(&exe_path_str)
-        .set_use_launch_agent(true)
-        .build()
-        .map_err(|e| e.to_string())?;
-
-    auto.is_enabled().map_err(|e| e.to_string())
+pub fn get_auto_launch_impl(app: &AppHandle) -> Result<bool, String> {
+    use tauri_plugin_autostart::ManagerExt;
+    
+    app.autolaunch().is_enabled().map_err(|e| e.to_string())
 }
 
 pub fn open_file_picker_impl(

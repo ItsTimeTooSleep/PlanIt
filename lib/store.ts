@@ -43,5 +43,6 @@ export function useStore(): StoreContextValue {
 }
 
 export function useLanguage(): Language {
-  return useStore().state.settings.language
+  const lang = useStore().state.settings.language
+  return lang === 'zh' || lang === 'en' ? lang : 'zh'
 }

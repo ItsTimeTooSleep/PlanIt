@@ -19,6 +19,7 @@ export type TimeFilter = 'all' | 'today' | 'week' | 'month' | 'overdue' | 'upcom
 export type StatusFilter = 'all' | 'pending' | 'completed' | 'skipped'
 export type SortBy = 'date' | 'time' | 'title' | 'status'
 export type GroupBy = 'none' | 'date' | 'status' | 'tag'
+export type ViewMode = 'byDate' | 'byDueDate'
 
 interface FilterBarProps {
   timeFilter: TimeFilter
@@ -26,12 +27,14 @@ interface FilterBarProps {
   tagFilter: string | null
   sortBy: SortBy
   groupBy: GroupBy
+  viewMode: ViewMode
   tags: Tag[]
   onTimeFilterChange: (filter: TimeFilter) => void
   onStatusFilterChange: (filter: StatusFilter) => void
   onTagFilterChange: (tagId: string | null) => void
   onSortByChange: (sort: SortBy) => void
   onGroupByChange: (group: GroupBy) => void
+  onViewModeChange: (mode: ViewMode) => void
   onAddTask: () => void
 }
 
@@ -41,12 +44,14 @@ export function FilterBar({
   tagFilter,
   sortBy,
   groupBy,
+  viewMode,
   tags,
   onTimeFilterChange,
   onStatusFilterChange,
   onTagFilterChange,
   onSortByChange,
   onGroupByChange,
+  onViewModeChange,
   onAddTask,
 }: FilterBarProps) {
   const lang = useLanguage()
@@ -71,6 +76,14 @@ export function FilterBar({
         </div>
 
         <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <Tabs value={viewMode} onValueChange={(v) => onViewModeChange(v as ViewMode)}>
+              <TabsList className="h-8">
+                <TabsTrigger value="byDate" className="h-6 text-xs px-4">{t.todo.viewMode.byDate}</TabsTrigger>
+                <TabsTrigger value="byDueDate" className="h-6 text-xs px-4">{t.todo.viewMode.byDueDate}</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
           <Tabs value={timeFilter} onValueChange={(v) => onTimeFilterChange(v as TimeFilter)}>
             <AnimatedTabsList className="grid grid-cols-6 w-full max-w-2xl">
               <AnimatedTabsTrigger value="today">{t.todo.timeFilter.today}</AnimatedTabsTrigger>

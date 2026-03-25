@@ -106,7 +106,7 @@ export function TodoWidget({ id, config, className, onCollapsedChange, onTaskCli
     const now = new Date()
     return state.tasks
       .filter(task => {
-        if (task.status !== 'pending') return false
+        if (task.status !== 'pending' || !task.date) return false
         const taskDate = parseISO(task.date)
         if (isBefore(taskDate, today)) return true
         if (isToday(taskDate) && !task.isAllDay && task.endTime) {
@@ -117,13 +117,17 @@ export function TodoWidget({ id, config, className, onCollapsedChange, onTaskCli
         }
         return false
       })
-      .sort((a, b) => a.date.localeCompare(b.date))
+      .sort((a, b) => {
+        if (!a.date || !b.date) return 0
+        return a.date.localeCompare(b.date)
+      })
       .slice(0, 3)
   }, [state.tasks, today, showOverdue])
 
   const futureTasksCount = useMemo(() => {
     const nextWeek = addDays(today, 7)
     return state.tasks.filter(task => {
+      if (!task.date) return false
       const taskDate = parseISO(task.date)
       return (
         task.status === 'pending' &&
@@ -133,7 +137,8 @@ export function TodoWidget({ id, config, className, onCollapsedChange, onTaskCli
     }).length
   }, [state.tasks, today])
 
-  const formatDate = useCallback((dateStr: string) => {
+  const formatDate = useCallback((dateStr?: string) => {
+    if (!dateStr) return lang === 'zh' ? '未规划' : 'Unscheduled'
     const date = parseISO(dateStr)
     if (isToday(date)) return lang === 'zh' ? '今天' : 'Today'
     if (isTomorrow(date)) return lang === 'zh' ? '明天' : 'Tomorrow'

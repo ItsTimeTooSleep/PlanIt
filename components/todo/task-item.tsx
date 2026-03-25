@@ -53,7 +53,8 @@ export function TaskItem({ task, tags, onEdit, className }: TaskItemProps) {
 
   const locale = lang === 'zh' ? zhCN : enUS
 
-  const formatDate = useCallback((dateStr: string) => {
+  const formatDate = useCallback((dateStr?: string) => {
+    if (!dateStr) return lang === 'zh' ? '未规划' : 'Unscheduled'
     const date = parseISO(dateStr)
     if (isToday(date)) return lang === 'zh' ? '今天' : 'Today'
     if (isTomorrow(date)) return lang === 'zh' ? '明天' : 'Tomorrow'
@@ -128,7 +129,7 @@ export function TaskItem({ task, tags, onEdit, className }: TaskItemProps) {
           <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
               <Calendar className="w-3.5 h-3.5" />
-              <span>{formatDate(task.date)}</span>
+              <span>{formatDate(task.date || task.dueDate)}</span>
             </div>
 
             {!task.isAllDay && task.startTime && (
