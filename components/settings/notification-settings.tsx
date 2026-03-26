@@ -1,33 +1,31 @@
 'use client'
 
 import { Switch } from '@/components/ui/switch'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { useStore, useLanguage } from '@/lib/store'
 import { useTranslations } from '@/lib/i18n'
 import { isDesktop } from '@/lib/platform'
-import { useDesktopOnly, usePlatform } from '@/components/platform-provider'
 import { cn } from '@/lib/utils'
-import { useState, useEffect, useCallback } from 'react'
-import { ChevronDown } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { SettingRow, SettingGroup, SettingSubGroup } from './setting-row'
+import { SelectControl } from '@/components/ui/segmented-control'
 
 const LOG_PREFIX = '[PlanIt Notification Settings]'
 
-const ADVANCE_MINUTE_OPTIONS = [5, 10, 15, 30, 60]
+const ADVANCE_MINUTE_OPTIONS = [
+  { value: 0, labelKey: 'never' as const },
+  { value: 1, labelKey: 'minutes' as const },
+  { value: 2, labelKey: 'minutes' as const },
+  { value: 3, labelKey: 'minutes' as const },
+  { value: 5, labelKey: 'minutes' as const },
+  { value: 10, labelKey: 'minutes' as const },
+  { value: 15, labelKey: 'minutes' as const },
+  { value: 30, labelKey: 'minutes' as const },
+]
 
 export function NotificationSettings() {
   const lang = useLanguage()
   const t = useTranslations(lang)
   const { state, updateSettings } = useStore()
-  const shouldShowDesktopSettings = useDesktopOnly()
-  const { api } = usePlatform()
   const [desktopPermission, setDesktopPermission] = useState<'granted' | 'denied' | 'default' | null>(null)
 
   useEffect(() => {
@@ -149,11 +147,11 @@ export function NotificationSettings() {
     
   console.log(`${LOG_PREFIX} Current state - notificationsEnabled:`, state.settings.notifications?.enabled, 'permission:', notifPermission)
 
-  const handleAdvanceMinutesChange = (minutes: number | null) => {
+  const handleAdvanceMinutesChange = (minutes: number) => {
     updateSettings({
       notifications: {
         ...state.settings.notifications,
-        advanceMinutes: minutes
+        advanceMinutes: minutes === 0 ? null : minutes
       }
     })
   }
@@ -176,61 +174,49 @@ export function NotificationSettings() {
     })
   }
 
-  const getAdvanceMinutesLabel = () => {
-    if (state.settings.notifications?.advanceMinutes === null) {
-      return t.settings.never
-    }
-    return `${state.settings.notifications?.advanceMinutes} ${t.settings.minutes}`
+  const getAdvanceMinutesOptions = () => {
+    return ADVANCE_MINUTE_OPTIONS.map(opt => ({
+      value: opt.value,
+      label: opt.labelKey === 'never' 
+        ? t.settings.never 
+        : `${opt.value} ${t.settings.minutes}`
+    }))
   }
 
   return (
-    <div className="space-y-5">
-      <SettingRow label={t.settings.enableNotifications} description={isDesktopEnv ? t.settings.notificationsDesc : t.settings.notificationsDescWeb}>
-        <div className="flex items-center gap-3">
-          <span className={cn(
-            'text-xs px-2 py-0.5 rounded-full',
-            notifPermission === 'granted'
-              ? 'bg-success/10 text-success'
-              : notifPermission === 'denied'
-              ? 'bg-destructive/10 text-destructive'
-              : 'bg-muted text-muted-foreground'
-          )}>
-            {notifPermission === 'granted'
-              ? t.settings.notificationsGranted
-              : notifPermission === 'denied'
-              ? (isDesktopEnv ? t.settings.notificationsDenied : t.settings.notificationsDeniedWeb)
-              : t.settings.notificationsDefault}
-          </span>
-          <Switch
-            checked={state.settings.notifications?.enabled && notifPermission === 'granted'}
-            onCheckedChange={handleToggleNotifications}
-            disabled={notifPermission === 'denied'}
-          />
-        </div>
-      </SettingRow>
+    <div className="space-y-4">
+      <SettingGroup bordered>
+        <SettingRow label={t.settings.enableNotifications} description={isDesktopEnv ? t.settings.notificationsDesc : t.settings.notificationsDescWeb}>
+          <div className="flex items-center gap-3">
+            <span className={cn(
+              'text-xs px-2 py-0.5 rounded-full font-medium',
+              notifPermission === 'granted'
+                ? 'bg-success/10 text-success'
+                : notifPermission === 'denied'
+                ? 'bg-destructive/10 text-destructive'
+                : 'bg-muted text-muted-foreground'
+            )}>
+              {notifPermission === 'granted'
+                ? t.settings.notificationsGranted
+                : notifPermission === 'denied'
+                ? (isDesktopEnv ? t.settings.notificationsDenied : t.settings.notificationsDeniedWeb)
+                : t.settings.notificationsDefault}
+            </span>
+            <Switch
+              checked={state.settings.notifications?.enabled && notifPermission === 'granted'}
+              onCheckedChange={handleToggleNotifications}
+              disabled={notifPermission === 'denied'}
+            />
+          </div>
+        </SettingRow>
 
-      {state.settings.notifications?.enabled && (
-        <>
+        <SettingSubGroup show={state.settings.notifications?.enabled && notifPermission === 'granted'}>
           <SettingRow label={t.settings.advanceNotification} description={t.settings.advanceNotificationDesc}>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-[140px] justify-between">
-                  {getAdvanceMinutesLabel()}
-                  <ChevronDown className="w-4 h-4 opacity-50" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[140px]">
-                <DropdownMenuItem onClick={() => handleAdvanceMinutesChange(null)}>
-                  {t.settings.never}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                {ADVANCE_MINUTE_OPTIONS.map((minutes) => (
-                  <DropdownMenuItem key={minutes} onClick={() => handleAdvanceMinutesChange(minutes)}>
-                    {minutes} {t.settings.minutes}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <SelectControl
+              options={getAdvanceMinutesOptions()}
+              value={state.settings.notifications?.advanceMinutes ?? 0}
+              onChange={handleAdvanceMinutesChange}
+            />
           </SettingRow>
 
           <SettingRow label={t.settings.showStartNotification} description={t.settings.showStartNotificationDesc}>
@@ -246,32 +232,8 @@ export function NotificationSettings() {
               onCheckedChange={handleShowEndNotificationChange}
             />
           </SettingRow>
-        </>
-      )}
-    </div>
-  )
-}
-
-function SettingRow({
-  label,
-  description,
-  children
-}: {
-  label: string
-  description?: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="flex items-start justify-between gap-4">
-      <div className="flex-1 min-w-0">
-        <p className="text-sm">{label}</p>
-        {description && (
-          <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
-        )}
-      </div>
-      <div className="shrink-0">
-        {children}
-      </div>
+        </SettingSubGroup>
+      </SettingGroup>
     </div>
   )
 }

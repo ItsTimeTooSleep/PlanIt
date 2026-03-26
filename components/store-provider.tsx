@@ -38,10 +38,10 @@ const DEFAULT_STATE: AppState = {
   settings: { 
     language: 'zh', 
     notifications: {
-      enabled: false,
-      advanceMinutes: null,
+      enabled: true,
+      advanceMinutes: 5,
       showStartNotification: true,
-      showEndNotification: false,
+      showEndNotification: true,
     },
     closeBehavior: 'exit',
     calendar: { 
@@ -49,12 +49,12 @@ const DEFAULT_STATE: AppState = {
       dayEndTime: 24, 
       hourDivisions: 2, 
       hourHeight: 56,
-      timeSnap: 15,
+      timeSnap: 1,
       snapEnabled: true,
-      snapThreshold: 10,
+      snapThreshold: 5,
     },
     sound: {
-      enabled: false,
+      enabled: true,
       playOnTaskStart: true,
       playOnTaskEnd: true,
       playOnTaskComplete: true,

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -38,10 +38,10 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
   const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd')
 
   const [title, setTitle] = useState('')
-  const [date, setDate] = useState<string>(today)
-  const [dueDate, setDueDate] = useState<string>(tomorrow)
-  const [startTime, setStartTime] = useState('09:00')
-  const [endTime, setEndTime] = useState('10:00')
+  const [date, setDate] = useState<string>('')
+  const [dueDate, setDueDate] = useState<string>('')
+  const [startTime, setStartTime] = useState<string>('')
+  const [endTime, setEndTime] = useState<string>('')
   const [isAllDay, setIsAllDay] = useState(false)
   const [tagIds, setTagIds] = useState<string[]>([])
   const [frequency, setFrequency] = useState<RepeatFrequency>('none')
@@ -67,10 +67,10 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
     if (!open) return
     if (task) {
       setTitle(task.title)
-      setDate(task.date ?? today)
-      setDueDate(task.dueDate ?? tomorrow)
-      setStartTime(task.startTime ?? '09:00')
-      setEndTime(task.endTime ?? '10:00')
+      setDate(task.date ?? '')
+      setDueDate(task.dueDate ?? '')
+      setStartTime(task.startTime ?? '')
+      setEndTime(task.endTime ?? '')
       setIsAllDay(task.isAllDay)
       setTagIds(task.tagIds)
       setFrequency(task.repeatRule.frequency)
@@ -82,10 +82,10 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
       setStatus(task.status)
     } else {
       setTitle('')
-      setDate(defaultDate ?? today)
+      setDate(defaultDate ?? '')
       setDueDate(tomorrow)
-      setStartTime(defaultStartTime ?? '09:00')
-      setEndTime(defaultEndTime ?? '10:00')
+      setStartTime(defaultStartTime ?? '')
+      setEndTime(defaultEndTime ?? '')
       setIsAllDay(false)
       setTagIds([])
       setFrequency('none')
@@ -178,9 +178,23 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
 
   const wdLabels = lang === 'zh' ? WEEKDAY_LABELS : WEEKDAY_LABELS_EN
 
+  /**
+   * 处理键盘事件，Enter键保存任务
+   * @param e - 键盘事件对象
+   */
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      const target = e.target as HTMLElement
+      if (target.tagName !== 'TEXTAREA') {
+        e.preventDefault()
+        handleSave()
+      }
+    }
+  }, [handleSave])
+
   return (
     <Dialog open={open} onOpenChange={v => !v && onClose()}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto" onKeyDown={handleKeyDown}>
         <DialogHeader>
           <DialogTitle>{task ? t.task.edit : t.task.new}</DialogTitle>
           <DialogDescription aria-describedby={undefined} className="sr-only">
@@ -201,37 +215,44 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
             />
           </div>
 
-          {/* Dates */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* 截止日期 - 独立分组 */}
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="task-due-date">{t.task.dueDate}</Label>
+            <Input id="task-due-date" type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} />
+          </div>
+
+          {/* 计划日期与时间设置区域 */}
+          <div className="flex flex-col gap-3 p-3 bg-muted/30 rounded-lg">
+            <div className="flex items-center gap-2">
+              <Label className="text-sm font-semibold text-foreground">计划时间</Label>
+            </div>
+            
+            {/* 计划日期 */}
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="task-date">{t.task.date}</Label>
+              <Label htmlFor="task-date" className="text-xs text-muted-foreground">计划日期</Label>
               <Input id="task-date" type="date" value={date} onChange={e => setDate(e.target.value)} />
             </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="task-due-date">{t.task.dueDate}</Label>
-              <Input id="task-due-date" type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} />
-            </div>
-          </div>
 
-          {/* All Day */}
-          <div className="flex items-center justify-between">
-            <Label htmlFor="all-day-switch">{t.task.allDay}</Label>
-            <Switch id="all-day-switch" checked={isAllDay} onCheckedChange={setIsAllDay} />
-          </div>
-
-          {/* Times */}
-          {!isAllDay && (
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="start-time">{t.task.startTime}</Label>
-                <Input id="start-time" type="time" value={startTime} onChange={e => setStartTime(e.target.value)} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="end-time">{t.task.endTime}</Label>
-                <Input id="end-time" type="time" value={endTime} onChange={e => setEndTime(e.target.value)} />
-              </div>
+            {/* 全天任务开关 */}
+            <div className="flex items-center justify-between pt-1">
+              <Label htmlFor="all-day-switch" className="text-sm">全天任务</Label>
+              <Switch id="all-day-switch" checked={isAllDay} onCheckedChange={setIsAllDay} />
             </div>
-          )}
+
+            {/* 时间设置 - 仅在非全天任务时显示 */}
+            {!isAllDay && (
+              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border/30">
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="start-time" className="text-xs text-muted-foreground">开始时间</Label>
+                  <Input id="start-time" type="time" value={startTime} onChange={e => setStartTime(e.target.value)} />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="end-time" className="text-xs text-muted-foreground">结束时间</Label>
+                  <Input id="end-time" type="time" value={endTime} onChange={e => setEndTime(e.target.value)} />
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Tags */}
           <div className="flex flex-col gap-1.5">

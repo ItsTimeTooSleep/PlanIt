@@ -3,6 +3,8 @@
 import { Switch } from '@/components/ui/switch'
 import { useStore, useLanguage } from '@/lib/store'
 import { useTranslations } from '@/lib/i18n'
+import { SettingRow, SettingGroup, SettingSubGroup } from './setting-row'
+import { SelectControl, NumberInput } from '@/components/ui/segmented-control'
 
 export function CalendarSettings() {
   const lang = useLanguage()
@@ -16,127 +18,88 @@ export function CalendarSettings() {
     })
   }
 
+  const hourOptions = Array.from({ length: 25 }, (_, i) => ({
+    value: i,
+    label: i === 24 ? '24:00' : `${String(i).padStart(2, '0')}:00`
+  }))
+
+  const timeSnapOptions = [1, 5, 10, 15].map(m => ({
+    value: m,
+    label: `${m} ${lang === 'zh' ? '分钟' : 'min'}`
+  }))
+
+  const snapThresholdOptions = [5, 10, 15, 20, 30].map(m => ({
+    value: m,
+    label: `${m} ${lang === 'zh' ? '分钟' : 'min'}`
+  }))
+
+  const hourDivisionOptions = [1, 2, 3, 4, 6].map(i => ({
+    value: i,
+    label: `${60 / i} ${lang === 'zh' ? '分钟' : 'min'}`
+  }))
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <SettingRow label={t.calendarSettings.timeRange}>
-        <div className="flex items-center gap-2 text-sm">
-          <select
+        <div className="flex items-center gap-2">
+          <SelectControl
+            options={hourOptions.slice(0, 24)}
             value={calendarSettings.dayStartTime}
-            onChange={(e) => updateCalendarSetting('dayStartTime', parseInt(e.target.value))}
-            className="px-2 py-1 rounded-md border-0 bg-muted/50 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20"
-          >
-            {Array.from({ length: 24 }, (_, i) => (
-              <option key={i} value={i}>{String(i).padStart(2, '0')}:00</option>
-            ))}
-          </select>
-          <span className="text-muted-foreground">—</span>
-          <select
+            onChange={(v) => updateCalendarSetting('dayStartTime', v)}
+          />
+          <span className="text-muted-foreground text-sm">—</span>
+          <SelectControl
+            options={hourOptions}
             value={calendarSettings.dayEndTime}
-            onChange={(e) => updateCalendarSetting('dayEndTime', parseInt(e.target.value))}
-            className="px-2 py-1 rounded-md border-0 bg-muted/50 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20"
-          >
-            {Array.from({ length: 25 }, (_, i) => (
-              <option key={i} value={i}>{i === 24 ? '24:00' : String(i).padStart(2, '0') + ':00'}</option>
-            ))}
-          </select>
+            onChange={(v) => updateCalendarSetting('dayEndTime', v)}
+          />
         </div>
       </SettingRow>
 
       <SettingRow label={t.calendarSettings.timeSnap} description={t.calendarSettings.timeSnapDesc}>
-        <select
+        <SelectControl
+          options={timeSnapOptions}
           value={calendarSettings.timeSnap}
-          onChange={(e) => updateCalendarSetting('timeSnap', parseInt(e.target.value))}
-          className="px-2 py-1 rounded-md border-0 bg-muted/50 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20"
-        >
-          {[1, 5, 10, 15].map(m => (
-            <option key={m} value={m}>{m} {lang === 'zh' ? '分钟' : 'min'}</option>
-          ))}
-        </select>
-      </SettingRow>
-
-      <SettingRow label={t.calendarSettings.snapEnabled} description={t.calendarSettings.snapEnabledDesc}>
-        <Switch
-          checked={calendarSettings.snapEnabled}
-          onCheckedChange={(v) => updateCalendarSetting('snapEnabled', v)}
+          onChange={(v) => updateCalendarSetting('timeSnap', v)}
         />
       </SettingRow>
 
-      {calendarSettings.snapEnabled && (
-        <SettingRow label={t.calendarSettings.snapThreshold} description={t.calendarSettings.snapThresholdDesc}>
-          <select
-            value={calendarSettings.snapThreshold}
-            onChange={(e) => updateCalendarSetting('snapThreshold', parseInt(e.target.value))}
-            className="px-2 py-1 rounded-md border-0 bg-muted/50 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20"
-          >
-            {[5, 10, 15, 20, 30].map(m => (
-              <option key={m} value={m}>{m} {lang === 'zh' ? '分钟' : 'min'}</option>
-            ))}
-          </select>
+      <SettingGroup bordered>
+        <SettingRow label={t.calendarSettings.snapEnabled} description={t.calendarSettings.snapEnabledDesc}>
+          <Switch
+            checked={calendarSettings.snapEnabled}
+            onCheckedChange={(v) => updateCalendarSetting('snapEnabled', v)}
+          />
         </SettingRow>
-      )}
+
+        <SettingSubGroup show={calendarSettings.snapEnabled}>
+          <SettingRow label={t.calendarSettings.snapThreshold} description={t.calendarSettings.snapThresholdDesc}>
+            <SelectControl
+              options={snapThresholdOptions}
+              value={calendarSettings.snapThreshold}
+              onChange={(v) => updateCalendarSetting('snapThreshold', v)}
+            />
+          </SettingRow>
+        </SettingSubGroup>
+      </SettingGroup>
 
       <SettingRow label={lang === 'zh' ? '每小时分割' : 'Hour divisions'}>
-        <select
+        <SelectControl
+          options={hourDivisionOptions}
           value={calendarSettings.hourDivisions}
-          onChange={(e) => updateCalendarSetting('hourDivisions', parseInt(e.target.value))}
-          className="px-2 py-1 rounded-md border-0 bg-muted/50 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20"
-        >
-          {[1, 2, 3, 4, 6].map(i => (
-            <option key={i} value={i}>{60 / i} {lang === 'zh' ? '分钟' : 'min'}</option>
-          ))}
-        </select>
+          onChange={(v) => updateCalendarSetting('hourDivisions', v)}
+        />
       </SettingRow>
 
       <SettingRow label={lang === 'zh' ? '行高' : 'Row height'}>
-        <div className="flex items-center gap-1">
-          <input
-            type="number"
-            value={calendarSettings.hourHeight}
-            onChange={(e) => {
-              const value = parseInt(e.target.value)
-              if (!isNaN(value) && value >= 24 && value <= 300) {
-                updateCalendarSetting('hourHeight', value)
-              }
-            }}
-            onBlur={(e) => {
-              const value = parseInt(e.target.value)
-              if (isNaN(value) || value < 24) {
-                updateCalendarSetting('hourHeight', 24)
-              } else if (value > 300) {
-                updateCalendarSetting('hourHeight', 300)
-              }
-            }}
-            min={24}
-            max={300}
-            className="w-16 px-2 py-1 rounded-md border-0 bg-muted/50 text-sm focus:outline-none focus:ring-1 focus:ring-primary/20 text-right"
-          />
-          <span className="text-xs text-muted-foreground">px</span>
-        </div>
+        <NumberInput
+          value={calendarSettings.hourHeight}
+          onChange={(v) => updateCalendarSetting('hourHeight', v)}
+          min={24}
+          max={300}
+          unit="px"
+        />
       </SettingRow>
-    </div>
-  )
-}
-
-function SettingRow({
-  label,
-  description,
-  children
-}: {
-  label: string
-  description?: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="flex items-start justify-between gap-4">
-      <div className="flex-1 min-w-0">
-        <p className="text-sm">{label}</p>
-        {description && (
-          <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
-        )}
-      </div>
-      <div className="shrink-0">
-        {children}
-      </div>
     </div>
   )
 }

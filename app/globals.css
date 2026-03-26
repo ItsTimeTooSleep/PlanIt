@@ -325,9 +325,32 @@
   html, body {
     @apply bg-background text-foreground overflow-hidden h-full;
   }
+  html, body, * {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    user-drag: none;
+  }
+  input, textarea, [contenteditable="true"], [contenteditable=""] {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+  a, img, button {
+    -webkit-user-drag: none;
+    user-drag: none;
+  }
+  input[type="range"], input[type="checkbox"], input[type="radio"] {
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }
 
 @layer utilities {
+  .allow-drag {
+    -webkit-user-drag: element !important;
+    user-drag: element !important;
+  }
+  
   .bg-success {
     background-color: var(--success);
   }

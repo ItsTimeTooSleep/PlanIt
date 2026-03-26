@@ -429,51 +429,49 @@ export function useWidgetStoreState(): WidgetStoreContextValue {
       const meta = WIDGET_METADATA[type]
       const now = new Date().toISOString()
       
-      let newZIndex = 1
-      let canvasSize = DEFAULT_CANVAS_SIZE
-      setState((prev) => {
-        const layout = prev.layouts.find((l) => l.id === (prev.activeLayoutId || prev.layouts[0]?.id))
-        if (layout) {
-          if (layout.widgets.length > 0) {
-            newZIndex = Math.max(...layout.widgets.map(w => w.zIndex || 0)) + 1
-          }
-          canvasSize = layout.canvas || DEFAULT_CANVAS_SIZE
-        }
-        return prev
-      })
-      
-      const pixelPosition = position || { x: 20, y: 20 }
-      const pixelSize = size || meta.defaultSize
-      
-      const newWidget: WidgetInstance = {
-        id: generateId(),
-        type,
-        position: positionToPercent(pixelPosition, canvasSize),
-        size: sizeToPercent(pixelSize, canvasSize),
-        zIndex: newZIndex,
-        config: { ...meta.defaultConfig },
-        createdAt: now,
-        updatedAt: now,
-      }
+      let newWidget: WidgetInstance | null = null
 
       setStateWithHistory((prev) => {
         const layoutId = prev.activeLayoutId || prev.layouts[0]?.id
+        const layout = prev.layouts.find((l) => l.id === layoutId)
+        if (!layout) return prev
+
+        let newZIndex = 1
+        if (layout.widgets.length > 0) {
+          newZIndex = Math.max(...layout.widgets.map(w => w.zIndex || 0)) + 1
+        }
+        const canvasSize = layout.canvas || DEFAULT_CANVAS_SIZE
+
+        const pixelPosition = position || { x: 20, y: 20 }
+        const pixelSize = size || meta.defaultSize
+        
+        newWidget = {
+          id: generateId(),
+          type,
+          position: positionToPercent(pixelPosition, canvasSize),
+          size: sizeToPercent(pixelSize, canvasSize),
+          zIndex: newZIndex,
+          config: { ...meta.defaultConfig },
+          createdAt: now,
+          updatedAt: now,
+        }
+
         return {
           ...prev,
-          layouts: prev.layouts.map((layout) => {
-            if (layout.id === layoutId) {
+          layouts: prev.layouts.map((l) => {
+            if (l.id === layoutId) {
               return {
-                ...layout,
-                widgets: [...layout.widgets, newWidget],
+                ...l,
+                widgets: [...l.widgets, newWidget!],
                 updatedAt: now,
               }
             }
-            return layout
+            return l
           }),
         }
       })
 
-      return newWidget
+      return newWidget!
     },
     [setStateWithHistory]
   )

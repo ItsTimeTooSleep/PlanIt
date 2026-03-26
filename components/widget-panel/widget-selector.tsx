@@ -142,7 +142,10 @@ function WidgetCard({ widget, onDragStart, onClick }: WidgetCardProps) {
   const Icon = WIDGET_ICONS[widget.type]
 
   const handleDragStart = (e: React.DragEvent) => {
+    console.log('WidgetCard: dragstart triggered!', widget.type)
+    e.dataTransfer.effectAllowed = 'copy'
     e.dataTransfer.setData('widget-type', widget.type)
+    e.dataTransfer.setData('text/plain', widget.type)
     onDragStart(widget.type)
   }
 
@@ -151,7 +154,7 @@ function WidgetCard({ widget, onDragStart, onClick }: WidgetCardProps) {
       draggable
       onDragStart={handleDragStart}
       onClick={() => onClick(widget.type)}
-      className="group relative flex flex-col items-center p-3 rounded-lg border border-border bg-background hover:bg-muted/50 hover:border-primary/50 cursor-pointer transition-all"
+      className="group relative flex flex-col items-center p-3 rounded-lg border border-border bg-background hover:bg-muted/50 hover:border-primary/50 cursor-pointer transition-all allow-drag"
     >
       <div className="absolute left-1 top-1 opacity-0 group-hover:opacity-100 transition-opacity">
         <GripVertical className="w-3 h-3 text-muted-foreground" />

@@ -1,48 +1,96 @@
 'use client'
 
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
-import { Play, Pause, RotateCcw, SkipForward, Settings2, Coffee, Brain, Timer } from 'lucide-react'
+import { Play, Pause, RotateCcw, SkipForward, Coffee, Brain, Timer, Plus, Minus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { usePomodoro } from '@/lib/pomodoro-hooks'
 import { useLanguage } from '@/lib/store'
 import { POMODORO_COLORS } from '@/lib/colors'
 import type { BaseWidgetProps } from '@/lib/widget-types'
 
 type SizeMode = 'compact' | 'normal' | 'large' | 'xlarge'
+type PomodoroPhase = 'work' | 'shortBreak' | 'longBreak'
+type PomodoroStatus = 'idle' | 'running' | 'paused' | 'finished'
 
 interface ContainerSize {
   width: number
   height: number
 }
 
-/**
- * 番茄钟组件
- * @param props - 组件属性
- * @param props.id - 组件实例ID
- * @param props.config - 组件配置
- * @param props.className - 自定义样式类
- * @returns 番茄钟组件
- */
+interface PomodoroSettings {
+  workDuration: number
+  shortBreakDuration: number
+  longBreakDuration: number
+  workSessionsBeforeLongBreak: number
+}
+
+interface LocalPomodoroState {
+  status: PomodoroStatus
+  phase: PomodoroPhase
+  remainingSeconds: number
+  totalSeconds: number
+  completedSessions: number
+  customWorkMinutes: number
+  settings: PomodoroSettings
+}
+
+function formatTime(seconds: number): string {
+  const mins = Math.floor(seconds / 60)
+  const secs = seconds % 60
+  return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+}
+
+function getPhaseDuration(phase: PomodoroPhase, settings: PomodoroSettings): number {
+  switch (phase) {
+    case 'work':
+      return settings.workDuration * 60
+    case 'shortBreak':
+      return settings.shortBreakDuration * 60
+    case 'longBreak':
+      return settings.longBreakDuration * 60
+  }
+}
+
+function getNextPhase(
+  currentPhase: PomodoroPhase,
+  completedSessions: number,
+  settings: PomodoroSettings
+): PomodoroPhase {
+  if (currentPhase === 'work') {
+    const nextSessionNumber = completedSessions + 1
+    if (nextSessionNumber % settings.workSessionsBeforeLongBreak === 0) {
+      return 'longBreak'
+    }
+    return 'shortBreak'
+  }
+  return 'work'
+}
+
 export function PomodoroWidget({ id, config, className }: BaseWidgetProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
   const [sizeMode, setSizeMode] = useState<SizeMode>('normal')
   const [containerSize, setContainerSize] = useState<ContainerSize>({ width: 300, height: 300 })
   
   const lang = useLanguage()
-  const {
-    pomodoro,
-    currentTask,
-    formatTime,
-    startTimer,
-    pauseTimer,
-    stopTimer,
-    switchToNextPhase,
-  } = usePomodoro()
+  
+  const [pomodoro, setPomodoro] = useState<LocalPomodoroState>({
+    status: 'idle',
+    phase: 'work',
+    remainingSeconds: 25 * 60,
+    totalSeconds: 25 * 60,
+    completedSessions: 0,
+    customWorkMinutes: 25,
+    settings: {
+      workDuration: 25,
+      shortBreakDuration: 5,
+      longBreakDuration: 15,
+      workSessionsBeforeLongBreak: 4,
+    },
+  })
 
   const showTask = (config?.showTask as boolean) ?? true
   const showSessionCount = (config?.showSessionCount as boolean) ?? true
-  const showSettings = (config?.showSettings as boolean) ?? false
 
   useEffect(() => {
     const updateSizeMode = () => {
@@ -69,6 +117,110 @@ export function PomodoroWidget({ id, config, className }: BaseWidgetProps) {
     updateSizeMode()
     window.addEventListener('resize', updateSizeMode)
     return () => window.removeEventListener('resize', updateSizeMode)
+  }, [])
+
+  useEffect(() => {
+    if (pomodoro.status === 'running') {
+      if (!timerRef.current) {
+        timerRef.current = setInterval(() => {
+          setPomodoro(prev => {
+            if (prev.remainingSeconds <= 1) {
+              clearInterval(timerRef.current!)
+              timerRef.current = null
+              return { ...prev, status: 'finished', remainingSeconds: 0 }
+            }
+            return { ...prev, remainingSeconds: prev.remainingSeconds - 1 }
+          })
+        }, 1000)
+      }
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+        timerRef.current = null
+      }
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+      }
+    }
+  }, [pomodoro.status])
+
+  useEffect(() => {
+    if (pomodoro.status === 'finished') {
+      switchToNextPhase()
+    }
+  }, [pomodoro.status])
+
+  const startTimer = useCallback(() => {
+    setPomodoro(prev => ({ ...prev, status: 'running' }))
+  }, [])
+
+  const pauseTimer = useCallback(() => {
+    setPomodoro(prev => ({ ...prev, status: 'paused' }))
+  }, [])
+
+  const stopTimer = useCallback(() => {
+    setPomodoro({
+      status: 'idle',
+      phase: 'work',
+      remainingSeconds: pomodoro.customWorkMinutes * 60,
+      totalSeconds: pomodoro.customWorkMinutes * 60,
+      completedSessions: 0,
+      customWorkMinutes: pomodoro.customWorkMinutes,
+      settings: pomodoro.settings,
+    })
+  }, [pomodoro.customWorkMinutes, pomodoro.settings])
+
+  const setWorkDuration = useCallback((minutes: number) => {
+    const validMinutes = Math.max(1, Math.min(240, minutes))
+    const duration = validMinutes * 60
+    setPomodoro(prev => ({
+      ...prev,
+      customWorkMinutes: validMinutes,
+      remainingSeconds: duration,
+      totalSeconds: duration,
+    }))
+  }, [])
+
+  const increaseWorkDuration = useCallback(() => {
+    const currentMinutes = Math.ceil(pomodoro.totalSeconds / 60)
+    const newMinutes = Math.min(240, currentMinutes + 5)
+    setWorkDuration(newMinutes)
+  }, [pomodoro.totalSeconds, setWorkDuration])
+
+  const decreaseWorkDuration = useCallback(() => {
+    const currentMinutes = Math.ceil(pomodoro.totalSeconds / 60)
+    const newMinutes = Math.max(1, currentMinutes - 5)
+    setWorkDuration(newMinutes)
+  }, [pomodoro.totalSeconds, setWorkDuration])
+
+  const switchToNextPhase = useCallback(() => {
+    setPomodoro(prev => {
+      let newCompletedSessions = prev.completedSessions
+      if (prev.phase === 'work') {
+        newCompletedSessions += 1
+      }
+
+      const nextPhase = getNextPhase(prev.phase, prev.completedSessions, prev.settings)
+      let nextDuration: number
+
+      if (nextPhase === 'work') {
+        nextDuration = prev.customWorkMinutes * 60
+      } else {
+        nextDuration = getPhaseDuration(nextPhase, prev.settings)
+      }
+
+      return {
+        ...prev,
+        phase: nextPhase,
+        remainingSeconds: nextDuration,
+        totalSeconds: nextDuration,
+        completedSessions: newCompletedSessions,
+        status: 'idle',
+      }
+    })
   }, [])
 
   const progress = useMemo(() => {
@@ -161,9 +313,11 @@ export function PomodoroWidget({ id, config, className }: BaseWidgetProps) {
     return containerSize.width >= 200 && sizeMode !== 'compact'
   }, [containerSize.width, sizeMode])
 
-  const showTaskInfo = showTask && currentTask && containerSize.height >= 200
   const showSessionInfo = showSessionCount && containerSize.height >= 180
   const showSkipButton = containerSize.width >= 200
+  const showTimeAdjust = pomodoro.status === 'idle' && containerSize.width >= 150 && sizeMode !== 'compact'
+
+  const currentMinutes = Math.ceil(pomodoro.totalSeconds / 60)
 
   const PhaseIcon = getPhaseIcon()
 
@@ -193,10 +347,35 @@ export function PomodoroWidget({ id, config, className }: BaseWidgetProps) {
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center p-4">
-        {showTaskInfo && (
-          <p className="text-xs text-muted-foreground mb-2 text-center truncate max-w-full">
-            {currentTask.title}
-          </p>
+        {showTimeAdjust && (
+          <div className="flex items-center gap-1 mb-3">
+            <Button 
+              size="icon" 
+              variant="ghost"
+              onClick={decreaseWorkDuration}
+              disabled={pomodoro.status !== 'idle'}
+              className={sizeMode === 'compact' ? 'w-7 h-7' : 'w-8 h-8'}
+            >
+              <Minus className={sizeMode === 'compact' ? 'w-3 h-3' : 'w-4 h-4'} />
+            </Button>
+
+            <div className="text-center min-w-[70px]">
+              <p className={cn('font-bold tabular-nums', sizeMode === 'compact' ? 'text-lg' : 'text-xl')}>
+                {String(currentMinutes).padStart(2, '0')}
+                <span className={cn('text-muted-foreground', sizeMode === 'compact' ? 'text-xs' : 'text-sm')}>:00</span>
+              </p>
+            </div>
+
+            <Button 
+              size="icon" 
+              variant="ghost"
+              onClick={increaseWorkDuration}
+              disabled={pomodoro.status !== 'idle'}
+              className={sizeMode === 'compact' ? 'w-7 h-7' : 'w-8 h-8'}
+            >
+              <Plus className={sizeMode === 'compact' ? 'w-3 h-3' : 'w-4 h-4'} />
+            </Button>
+          </div>
         )}
 
         <div className="relative mb-4" style={{ width: circleSize, height: circleSize }}>

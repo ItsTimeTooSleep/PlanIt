@@ -181,6 +181,10 @@ function CustomLayoutContent() {
     console.log('Widget selected:', type)
   }, [])
 
+  const handleDragStart = useCallback((type: WidgetType) => {
+    console.log('Widget drag start:', type)
+  }, [])
+
   const handleStartEditTitle = useCallback(() => {
     if (activeLayout) {
       setEditingTitle(activeLayout.name)
@@ -339,6 +343,7 @@ function CustomLayoutContent() {
         )}>
           <WidgetSelector
             onWidgetSelect={handleWidgetSelect}
+            onDragStart={handleDragStart}
             className="h-full"
           />
         </div>

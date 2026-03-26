@@ -39,8 +39,8 @@ function HomeViewContent() {
   }, [])
 
   function openCreate(startMin?: number) {
-    const start = startMin !== undefined ? minutesToTime(startMin) : '09:00'
-    const end = startMin !== undefined ? minutesToTime(Math.min(startMin + 60, 23 * 60)) : '10:00'
+    const start = startMin !== undefined ? minutesToTime(startMin) : undefined
+    const end = startMin !== undefined ? minutesToTime(Math.min(startMin + 60, 23 * 60)) : undefined
     setDefaultStart(start)
     setDefaultEnd(end)
     setEditTask(null)
@@ -85,8 +85,8 @@ function HomeViewContent() {
           transform: isFabHovered ? 'scale(1.02)' : 'scale(1)',
         }}
       >
-        <div className="flex items-center gap-2 text-white">
-          <Plus className={`w-6 h-6 transition-transform duration-300 ${isFabHovered ? 'rotate-90' : ''}`} />
+        <div className="flex items-center justify-center text-white w-full" style={{ gap: isFabHovered ? '8px' : '0px' }}>
+          <Plus className={`w-6 h-6 flex-shrink-0 transition-transform duration-300 ${isFabHovered ? 'rotate-90' : ''}`} />
           <span 
             className="text-sm font-medium whitespace-nowrap transition-all duration-300 overflow-hidden"
             style={{
@@ -103,7 +103,6 @@ function HomeViewContent() {
         open={modalOpen}
         onClose={() => { setModalOpen(false); setEditTask(null) }}
         task={editTask}
-        defaultDate={today}
         defaultStartTime={defaultStart}
         defaultEndTime={defaultEnd}
       />

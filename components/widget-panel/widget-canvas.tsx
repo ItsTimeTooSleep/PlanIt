@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 import type { WidgetType, Position, Size, BaseWidgetProps } from '@/lib/widget-types'
 import { WIDGET_METADATA } from '@/lib/widget-registry'
 import { WidgetWrapper } from './widget-wrapper'
-import { useWidgetStore } from '@/lib/widget-store'
+import { useWidgetStore } from '@/components/widget-store-provider'
 import { 
   snapPositionToGrid, 
   CANVAS_PADDING, 
@@ -177,12 +177,14 @@ export function WidgetCanvas({ className, showGrid = true, editMode = false }: W
   }, [])
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
+    console.log('[WidgetCanvas] handleDragOver called')
     e.preventDefault()
     e.dataTransfer.dropEffect = 'copy'
     setIsDragOver(true)
   }, [])
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
+    console.log('[WidgetCanvas] handleDragLeave called')
     if (!canvasRef.current?.contains(e.relatedTarget as Node)) {
       setIsDragOver(false)
     }
@@ -190,11 +192,16 @@ export function WidgetCanvas({ className, showGrid = true, editMode = false }: W
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
+      console.log('[WidgetCanvas] handleDrop called')
       e.preventDefault()
       setIsDragOver(false)
 
       const widgetType = e.dataTransfer.getData('widget-type') as WidgetType
-      if (!widgetType || !canvasRef.current) return
+      console.log('[WidgetCanvas] widgetType from dataTransfer:', widgetType)
+      if (!widgetType || !canvasRef.current) {
+        console.log('[WidgetCanvas] no widgetType or canvasRef, returning')
+        return
+      }
 
       const canvasRect = canvasRef.current.getBoundingClientRect()
       const meta = WIDGET_METADATA[widgetType]
@@ -207,6 +214,7 @@ export function WidgetCanvas({ className, showGrid = true, editMode = false }: W
       position.x = Math.max(CANVAS_PADDING, position.x)
       position.y = Math.max(CANVAS_PADDING, position.y)
 
+      console.log('[WidgetCanvas] calling addWidget with type:', widgetType, 'position:', position)
       addWidget(widgetType, position, meta.defaultSize)
     },
     [addWidget, zoom]
@@ -383,6 +391,9 @@ export function WidgetCanvas({ className, showGrid = true, editMode = false }: W
       <div 
         ref={containerRef}
         className={cn('relative flex-1 overflow-auto bg-muted/50', className)}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
       >
         <div className="absolute inset-0 flex items-center justify-center p-8">
           <div
@@ -392,9 +403,6 @@ export function WidgetCanvas({ className, showGrid = true, editMode = false }: W
               width: canvasSize.width * zoom,
               height: canvasSize.height * zoom,
             }}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
             onClick={handleCanvasClick}
           >
             {renderGrid()}

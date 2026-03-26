@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import { usePlatform, useDesktopOnly } from '@/components/platform-provider'
 import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
 import { useLanguage } from '@/lib/store'
 import { useTranslations } from '@/lib/i18n'
+import { SettingRow } from '@/components/settings/setting-row'
 
 interface AutoLaunchToggleProps {
   className?: string
@@ -21,8 +21,8 @@ interface AutoLaunchToggleProps {
 export function AutoLaunchToggle({ className, disabled }: AutoLaunchToggleProps) {
   const shouldRender = useDesktopOnly()
   const { api, isReady } = usePlatform()
-  const { language } = useLanguage()
-  const t = useTranslations(language)
+  const lang = useLanguage()
+  const t = useTranslations(lang)
   const [isEnabled, setIsEnabled] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -54,19 +54,16 @@ export function AutoLaunchToggle({ className, disabled }: AutoLaunchToggleProps)
   }
 
   return (
-    <div className={`flex items-center justify-between ${className || ''}`}>
-      <div className="space-y-0.5">
-        <Label htmlFor="auto-launch">{t.settings.autoLaunch}</Label>
-        <p className="text-xs text-muted-foreground">
-          {t.settings.autoLaunchDesc}
-        </p>
-      </div>
+    <SettingRow
+      label={t.settings.autoLaunch}
+      description={t.settings.autoLaunchDesc}
+      className={className}
+    >
       <Switch
-        id="auto-launch"
         checked={isEnabled}
         onCheckedChange={handleToggle}
         disabled={disabled || isLoading}
       />
-    </div>
+    </SettingRow>
   )
 }

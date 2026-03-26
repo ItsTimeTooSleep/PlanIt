@@ -221,7 +221,7 @@ export function TodoWidget({ id, config, className, onCollapsedChange, onTaskCli
                     <div className={cn('font-medium text-destructive mb-1 px-1', taskTimeSize)}>
                       <AlertCircle className="w-3 h-3 inline mr-1" />
                       {t.todo.timeFilter.overdue}
-                      <span className="ml-auto text-[10px] text-muted-foreground">
+                      <span className="ml-auto text-[10px] text-destructive font-semibold">
                         {overdueTasks.length}
                       </span>
                     </div>

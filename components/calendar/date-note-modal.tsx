@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { format } from 'date-fns'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -58,9 +58,23 @@ export function DateNoteModal({ open, onClose, date }: DateNoteModalProps) {
 
   const existingNote = getDateNote(date)
 
+  /**
+   * 处理键盘事件，Enter键保存笔记
+   * @param e - 键盘事件对象
+   */
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      const target = e.target as HTMLElement
+      if (target.tagName !== 'TEXTAREA') {
+        e.preventDefault()
+        handleSave()
+      }
+    }
+  }, [handleSave])
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" onKeyDown={handleKeyDown}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <StickyNote className="w-5 h-5 text-primary" />
