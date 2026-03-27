@@ -2,10 +2,13 @@
 
 import { useEffect } from 'react'
 import { usePlatform, useDesktopOnly } from '@/components/platform-provider'
+import { useLanguage } from '@/lib/store'
+import { useTranslations } from '@/lib/i18n'
 
 interface SystemTrayManagerProps {
   onShowWindow?: () => void
   onHideWindow?: () => void
+  onAddTask?: () => void
   onStartPomodoro?: () => void
   onStopPomodoro?: () => void
   onShortBreak?: () => void
@@ -21,6 +24,7 @@ interface SystemTrayManagerProps {
  * 仅在桌面端生效，监听托盘菜单事件
  * @param props.onShowWindow - 显示窗口回调
  * @param props.onHideWindow - 隐藏窗口回调
+ * @param props.onAddTask - 添加任务回调
  * @param props.onStartPomodoro - 开始番茄钟回调
  * @param props.onStopPomodoro - 停止番茄钟回调
  * @param props.onShortBreak - 短休息回调
@@ -33,6 +37,7 @@ interface SystemTrayManagerProps {
 export function SystemTrayManager({
   onShowWindow,
   onHideWindow,
+  onAddTask,
   onStartPomodoro,
   onStopPomodoro,
   onShortBreak,
@@ -44,6 +49,8 @@ export function SystemTrayManager({
 }: SystemTrayManagerProps) {
   const shouldRender = useDesktopOnly()
   const { api, isReady } = usePlatform()
+  const lang = useLanguage()
+  const t = useTranslations(lang)
 
   useEffect(() => {
     if (!api?.capabilities.supportsSystemTray || !isReady) return
@@ -55,6 +62,9 @@ export function SystemTrayManager({
           break
         case 'hide':
           onHideWindow?.()
+          break
+        case 'add-task':
+          onAddTask?.()
           break
         case 'start-focus':
           onStartPomodoro?.()
@@ -89,7 +99,30 @@ export function SystemTrayManager({
     return () => {
       unsubscribe()
     }
-  }, [api, isReady, onShowWindow, onHideWindow, onStartPomodoro, onStopPomodoro, onShortBreak, onLongBreak, onEnterFocusMode, onExitFocusMode, onOpenSettings, onCheckUpdate])
+  }, [api, isReady, onShowWindow, onHideWindow, onAddTask, onStartPomodoro, onStopPomodoro, onShortBreak, onLongBreak, onEnterFocusMode, onExitFocusMode, onOpenSettings, onCheckUpdate])
+
+  useEffect(() => {
+    if (!api?.capabilities.supportsSystemTray || !isReady) return
+
+    api.updateTrayMenuLabels({
+      show: t.tray.show,
+      hide: t.tray.hide,
+      add_task: t.tray.addTask,
+      pomodoro: t.tray.pomodoro,
+      start_focus: t.tray.startFocus,
+      stop_focus: t.tray.stopFocus,
+      short_break: t.tray.shortBreak,
+      long_break: t.tray.longBreak,
+      focus_mode: t.tray.focusMode,
+      enter_focus_mode: t.tray.enterFocusMode,
+      exit_focus_mode: t.tray.exitFocusMode,
+      settings: t.tray.settings,
+      check_update: t.tray.checkUpdate,
+      contact_us: t.tray.contactUs,
+      quit: t.tray.quit,
+      tooltip: t.tray.tooltip,
+    }).catch(console.error)
+  }, [api, isReady, t.tray])
 
   if (!shouldRender) {
     return null

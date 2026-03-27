@@ -9,13 +9,15 @@ import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { useStore, useLanguage } from '@/lib/store'
 import { useTranslations } from '@/lib/i18n'
-import { generateId, expandRepeatTasks } from '@/lib/task-utils'
-import type { Task, TaskStatus, RepeatFrequency } from '@/lib/types'
+import { generateId, expandRepeatTasks, getTaskIdsToDelete, isPartOfRecurringGroup } from '@/lib/task-utils'
+import type { Task, TaskStatus, RepeatFrequency, DeleteRecurringOption } from '@/lib/types'
 import { format, addDays } from 'date-fns'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, Trash2, ChevronDown, ChevronRight } from 'lucide-react'
 import { PRESET_TAG_COLORS } from '@/lib/colors'
+import { TaskDeleteDialog } from './task-delete-dialog'
 
 interface TaskModalProps {
   open: boolean
@@ -48,11 +50,12 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
   const [weekdays, setWeekdays] = useState<number[]>([])
   const [repeatEndDate, setRepeatEndDate] = useState('')
   const [repeatInterval, setRepeatInterval] = useState(1)
-  const [repeatUnit, setRepeatUnit] = useState<'days' | 'weeks' | 'months'>('days')
+  const [repeatUnit, setRepeatUnit] = useState<'days' | 'weeks' | 'months' | 'years'>('days')
   const [notes, setNotes] = useState('')
   const [status, setStatus] = useState<TaskStatus>('pending')
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [deleteAllRecurring, setDeleteAllRecurring] = useState(false)
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false)
+  const [dueDateOffset, setDueDateOffset] = useState<number>(0)
 
   const { addTag } = useStore()
 
@@ -80,6 +83,15 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
       setRepeatUnit(task.repeatRule.customUnit ?? 'days')
       setNotes(task.notes ?? '')
       setStatus(task.status)
+      // 计算初始截止日期偏移
+      if (task.date && task.dueDate) {
+        const planDate = new Date(task.date)
+        const due = new Date(task.dueDate)
+        const diff = Math.floor((due.getTime() - planDate.getTime()) / (1000 * 60 * 60 * 24))
+        setDueDateOffset(diff)
+      } else {
+        setDueDateOffset(0)
+      }
     } else {
       setTitle('')
       setDate(defaultDate ?? '')
@@ -95,6 +107,8 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
       setRepeatUnit('days')
       setNotes('')
       setStatus('pending')
+      setDueDateOffset(0)
+      setShowAdvancedOptions(false)
     }
     setShowNewTag(false)
     setNewTagName('')
@@ -102,7 +116,6 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
     setCustomTagColor('#000000')
     setUseCustomColor(false)
     setShowDeleteConfirm(false)
-    setDeleteAllRecurring(false)
   }, [open, task, defaultDate, defaultStartTime, defaultEndTime, today, tomorrow])
 
   function handleSave() {
@@ -143,22 +156,15 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
     onClose()
   }
 
-  function getRepeatTaskIds(currentTask: Task) {
-    if (currentTask.repeatRule.frequency === 'none') return [currentTask.id]
-    
-    const baseCreatedAt = currentTask.createdAt.slice(0, 19)
-    return state.tasks
-      .filter(t => t.title === currentTask.title && t.createdAt.slice(0, 19) === baseCreatedAt)
-      .map(t => t.id)
-  }
-
-  function handleDelete() {
+  function handleDeleteConfirm(option: DeleteRecurringOption) {
     if (task) {
-      const idsToDelete = deleteAllRecurring ? getRepeatTaskIds(task) : [task.id]
+      const idsToDelete = getTaskIdsToDelete(task, state.tasks, option)
       deleteTasks(idsToDelete)
       onClose()
     }
   }
+
+  const isRecurring = task ? isPartOfRecurringGroup(task, state.tasks) : false
 
   function handleCreateTagInline() {
     if (!newTagName.trim()) return
@@ -230,25 +236,55 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
             {/* 计划日期 */}
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="task-date" className="text-xs text-muted-foreground">计划日期</Label>
-              <Input id="task-date" type="date" value={date} onChange={e => setDate(e.target.value)} />
+              <Input 
+                id="task-date" 
+                type="date" 
+                value={date} 
+                onChange={e => {
+                  const newDate = e.target.value
+                  setDate(newDate)
+                  if (!newDate) {
+                    setIsAllDay(false)
+                    setStartTime('')
+                    setEndTime('')
+                  }
+                }} 
+              />
             </div>
 
             {/* 全天任务开关 */}
             <div className="flex items-center justify-between pt-1">
-              <Label htmlFor="all-day-switch" className="text-sm">全天任务</Label>
-              <Switch id="all-day-switch" checked={isAllDay} onCheckedChange={setIsAllDay} />
+              <Label htmlFor="all-day-switch" className={`text-sm ${!date ? 'text-muted-foreground' : ''}`}>全天任务</Label>
+              <Switch 
+                id="all-day-switch" 
+                checked={isAllDay} 
+                onCheckedChange={setIsAllDay} 
+                disabled={!date}
+              />
             </div>
 
             {/* 时间设置 - 仅在非全天任务时显示 */}
             {!isAllDay && (
               <div className="grid grid-cols-2 gap-3 pt-2 border-t border-border/30">
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="start-time" className="text-xs text-muted-foreground">开始时间</Label>
-                  <Input id="start-time" type="time" value={startTime} onChange={e => setStartTime(e.target.value)} />
+                  <Label htmlFor="start-time" className={`text-xs ${!date ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>开始时间</Label>
+                  <Input 
+                    id="start-time" 
+                    type="time" 
+                    value={startTime} 
+                    onChange={e => setStartTime(e.target.value)} 
+                    disabled={!date}
+                  />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="end-time" className="text-xs text-muted-foreground">结束时间</Label>
-                  <Input id="end-time" type="time" value={endTime} onChange={e => setEndTime(e.target.value)} />
+                  <Label htmlFor="end-time" className={`text-xs ${!date ? 'text-muted-foreground/50' : 'text-muted-foreground'}`}>结束时间</Label>
+                  <Input 
+                    id="end-time" 
+                    type="time" 
+                    value={endTime} 
+                    onChange={e => setEndTime(e.target.value)} 
+                    disabled={!date}
+                  />
                 </div>
               </div>
             )}
@@ -351,6 +387,7 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
                 <SelectItem value="workdays">{t.repeat.workdays}</SelectItem>
                 <SelectItem value="weekly">{t.repeat.weekly}</SelectItem>
                 <SelectItem value="monthly">{t.repeat.monthly}</SelectItem>
+                <SelectItem value="yearly">{t.repeat.yearly}</SelectItem>
                 <SelectItem value="custom">{t.repeat.custom}</SelectItem>
               </SelectContent>
             </Select>
@@ -384,7 +421,7 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
                   onChange={e => setRepeatInterval(Math.max(1, parseInt(e.target.value) || 1))}
                   className="w-16"
                 />
-                <Select value={repeatUnit} onValueChange={v => setRepeatUnit(v as 'days' | 'weeks' | 'months')}>
+                <Select value={repeatUnit} onValueChange={v => setRepeatUnit(v as 'days' | 'weeks' | 'months' | 'years')}>
                   <SelectTrigger className="w-24">
                     <SelectValue />
                   </SelectTrigger>
@@ -392,6 +429,7 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
                     <SelectItem value="days">{t.repeat.customDays}</SelectItem>
                     <SelectItem value="weeks">{t.repeat.customWeeks}</SelectItem>
                     <SelectItem value="months">{t.repeat.customMonths}</SelectItem>
+                    <SelectItem value="years">{t.repeat.customYears}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -409,6 +447,55 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
               </div>
             )}
           </div>
+
+          {/* Advanced Options - Only show when repeat is enabled */}
+          {frequency !== 'none' && (
+            <Collapsible open={showAdvancedOptions} onOpenChange={setShowAdvancedOptions}>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="sm" className="w-full justify-start p-0 h-8">
+                  {showAdvancedOptions ? (
+                    <ChevronDown className="w-4 h-4 mr-1" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 mr-1" />
+                  )}
+                  <span className="text-sm">{t.task.advancedOptions}</span>
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-2">
+                <div className="flex flex-col gap-3 p-3 bg-muted/20 rounded-lg">
+                  {/* Due Date Offset */}
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="due-date-offset" className="text-xs text-muted-foreground">
+                      {t.task.dueDateOffset}
+                    </Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id="due-date-offset"
+                        type="number"
+                        min={0}
+                        value={dueDateOffset}
+                        onChange={e => {
+                          const val = e.target.value
+                          const newOffset = val === '' ? 0 : Math.max(0, parseInt(val) || 0)
+                          setDueDateOffset(newOffset)
+                          // 同步更新截止日期
+                          if (date) {
+                            const newDueDate = addDays(new Date(date), newOffset)
+                            setDueDate(format(newDueDate, 'yyyy-MM-dd'))
+                          }
+                        }}
+                        className="w-20"
+                      />
+                      <span className="text-sm text-muted-foreground">{t.task.days}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {t.task.dueDateOffsetDesc}
+                    </p>
+                  </div>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
 
           {/* Status (only for existing tasks) */}
           {task && (
@@ -452,34 +539,12 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
         </DialogFooter>
 
         {/* Delete Confirmation Dialog */}
-        <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-          <DialogContent className="max-w-sm">
-            <DialogHeader>
-              <DialogTitle>{t.task.deleteConfirmTitle}</DialogTitle>
-              <DialogDescription>{t.task.deleteConfirm}</DialogDescription>
-            </DialogHeader>
-            {task && task.repeatRule.frequency !== 'none' && (
-              <div className="flex items-center space-x-2 py-2">
-                <Checkbox
-                  id="delete-all-recurring"
-                  checked={deleteAllRecurring}
-                  onCheckedChange={(checked) => setDeleteAllRecurring(checked as boolean)}
-                />
-                <Label htmlFor="delete-all-recurring" className="text-sm font-normal cursor-pointer">
-                  {t.task.deleteAllRepeat}
-                </Label>
-              </div>
-            )}
-            <DialogFooter className="flex sm:flex-row gap-2">
-              <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
-                {t.common.cancel}
-              </Button>
-              <Button variant="destructive" onClick={handleDelete}>
-                {t.common.delete}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <TaskDeleteDialog
+          open={showDeleteConfirm}
+          onClose={() => setShowDeleteConfirm(false)}
+          onConfirm={handleDeleteConfirm}
+          isRecurring={isRecurring}
+        />
       </DialogContent>
     </Dialog>
   )

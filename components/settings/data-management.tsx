@@ -8,10 +8,12 @@ import { ImportDialog } from './import-dialog'
 import { Download, Upload } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SettingRow, SettingGroup } from './setting-row'
+import { useToast } from '@/hooks/use-toast'
 
 export function DataManagement() {
   const lang = useLanguage()
   const t = useTranslations(lang)
+  const { toast } = useToast()
   const { handleExport } = useDataExport()
   const {
     fileInputRef,
@@ -24,10 +26,18 @@ export function DataManagement() {
     openFilePicker,
   } = useDataImport()
 
+  const handleExportWithToast = () => {
+    handleExport()
+    toast({
+      title: t.common.success,
+      description: t.settings.exportSuccess,
+    })
+  }
+
   return (
     <div className="space-y-4">
       <SettingRow label={t.settings.export} description={t.settings.exportDesc}>
-        <Button variant="outline" size="sm" onClick={handleExport} className="h-8 text-xs gap-1.5">
+        <Button variant="outline" size="sm" onClick={handleExportWithToast} className="h-8 text-xs gap-1.5">
           <Download className="w-3.5 h-3.5" />
           {t.settings.export}
         </Button>

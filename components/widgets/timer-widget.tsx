@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
-import { Play, Pause, RotateCcw, Timer, Clock, Volume2, VolumeX } from 'lucide-react'
+import { Play, Pause, RotateCcw, Timer, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { BaseWidgetProps, TimerConfig, TimerMode } from '@/lib/widget-types'
@@ -26,7 +26,7 @@ type SizeMode = 'compact' | 'normal' | 'large' | 'xlarge'
  * @param props.className - 自定义样式类
  * @returns 计时器组件
  */
-export function TimerWidget({ id, config, className }: BaseWidgetProps) {
+export function TimerWidget({ id: _id, config, className }: BaseWidgetProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [sizeMode, setSizeMode] = useState<SizeMode>('normal')
   
@@ -35,7 +35,6 @@ export function TimerWidget({ id, config, className }: BaseWidgetProps) {
   const [time, setTime] = useState(timerConfig.defaultTime || 0)
   const [initialTime, setInitialTime] = useState(timerConfig.defaultTime || 300)
   const [isRunning, setIsRunning] = useState(false)
-  const [soundEnabled, setSoundEnabled] = useState((config?.soundEnabled as boolean) ?? true)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const showPresets = (config?.showPresets as boolean) ?? true

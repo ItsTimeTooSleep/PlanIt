@@ -46,7 +46,7 @@ function DraggableTagItem({
       }}
       onDragEnd={onDragEnd}
       className={cn(
-        'group flex items-center gap-3 py-2 px-2 -mx-2 rounded-lg hover:bg-muted/50 transition-colors cursor-grab active:cursor-grabbing',
+        'group flex items-center gap-3 py-2 px-2 -mx-2 rounded-lg hover:bg-muted/50 transition-colors cursor-grab active:cursor-grabbing allow-drag',
         isDragging && 'opacity-50 bg-muted/50'
       )}
     >

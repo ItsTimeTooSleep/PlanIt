@@ -1,4 +1,4 @@
-import type { Task } from './types'
+import type { Task, DeleteRecurringOption } from './types'
 import { addDays, addWeeks, addMonths, addYears, format, parseISO, isAfter } from 'date-fns'
 
 export function generateId(): string {
@@ -25,7 +25,12 @@ export function taskDurationHours(task: Task): number {
   return taskDurationMinutes(task) / 60
 }
 
-/** Generate all task instances for a repeat rule, up to maxDays out */
+/**
+ * 生成重复任务的所有实例
+ * @param task - 基础任务对象
+ * @param maxDays - 最大生成天数（默认90天）
+ * @returns 生成的重复任务实例数组
+ */
 export function expandRepeatTasks(task: Task, maxDays = 90): Task[] {
   if (task.repeatRule.frequency === 'none') return []
   if (!task.date && !task.dueDate) return []
@@ -39,9 +44,17 @@ export function expandRepeatTasks(task: Task, maxDays = 90): Task[] {
   let current = base
   let iteration = 0
 
+  // 计算截止日期与计划日期的相对间隔（天数）
+  let dueDateOffsetDays: number | null = null
+  if (task.date && task.dueDate) {
+    const planDate = parseISO(task.date)
+    const dueDate = parseISO(task.dueDate)
+    dueDateOffsetDays = Math.floor((dueDate.getTime() - planDate.getTime()) / (1000 * 60 * 60 * 24))
+  }
+
   while (iteration < 500) {
     iteration++
-    // advance by frequency
+    // 根据频率推进日期
     let next: Date
     switch (task.repeatRule.frequency) {
       case 'daily':
@@ -56,6 +69,35 @@ export function expandRepeatTasks(task: Task, maxDays = 90): Task[] {
       case 'yearly':
         next = addYears(current, 1)
         break
+      case 'custom':
+        // 处理自定义重复
+        if (!task.repeatRule.interval || !task.repeatRule.customUnit) {
+          return instances
+        }
+        switch (task.repeatRule.customUnit) {
+          case 'days':
+            next = addDays(current, task.repeatRule.interval)
+            break
+          case 'weeks':
+            next = addWeeks(current, task.repeatRule.interval)
+            break
+          case 'months':
+            next = addMonths(current, task.repeatRule.interval)
+            break
+          case 'years':
+            next = addYears(current, task.repeatRule.interval)
+            break
+          default:
+            return instances
+        }
+        break
+      case 'workdays':
+        // 跳过周末，找到下一个工作日
+        next = addDays(current, 1)
+        while (next.getDay() === 0 || next.getDay() === 6) {
+          next = addDays(next, 1)
+        }
+        break
       default:
         return instances
     }
@@ -63,16 +105,32 @@ export function expandRepeatTasks(task: Task, maxDays = 90): Task[] {
 
     if (isAfter(current, endDate)) break
 
-    // For weekly, only generate for matching weekdays
+    // 对于周重复，只生成匹配的星期几
     if (task.repeatRule.frequency === 'weekly' && task.repeatRule.weekdays?.length) {
       if (!task.repeatRule.weekdays.includes(current.getDay())) continue
+    }
+
+    // 计算当前实例的计划日期和截止日期
+    let instanceDate: string | undefined
+    let instanceDueDate: string | undefined
+
+    if (task.date) {
+      instanceDate = format(current, 'yyyy-MM-dd')
+      // 如果有截止日期偏移，保持相对间隔
+      if (dueDateOffsetDays !== null) {
+        const instanceDueDateObj = addDays(current, dueDateOffsetDays)
+        instanceDueDate = format(instanceDueDateObj, 'yyyy-MM-dd')
+      }
+    } else if (task.dueDate) {
+      // 只有截止日期的情况
+      instanceDueDate = format(current, 'yyyy-MM-dd')
     }
 
     instances.push({
       ...task,
       id: generateId(),
-      date: task.date ? format(current, 'yyyy-MM-dd') : undefined,
-      dueDate: task.dueDate ? format(current, 'yyyy-MM-dd') : undefined,
+      date: instanceDate,
+      dueDate: instanceDueDate,
       repeatRule: { frequency: 'none' },
     })
   }
@@ -110,4 +168,101 @@ export function formatDateDisplay(date: Date, lang: 'zh' | 'en'): string {
     return format(date, 'M月d日')
   }
   return format(date, 'MMM d')
+}
+
+/**
+ * 获取与指定任务属于同一重复组的所有任务ID
+ * @param currentTask - 当前任务对象
+ * @param allTasks - 所有任务数组
+ * @returns 同一重复组的任务ID数组
+ */
+export function getRecurringTaskIds(currentTask: Task, allTasks: Task[]): string[] {
+  const baseCreatedAt = currentTask.createdAt.slice(0, 19)
+  return allTasks
+    .filter(t => {
+      // 匹配条件：标题相同，且创建时间前19位相同（去掉毫秒）
+      const titleMatch = t.title === currentTask.title
+      const createdAtMatch = t.createdAt.slice(0, 19) === baseCreatedAt
+      return titleMatch && createdAtMatch
+    })
+    .map(t => t.id)
+}
+
+/**
+ * 根据删除选项筛选需要删除的任务ID
+ * @param currentTask - 当前任务对象
+ * @param allTasks - 所有任务数组
+ * @param option - 删除选项
+ * @returns 需要删除的任务ID数组
+ */
+export function getTaskIdsToDelete(
+  currentTask: Task, 
+  allTasks: Task[], 
+  option: DeleteRecurringOption
+): string[] {
+  if (option === 'only_this') {
+    return [currentTask.id]
+  }
+
+  const allRecurringIds = getRecurringTaskIds(currentTask, allTasks)
+  const today = format(new Date(), 'yyyy-MM-dd')
+
+  // 如果只有当前任务一个（是原始重复任务），直接根据选项判断
+  if (allRecurringIds.length === 1) {
+    switch (option) {
+      case 'all':
+        return [currentTask.id]
+      case 'future': {
+        const taskDate = currentTask.date || currentTask.dueDate
+        if (!taskDate) return [currentTask.id]
+        return taskDate >= today ? [currentTask.id] : []
+      }
+      case 'pending':
+        return currentTask.status === 'pending' ? [currentTask.id] : []
+      default:
+        return [currentTask.id]
+    }
+  }
+
+  return allRecurringIds.filter(id => {
+    const task = allTasks.find(t => t.id === id)
+    if (!task) return false
+
+    switch (option) {
+      case 'all':
+        return true
+      case 'future': {
+        const taskDate = task.date || task.dueDate
+        if (!taskDate) return true
+        return taskDate >= today
+      }
+      case 'pending':
+        return task.status === 'pending'
+      default:
+        return false
+    }
+  })
+}
+
+/**
+ * 检查任务是否属于重复任务组（或本身是重复任务）
+ * @param currentTask - 当前任务对象
+ * @param allTasks - 所有任务数组
+ * @returns 是否显示重复任务删除选项
+ */
+export function isPartOfRecurringGroup(currentTask: Task, allTasks: Task[]): boolean {
+  // 方案1：当前任务本身有重复规则
+  if (currentTask.repeatRule.frequency !== 'none') {
+    return true
+  }
+  
+  // 方案2：有其他任务和当前任务有相同的创建时间前缀和标题（属于同一重复组）
+  const baseCreatedAt = currentTask.createdAt.slice(0, 19)
+  const hasMatchingTasks = allTasks.some(t => 
+    t.id !== currentTask.id && 
+    t.title === currentTask.title && 
+    t.createdAt.slice(0, 19) === baseCreatedAt
+  )
+  
+  return hasMatchingTasks
 }

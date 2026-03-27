@@ -381,69 +381,67 @@ export function NoteView() {
         )}
       </div>
 
-      <div
-        ref={canvasRef}
-        className="relative bg-muted/30 rounded-xl overflow-y-auto overflow-x-hidden flex-1"
-      >
+      {notes.length === 0 ? (
+        <div className="flex-1 flex items-center justify-center">
+          <Empty
+            title={t.note.noNotes}
+            description={t.note.noNotesDesc}
+            icon={<StickyNote className="w-6 h-6" />}
+            action={
+              <Button onClick={handleCreateNote}>
+                <Plus className="w-4 h-4 mr-2" />
+                {t.note.newNote}
+              </Button>
+            }
+          />
+        </div>
+      ) : (
         <div
-          ref={innerRef}
-          className="relative w-full h-full min-w-[1200px] min-h-[800px]"
+          ref={canvasRef}
+          className="relative bg-muted/30 rounded-xl overflow-y-auto overflow-x-hidden flex-1"
         >
-          {notes.length === 0 ? (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Empty
-                title={t.note.noNotes}
-                description={t.note.noNotesDesc}
-                icon={<StickyNote className="w-6 h-6" />}
-                action={
-                  <Button onClick={handleCreateNote}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    {t.note.newNote}
-                  </Button>
-                }
-              />
-            </div>
-          ) : (
-            <>
-              <svg className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }}>
-                {noteLines.map(line => (
-                  <NoteLineComponent
-                    key={line.id}
-                    line={line}
-                    notes={notes}
-                    onClick={handleLineClick}
-                  />
-                ))}
-              </svg>
-
-              {previewLine && connectingMousePos && (
+          <div
+            ref={innerRef}
+            className="relative w-full h-full min-w-[1200px] min-h-[800px]"
+          >
+            <svg className="absolute top-0 left-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }}>
+              {noteLines.map(line => (
                 <NoteLineComponent
-                  line={previewLine}
+                  key={line.id}
+                  line={line}
                   notes={notes}
-                  isPreview
-                  previewTo={connectingMousePos}
-                />
-              )}
-
-              {sortedNotes.map(note => (
-                <NoteCard
-                  key={note.id}
-                  note={note}
-                  onUpdate={handleUpdateNote}
-                  onDelete={handleDeleteNote}
-                  onEdit={handleEditNote}
-                  onBringToFront={handleBringToFront}
-                  isConnecting={connectingFrom !== null}
-                  onStartConnection={!connectingFrom ? handleStartConnection : undefined}
-                  onShowConnections={handleShowConnections}
-                  hasConnections={hasConnections(note.id)}
-                  onDragStateChange={handleDragStateChange}
+                  onClick={handleLineClick}
                 />
               ))}
-            </>
-          )}
+            </svg>
+
+            {previewLine && connectingMousePos && (
+              <NoteLineComponent
+                line={previewLine}
+                notes={notes}
+                isPreview
+                previewTo={connectingMousePos}
+              />
+            )}
+
+            {sortedNotes.map(note => (
+              <NoteCard
+                key={note.id}
+                note={note}
+                onUpdate={handleUpdateNote}
+                onDelete={handleDeleteNote}
+                onEdit={handleEditNote}
+                onBringToFront={handleBringToFront}
+                isConnecting={connectingFrom !== null}
+                onStartConnection={!connectingFrom ? handleStartConnection : undefined}
+                onShowConnections={handleShowConnections}
+                hasConnections={hasConnections(note.id)}
+                onDragStateChange={handleDragStateChange}
+              />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <Dialog open={isEditorOpen} onOpenChange={setIsEditorOpen}>
         <DialogContent className="max-w-2xl">

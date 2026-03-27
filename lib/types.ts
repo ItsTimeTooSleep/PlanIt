@@ -7,6 +7,7 @@ export type NoteStatus = 'active' | 'completed'
 export type NoteColor = 'yellow' | 'pink' | 'blue' | 'green' | 'purple' | 'orange'
 export type NoteLineType = 'straight' | 'arrow'
 export type NoteLineColor = 'gray' | 'red' | 'blue' | 'green' | 'purple' | 'orange'
+export type DeleteRecurringOption = 'only_this' | 'all' | 'future' | 'pending'
 
 export interface Tag {
   id: string
@@ -52,8 +53,8 @@ export interface RepeatRule {
   frequency: RepeatFrequency
   weekdays?: number[] // 0=Sun, 1=Mon ... 6=Sat (for weekly)
   endDate?: string    // YYYY-MM-DD
-  interval?: number   // for custom: every X days/weeks/months
-  customUnit?: 'days' | 'weeks' | 'months' // for custom
+  interval?: number   // for custom: every X days/weeks/months/years
+  customUnit?: 'days' | 'weeks' | 'months' | 'years' // for custom
 }
 
 export interface CalendarSettings {

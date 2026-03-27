@@ -88,7 +88,6 @@ function clearGlobalTimer() {
 
 export function usePomodoro() {
   const lang = useLanguage()
-  const t = useTranslations(lang)
   const { state, updatePomodoro } = useStore()
   const { pomodoro, tasks } = state
   const [skipBreaks, setSkipBreaks] = useState(false)
@@ -97,10 +96,6 @@ export function usePomodoro() {
   const currentTask = pomodoro.taskId 
     ? tasks.find(task => task.id === pomodoro.taskId)
     : null
-
-  const clearTimer = useCallback(() => {
-    clearGlobalTimer()
-  }, [])
 
   const startTimer = useCallback(() => {
     updatePomodoro({ status: 'running' })

@@ -1,7 +1,7 @@
 'use client'
 
-import { useCallback, useState } from 'react'
-import type { Task, Tag } from '@/lib/types'
+import { useCallback, useState, useRef, useEffect } from 'react'
+import type { Task, Tag, DeleteRecurringOption } from '@/lib/types'
 import { useLanguage, useStore } from '@/lib/store'
 import { useTranslations } from '@/lib/i18n'
 import { format, parseISO, isToday, isTomorrow, isYesterday } from 'date-fns'
@@ -16,16 +16,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
 import { cn } from '@/lib/utils'
 import {
   MoreHorizontal,
@@ -37,6 +27,8 @@ import {
   Calendar,
   Clock,
 } from 'lucide-react'
+import { TaskDeleteDialog } from '../task-delete-dialog'
+import { getTaskIdsToDelete, isPartOfRecurringGroup } from '@/lib/task-utils'
 
 interface TaskItemProps {
   task: Task
@@ -48,8 +40,9 @@ interface TaskItemProps {
 export function TaskItem({ task, tags, onEdit, className }: TaskItemProps) {
   const lang = useLanguage()
   const t = useTranslations(lang)
-  const { updateTask, deleteTask } = useStore()
+  const { state, updateTask, deleteTasks } = useStore()
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const itemRef = useRef<HTMLDivElement>(null)
 
   const locale = lang === 'zh' ? zhCN : enUS
 
@@ -81,19 +74,36 @@ export function TaskItem({ task, tags, onEdit, className }: TaskItemProps) {
     updateTask(task.id, { status: 'pending' })
   }, [task.id, updateTask])
 
-  const handleDelete = useCallback(() => {
-    deleteTask(task.id)
+  const handleDeleteConfirm = useCallback((option: DeleteRecurringOption) => {
+    const idsToDelete = getTaskIdsToDelete(task, state.tasks, option)
+    deleteTasks(idsToDelete)
     setShowDeleteDialog(false)
-  }, [task.id, deleteTask])
+  }, [task, state.tasks, deleteTasks])
+
+  /**
+   * 处理键盘事件，支持 Backspace 键删除
+   * @param e - 键盘事件对象
+   */
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' || e.key === 'Delete') {
+      e.preventDefault()
+      e.stopPropagation()
+      setShowDeleteDialog(true)
+    }
+  }, [])
 
   const isCompleted = task.status === 'completed'
   const isSkipped = task.status === 'skipped'
+  const isRecurring = isPartOfRecurringGroup(task, state.tasks)
 
   return (
     <>
       <div
+        ref={itemRef}
+        tabIndex={0}
+        onKeyDown={handleKeyDown}
         className={cn(
-          'group flex items-start gap-3 p-4 rounded-xl border bg-card hover:bg-accent/50 transition-colors',
+          'group flex items-start gap-3 p-4 rounded-xl border bg-card hover:bg-accent/50 transition-colors focus:outline-none focus:ring-2 focus:ring-ring',
           isCompleted && 'opacity-60',
           isSkipped && 'opacity-40',
           className
@@ -108,10 +118,10 @@ export function TaskItem({ task, tags, onEdit, className }: TaskItemProps) {
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-start gap-2">
+          <div className="flex items-start gap-2 min-w-0">
             <h3
               className={cn(
-                'font-medium leading-tight',
+                'font-medium leading-tight truncate',
                 isCompleted && 'line-through text-muted-foreground'
               )}
             >
@@ -215,20 +225,12 @@ export function TaskItem({ task, tags, onEdit, className }: TaskItemProps) {
         </div>
       </div>
 
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t.task.deleteConfirmTitle}</AlertDialogTitle>
-            <AlertDialogDescription>{t.task.deleteConfirm}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
-              {t.common.delete}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <TaskDeleteDialog
+        open={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={handleDeleteConfirm}
+        isRecurring={isRecurring}
+      />
     </>
   )
 }

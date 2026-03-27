@@ -48,7 +48,7 @@ function DraggableWidgetItem({
       }}
       onDragEnd={onDragEnd}
       className={cn(
-        'flex items-center gap-2 p-2 rounded-lg border border-border bg-card cursor-grab active:cursor-grabbing transition-colors',
+        'flex items-center gap-2 p-2 rounded-lg border border-border bg-card cursor-grab active:cursor-grabbing transition-colors allow-drag',
         isDragging && 'opacity-50'
       )}
     >

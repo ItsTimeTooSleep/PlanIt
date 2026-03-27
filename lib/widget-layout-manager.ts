@@ -103,7 +103,6 @@ export function findNonOverlappingPosition(
   canvasSize: Size
 ): Position {
   const meta = WIDGET_METADATA[newWidget.type]
-  const minSize = meta.minSize
   const position = { ...newWidget.position }
   let attempts = 0
   const maxAttempts = 100
@@ -128,7 +127,7 @@ export function findNonOverlappingPosition(
   return snapPositionToGrid(position)
 }
 
-export function isValidPosition(position: Position, canvasSize: Size): boolean {
+export function isValidPosition(position: Position, _canvasSize: Size): boolean {
   return position.x >= 0 && position.y >= 0
 }
 

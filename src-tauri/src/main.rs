@@ -7,7 +7,8 @@ use planit_lib::{
     register_global_shortcut_impl, save_file_picker_impl, set_auto_launch_impl,
     show_notification_impl, unregister_global_shortcut_impl, write_clipboard_impl,
     write_file_impl, set_close_behavior_impl, get_close_behavior_impl, update_tray_menu_impl,
-    FileDialogOptions, PlatformInfo, TrayMenuState,
+    update_tray_menu_labels_impl,
+    FileDialogOptions, PlatformInfo, TrayMenuState, TrayMenuLabels,
 };
 use tauri_plugin_autostart::MacosLauncher;
 
@@ -122,6 +123,14 @@ async fn update_tray_menu(
     update_tray_menu_impl(&app, state)
 }
 
+#[tauri::command]
+async fn update_tray_menu_labels(
+    app: tauri::AppHandle,
+    labels: TrayMenuLabels,
+) -> Result<(), String> {
+    update_tray_menu_labels_impl(&app, labels)
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
@@ -129,10 +138,17 @@ fn main() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
+        .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_autostart::init(
             MacosLauncher::LaunchAgent,
             Some(vec!["--minimized"]),
         ))
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.show();
+                let _ = window.set_focus();
+            }
+        }))
         .setup(|app| {
             let args: Vec<String> = std::env::args().collect();
             let start_minimized = args.contains(&"--minimized".to_string());
@@ -168,6 +184,7 @@ fn main() {
             set_close_behavior,
             get_close_behavior,
             update_tray_menu,
+            update_tray_menu_labels,
         ])
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {

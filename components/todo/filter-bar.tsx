@@ -78,10 +78,10 @@ export function FilterBar({
         <div className="space-y-4">
           <div className="flex items-center gap-3">
             <Tabs value={viewMode} onValueChange={(v) => onViewModeChange(v as ViewMode)}>
-              <TabsList className="h-8">
-                <TabsTrigger value="byDate" className="h-6 text-xs px-4">{t.todo.viewMode.byDate}</TabsTrigger>
-                <TabsTrigger value="byDueDate" className="h-6 text-xs px-4">{t.todo.viewMode.byDueDate}</TabsTrigger>
-              </TabsList>
+              <AnimatedTabsList className="grid grid-cols-2">
+                <AnimatedTabsTrigger value="byDate">{t.todo.viewMode.byDate}</AnimatedTabsTrigger>
+                <AnimatedTabsTrigger value="byDueDate">{t.todo.viewMode.byDueDate}</AnimatedTabsTrigger>
+              </AnimatedTabsList>
             </Tabs>
           </div>
           <Tabs value={timeFilter} onValueChange={(v) => onTimeFilterChange(v as TimeFilter)}>
@@ -97,12 +97,12 @@ export function FilterBar({
 
           <div className="flex flex-wrap items-center gap-3">
             <Tabs value={statusFilter} onValueChange={(v) => onStatusFilterChange(v as StatusFilter)}>
-              <TabsList className="h-8">
-                <TabsTrigger value="pending" className="h-6 text-xs px-3">{t.todo.statusFilter.pending}</TabsTrigger>
-                <TabsTrigger value="completed" className="h-6 text-xs px-3">{t.todo.statusFilter.completed}</TabsTrigger>
-                <TabsTrigger value="skipped" className="h-6 text-xs px-3">{t.todo.statusFilter.skipped}</TabsTrigger>
-                <TabsTrigger value="all" className="h-6 text-xs px-3">{t.todo.statusFilter.all}</TabsTrigger>
-              </TabsList>
+              <AnimatedTabsList className="grid grid-cols-4">
+                <AnimatedTabsTrigger value="pending">{t.todo.statusFilter.pending}</AnimatedTabsTrigger>
+                <AnimatedTabsTrigger value="completed">{t.todo.statusFilter.completed}</AnimatedTabsTrigger>
+                <AnimatedTabsTrigger value="skipped">{t.todo.statusFilter.skipped}</AnimatedTabsTrigger>
+                <AnimatedTabsTrigger value="all">{t.todo.statusFilter.all}</AnimatedTabsTrigger>
+              </AnimatedTabsList>
             </Tabs>
 
             <div className="flex-1" />

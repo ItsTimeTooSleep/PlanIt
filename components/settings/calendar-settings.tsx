@@ -28,7 +28,7 @@ export function CalendarSettings() {
     label: `${m} ${lang === 'zh' ? '分钟' : 'min'}`
   }))
 
-  const snapThresholdOptions = [5, 10, 15, 20, 30].map(m => ({
+  const snapThresholdOptions = [1, 5, 10, 15, 20, 30].map(m => ({
     value: m,
     label: `${m} ${lang === 'zh' ? '分钟' : 'min'}`
   }))

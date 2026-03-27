@@ -8,6 +8,8 @@ import { TitleBar, DesktopManager } from '@/components/desktop'
 import { PomodoroDialogProvider } from '@/lib/pomodoro-context'
 import { PomodoroDialog } from '@/components/pomodoro/pomodoro-dialog'
 import { DynamicTitle } from '@/components/dynamic-title'
+import { DisableContextMenu } from '@/components/disable-context-menu'
+import { Toaster } from '@/components/ui/toaster'
 import './globals.css'
 
 const geist = Geist({ subsets: ['latin'] })
@@ -40,6 +42,7 @@ export default function RootLayout({
   return (
     <html lang="zh">
       <body className={`${geist.className} font-sans antialiased`}>
+        <DisableContextMenu />
         <PlatformProvider>
           <StoreProvider>
             <PomodoroDialogProvider>
@@ -53,6 +56,7 @@ export default function RootLayout({
                 </main>
               </div>
               <PomodoroDialog />
+              <Toaster />
             </PomodoroDialogProvider>
           </StoreProvider>
         </PlatformProvider>

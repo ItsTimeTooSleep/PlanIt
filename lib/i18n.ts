@@ -75,6 +75,14 @@ const zh = {
     deleteAllRepeat: '同时删除该任务的所有循环实例',
     noTags: '未添加标签',
     dateOrDueDateRequired: '至少需要填写计划日期或截止日期',
+    advancedOptions: '高级选项',
+    dueDateOffset: '截止日期偏移',
+    dueDateOffsetDesc: '每个重复任务的截止日期相对于计划日期的天数',
+    days: '天',
+    deleteOptionOnlyThis: '仅删除此任务',
+    deleteOptionAll: '删除所有实例',
+    deleteOptionFuture: '仅删除未来任务',
+    deleteOptionPending: '仅删除未完成任务',
   },
 
   status: {
@@ -90,11 +98,13 @@ const zh = {
     workdays: '工作日',
     weekly: '周',
     monthly: '月',
+    yearly: '年',
     custom: '自定义',
     customEvery: '每',
     customDays: '天',
     customWeeks: '周',
     customMonths: '月',
+    customYears: '年',
     endDate: '结束日期',
     endDatePlaceholder: '不设置结束日期',
     weekdays: '重复日期',
@@ -174,6 +184,7 @@ const zh = {
     to: '结束',
     tagBreakdown: '时间账本',
     tagBreakdownDesc: '各标签时间占比',
+    noTag: '无标签',
     efficiency: '效率趋势',
     efficiencyDesc: '每日完成任务时长（小时）',
     thisPeriod: '本期',
@@ -249,6 +260,7 @@ const zh = {
     importFileDate: '导出时间',
     importSuccess: '导入成功',
     importError: '导入失败，文件格式不正确',
+    exportSuccess: '数据导出成功',
     importSelectItems: '选择要导入的内容',
     selectAll: '全选',
     deselectAll: '取消全选',
@@ -408,6 +420,25 @@ const zh = {
       noConnections: '暂无连接',
     },
   },
+
+  tray: {
+    show: '显示主窗口',
+    hide: '隐藏到托盘',
+    addTask: '添加任务',
+    pomodoro: '番茄钟',
+    startFocus: '开始专注',
+    stopFocus: '停止专注',
+    shortBreak: '休息5分钟',
+    longBreak: '休息15分钟',
+    focusMode: '聚焦模式',
+    enterFocusMode: '进入聚焦模式',
+    exitFocusMode: '退出聚焦模式',
+    settings: '设置',
+    checkUpdate: '检查更新',
+    contactUs: '联系我们',
+    quit: '退出',
+    tooltip: 'PlanIt - 专注效率',
+  },
 } as const
 
 const en = {
@@ -485,6 +516,14 @@ const en = {
     deleteAllRepeat: 'Also delete all recurring instances of this task',
     noTags: 'No tags',
     dateOrDueDateRequired: 'At least one of Plan Date or Due Date is required',
+    advancedOptions: 'Advanced Options',
+    dueDateOffset: 'Due Date Offset',
+    dueDateOffsetDesc: 'Number of days after plan date for due date on recurring tasks',
+    days: 'days',
+    deleteOptionOnlyThis: 'Only this task',
+    deleteOptionAll: 'All instances',
+    deleteOptionFuture: 'Future tasks only',
+    deleteOptionPending: 'Pending tasks only',
   },
 
   status: {
@@ -500,11 +539,13 @@ const en = {
     workdays: 'Workdays',
     weekly: 'Weekly',
     monthly: 'Monthly',
+    yearly: 'Yearly',
     custom: 'Custom',
     customEvery: 'Every',
     customDays: 'days',
     customWeeks: 'weeks',
     customMonths: 'months',
+    customYears: 'years',
     endDate: 'End Date',
     endDatePlaceholder: 'No end date',
     weekdays: 'On days',
@@ -584,6 +625,7 @@ const en = {
     to: 'To',
     tagBreakdown: 'Time Ledger',
     tagBreakdownDesc: 'Time by tag',
+    noTag: 'No Tag',
     efficiency: 'Efficiency Trend',
     efficiencyDesc: 'Completed task hours per day',
     thisPeriod: 'This Period',
@@ -659,6 +701,7 @@ const en = {
     importFileDate: 'Export Date',
     importSuccess: 'Import successful',
     importError: 'Import failed — invalid file format',
+    exportSuccess: 'Data exported successfully',
     importSelectItems: 'Select items to import',
     selectAll: 'Select All',
     deselectAll: 'Deselect All',
@@ -818,6 +861,25 @@ const en = {
       noConnections: 'No connections',
     },
   },
+
+  tray: {
+    show: 'Show Main Window',
+    hide: 'Hide to Tray',
+    addTask: 'Add Task',
+    pomodoro: 'Pomodoro',
+    startFocus: 'Start Focus',
+    stopFocus: 'Stop Focus',
+    shortBreak: '5 Min Break',
+    longBreak: '15 Min Break',
+    focusMode: 'Focus Mode',
+    enterFocusMode: 'Enter Focus Mode',
+    exitFocusMode: 'Exit Focus Mode',
+    settings: 'Settings',
+    checkUpdate: 'Check for Updates',
+    contactUs: 'Contact Us',
+    quit: 'Quit',
+    tooltip: 'PlanIt - Focus & Productivity',
+  },
 } as const
 
 export type Translations = {
@@ -891,6 +953,14 @@ export type Translations = {
     readonly deleteAllRepeat: string
     readonly noTags: string
     readonly dateOrDueDateRequired: string
+    readonly advancedOptions: string
+    readonly dueDateOffset: string
+    readonly dueDateOffsetDesc: string
+    readonly days: string
+    readonly deleteOptionOnlyThis: string
+    readonly deleteOptionAll: string
+    readonly deleteOptionFuture: string
+    readonly deleteOptionPending: string
   }
   readonly status: {
     readonly pending: string
@@ -984,6 +1054,7 @@ export type Translations = {
     readonly to: string
     readonly tagBreakdown: string
     readonly tagBreakdownDesc: string
+    readonly noTag: string
     readonly efficiency: string
     readonly efficiencyDesc: string
     readonly thisPeriod: string
@@ -1058,6 +1129,7 @@ export type Translations = {
     readonly importFileDate: string
     readonly importSuccess: string
     readonly importError: string
+    readonly exportSuccess: string
     readonly importSelectItems: string
     readonly selectAll: string
     readonly deselectAll: string
@@ -1212,6 +1284,24 @@ export type Translations = {
       readonly viewConnections: string
       readonly noConnections: string
     }
+  }
+  readonly tray: {
+    readonly show: string
+    readonly hide: string
+    readonly addTask: string
+    readonly pomodoro: string
+    readonly startFocus: string
+    readonly stopFocus: string
+    readonly shortBreak: string
+    readonly longBreak: string
+    readonly focusMode: string
+    readonly enterFocusMode: string
+    readonly exitFocusMode: string
+    readonly settings: string
+    readonly checkUpdate: string
+    readonly contactUs: string
+    readonly quit: string
+    readonly tooltip: string
   }
 }
 

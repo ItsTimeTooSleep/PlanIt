@@ -5,11 +5,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-import { useDesktopOnly, usePlatform } from '@/components/platform-provider'
 import { useLanguage } from '@/lib/store'
-import { cn } from '@/lib/utils'
-import { Shield, AlertTriangle, Heart, Sparkles, X } from 'lucide-react'
-import { STATUS_COLORS } from '@/lib/colors'
+import { Shield, AlertTriangle, Heart, Sparkles } from 'lucide-react'
 
 const EXIT_PHRASES_ZH = [
   '不想努力了',
@@ -74,6 +71,18 @@ export function FocusModeExitDialog({ isOpen, onClose, onConfirm }: FocusModeExi
   const holdIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
 
+  const randomizePhrase = useCallback(() => {
+    const phrases = isZh ? EXIT_PHRASES_ZH : EXIT_PHRASES_EN
+    const randomIndex = Math.floor(Math.random() * phrases.length)
+    setTargetPhrase(phrases[randomIndex])
+  }, [isZh])
+
+  const randomizeEncouragement = useCallback(() => {
+    const phrases = isZh ? ENCOURAGEMENT_ZH : ENCOURAGEMENT_EN
+    const randomIndex = Math.floor(Math.random() * phrases.length)
+    setEncouragement(phrases[randomIndex])
+  }, [isZh])
+
   useEffect(() => {
     if (isOpen) {
       setStep('initial')
@@ -83,7 +92,7 @@ export function FocusModeExitDialog({ isOpen, onClose, onConfirm }: FocusModeExi
       randomizePhrase()
       randomizeEncouragement()
     }
-  }, [isOpen])
+  }, [isOpen, randomizePhrase, randomizeEncouragement])
 
   useEffect(() => {
     return () => {
@@ -92,18 +101,6 @@ export function FocusModeExitDialog({ isOpen, onClose, onConfirm }: FocusModeExi
       }
     }
   }, [])
-
-  function randomizePhrase() {
-    const phrases = isZh ? EXIT_PHRASES_ZH : EXIT_PHRASES_EN
-    const randomIndex = Math.floor(Math.random() * phrases.length)
-    setTargetPhrase(phrases[randomIndex])
-  }
-
-  function randomizeEncouragement() {
-    const phrases = isZh ? ENCOURAGEMENT_ZH : ENCOURAGEMENT_EN
-    const randomIndex = Math.floor(Math.random() * phrases.length)
-    setEncouragement(phrases[randomIndex])
-  }
 
   const handleStartExit = useCallback(() => {
     setStep('typing')

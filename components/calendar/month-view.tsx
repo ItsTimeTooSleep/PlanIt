@@ -106,11 +106,16 @@ export function MonthView({ referenceDate, tasks, tags, dateNotes, onOpenTask, o
                             return (
                               <div
                                 key={task.id}
-                                className="flex items-center gap-1.5 py-0.5 cursor-pointer hover:opacity-80"
+                                className="flex items-center gap-1.5 py-0.5 cursor-pointer hover:opacity-80 min-w-0"
                                 onClick={e => { e.stopPropagation(); onOpenTask(task) }}
+                                style={{ overflow: 'hidden' }}
                               >
                                 <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                                <span className="text-[11px] truncate flex-1">
+                                <span className="text-[11px] flex-1 min-w-0" style={{
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap'
+                                }}>
                                   {task.title}
                                 </span>
                               </div>
@@ -137,12 +142,16 @@ export function MonthView({ referenceDate, tasks, tags, dateNotes, onOpenTask, o
 
               {dateNote && (
                 <div 
-                  className="text-[9px] text-muted-foreground leading-tight mt-0.5 line-clamp-2 cursor-pointer shrink-0"
+                  className="text-[9px] text-muted-foreground leading-tight mt-0.5 cursor-pointer shrink-0 overflow-hidden"
                   onClick={(e) => { e.stopPropagation(); onOpenDateNote(dateStr) }}
+                  style={{
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    maxHeight: '2.4em',
+                  }}
                 >
-                  {dateNote.content.length > 30 
-                    ? dateNote.content.slice(0, 30) + '...' 
-                    : dateNote.content}
+                  {dateNote.content}
                 </div>
               )}
 
@@ -178,9 +187,9 @@ export function MonthView({ referenceDate, tasks, tags, dateNotes, onOpenTask, o
                     return (
                       <div
                         key={task.id}
-                        className="flex items-center gap-1.5 py-0.5 cursor-pointer hover:opacity-80 group"
+                        className="flex items-center gap-1.5 py-0.5 cursor-pointer hover:opacity-80 group min-w-0"
                         onClick={e => { e.stopPropagation(); onOpenTask(task) }}
-                        style={{ opacity: isDimmed ? 0.6 : 1 }}
+                        style={{ opacity: isDimmed ? 0.6 : 1, overflow: 'hidden' }}
                       >
                         {/* Quick complete checkbox */}
                         <div
@@ -203,9 +212,13 @@ export function MonthView({ referenceDate, tasks, tags, dateNotes, onOpenTask, o
                         </div>
                         <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
                         <span className={cn(
-                          'text-[11px] truncate',
+                          'text-[11px] flex-1 min-w-0',
                           isSkipped && 'line-through'
-                        )}>
+                        )} style={{
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}>
                           {task.title}
                         </span>
                       </div>

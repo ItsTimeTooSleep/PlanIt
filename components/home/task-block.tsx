@@ -171,7 +171,7 @@ export function TaskBlock({
             </button>
 
             <div className="flex-1 min-w-0 overflow-hidden">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 min-w-0">
                 <p
                   className={cn(
                     'font-semibold leading-tight truncate',

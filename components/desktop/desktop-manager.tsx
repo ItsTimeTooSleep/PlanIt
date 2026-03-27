@@ -7,6 +7,7 @@ import { usePlatform, useDesktopOnly } from '@/components/platform-provider'
 import { usePomodoroDialog } from '@/lib/pomodoro-context'
 import { useStore } from '@/lib/store'
 import type { TrayMenuState } from '@/lib/platform'
+import { TaskModal } from '@/components/task-modal'
 
 /**
  * 桌面端管理组件
@@ -22,6 +23,7 @@ export function DesktopManager() {
   
   const [focusModeActive, setFocusModeActive] = useState(false)
   const [windowVisible, setWindowVisible] = useState(true)
+  const [taskModalOpen, setTaskModalOpen] = useState(false)
 
   useEffect(() => {
     if (!api) return
@@ -105,22 +107,33 @@ export function DesktopManager() {
     console.log('Check for updates')
   }, [])
 
+  const handleAddTask = useCallback(() => {
+    setTaskModalOpen(true)
+  }, [])
+
   if (!shouldRender) {
     return null
   }
 
   return (
-    <SystemTrayManager
-      onShowWindow={handleShowWindow}
-      onHideWindow={handleHideWindow}
-      onStartPomodoro={handleStartPomodoro}
-      onStopPomodoro={handleStopPomodoro}
-      onShortBreak={handleShortBreak}
-      onLongBreak={handleLongBreak}
-      onEnterFocusMode={handleEnterFocusMode}
-      onExitFocusMode={handleExitFocusMode}
-      onOpenSettings={handleOpenSettings}
-      onCheckUpdate={handleCheckUpdate}
-    />
+    <>
+      <SystemTrayManager
+        onShowWindow={handleShowWindow}
+        onHideWindow={handleHideWindow}
+        onAddTask={handleAddTask}
+        onStartPomodoro={handleStartPomodoro}
+        onStopPomodoro={handleStopPomodoro}
+        onShortBreak={handleShortBreak}
+        onLongBreak={handleLongBreak}
+        onEnterFocusMode={handleEnterFocusMode}
+        onExitFocusMode={handleExitFocusMode}
+        onOpenSettings={handleOpenSettings}
+        onCheckUpdate={handleCheckUpdate}
+      />
+      <TaskModal
+        open={taskModalOpen}
+        onClose={() => setTaskModalOpen(false)}
+      />
+    </>
   )
 }

@@ -31,19 +31,19 @@ export function DateNoteModal({ open, onClose, date }: DateNoteModalProps) {
     }
   }, [open, date, getDateNote])
 
-  function handleSave() {
+  const handleSave = useCallback(() => {
     if (content.trim()) {
       setDateNote(date, content.trim())
     } else {
       deleteDateNote(date)
     }
     onClose()
-  }
+  }, [content, date, setDateNote, deleteDateNote, onClose])
 
-  function handleDelete() {
+  const handleDelete = useCallback(() => {
     deleteDateNote(date)
     onClose()
-  }
+  }, [deleteDateNote, date, onClose])
 
   const formattedDate = (() => {
     try {

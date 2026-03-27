@@ -29,9 +29,10 @@ interface ContainerSize {
   height: number
 }
 
-export function TodoWidget({ id, config, className, onCollapsedChange, onTaskClick }: BaseWidgetProps) {
+export function TodoWidget({ id: _id, config, className, onCollapsedChange, onTaskClick }: BaseWidgetProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
+  const [headerHeight, setHeaderHeight] = useState<number>(48)
   const prevExpandedRef = useRef<boolean>(true)
   const onCollapsedChangeRef = useRef(onCollapsedChange)
   const [sizeMode, setSizeMode] = useState<SizeMode>('normal')
@@ -50,16 +51,31 @@ export function TodoWidget({ id, config, className, onCollapsedChange, onTaskCli
       
       if (height < 120 || width < 200) {
         setSizeMode('compact')
+        setHeaderHeight(32)
       } else if (height > 300 && width > 300) {
         setSizeMode('large')
+        setHeaderHeight(48)
       } else {
         setSizeMode('normal')
+        setHeaderHeight(48)
+      }
+    }
+
+    const updateHeaderHeight = () => {
+      const headerEl = headerRef.current
+      if (headerEl) {
+        setHeaderHeight(headerEl.offsetHeight)
       }
     }
 
     updateSizeMode()
+    updateHeaderHeight()
     window.addEventListener('resize', updateSizeMode)
-    return () => window.removeEventListener('resize', updateSizeMode)
+    window.addEventListener('resize', updateHeaderHeight)
+    return () => {
+      window.removeEventListener('resize', updateSizeMode)
+      window.removeEventListener('resize', updateHeaderHeight)
+    }
   }, [])
 
   const lang = useLanguage()
@@ -75,9 +91,9 @@ export function TodoWidget({ id, config, className, onCollapsedChange, onTaskCli
 
   const handleOpenChange = (open: boolean) => {
     setIsExpanded(open)
-    const headerHeight = headerRef.current?.offsetHeight
-    if (headerHeight) {
-      onCollapsedChangeRef.current?.(!open, headerHeight)
+    const currentHeaderHeight = headerRef.current?.offsetHeight
+    if (currentHeaderHeight) {
+      onCollapsedChangeRef.current?.(!open, currentHeaderHeight)
     }
   }
 
@@ -161,11 +177,9 @@ export function TodoWidget({ id, config, className, onCollapsedChange, onTaskCli
   }, [])
 
   const pendingTotal = todayTasks.length + overdueTasks.length
-  const hasManyTasks = todayTasks.length > 5 || overdueTasks.length > 0
 
   const showOverdueSection = overdueTasks.length > 0 && containerSize.height >= 180
   const showFutureLink = futureTasksCount > 0 && containerSize.height >= 150
-  const headerHeight = headerRef.current?.offsetHeight || (sizeMode === 'compact' ? 32 : 48)
   const contentPadding = sizeMode === 'compact' ? 8 : 16
   const availableHeight = Math.max(containerSize.height - headerHeight - contentPadding, 100)
   const showTaskTime = showTime && sizeMode !== 'compact'
@@ -239,7 +253,7 @@ export function TodoWidget({ id, config, className, onCollapsedChange, onTaskCli
                             className="mt-0.5 flex-shrink-0"
                           />
                           <div className="flex-1 min-w-0">
-                            <p className={cn('font-medium truncate group-hover:text-primary transition-colors', taskTitleSize)}>{task.title}</p>
+                            <p className={cn('font-medium group-hover:text-primary transition-colors truncate', taskTitleSize)}>{task.title}</p>
                             <p className={cn('text-destructive/80 mt-0.5', taskTimeSize)}>
                               {formatDate(task.date)}
                             </p>
@@ -276,7 +290,7 @@ export function TodoWidget({ id, config, className, onCollapsedChange, onTaskCli
                             className="mt-0.5 flex-shrink-0"
                           />
                           <div className="flex-1 min-w-0">
-                            <p className={cn('font-medium truncate group-hover:text-primary transition-colors', taskTitleSize)}>{task.title}</p>
+                            <p className={cn('font-medium group-hover:text-primary transition-colors truncate', taskTitleSize)}>{task.title}</p>
                             {showTaskTime && (
                               <div className="flex items-center gap-1.5 mt-0.5">
                                 {!task.isAllDay && task.startTime && (

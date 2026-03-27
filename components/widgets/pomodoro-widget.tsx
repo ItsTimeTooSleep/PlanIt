@@ -347,67 +347,64 @@ export function PomodoroWidget({ id, config, className }: BaseWidgetProps) {
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center p-4">
-        {showTimeAdjust && (
-          <div className="flex items-center gap-1 mb-3">
+        <div className="relative mb-4 flex items-center justify-center gap-2" style={{ minHeight: circleSize }}>
+          {showTimeAdjust && (
             <Button 
               size="icon" 
               variant="ghost"
               onClick={decreaseWorkDuration}
               disabled={pomodoro.status !== 'idle'}
-              className={sizeMode === 'compact' ? 'w-7 h-7' : 'w-8 h-8'}
+              className="w-8 h-8"
             >
-              <Minus className={sizeMode === 'compact' ? 'w-3 h-3' : 'w-4 h-4'} />
+              <Minus className="w-4 h-4" />
             </Button>
-
-            <div className="text-center min-w-[70px]">
-              <p className={cn('font-bold tabular-nums', sizeMode === 'compact' ? 'text-lg' : 'text-xl')}>
-                {String(currentMinutes).padStart(2, '0')}
-                <span className={cn('text-muted-foreground', sizeMode === 'compact' ? 'text-xs' : 'text-sm')}>:00</span>
-              </p>
+          )}
+          
+          <div className="relative" style={{ width: circleSize, height: circleSize }}>
+            {pomodoro.status !== 'idle' && (
+              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="45"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="6"
+                  className="text-muted"
+                  opacity="0.2"
+                />
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="45"
+                  fill="none"
+                  stroke={getPhaseColor()}
+                  strokeWidth="6"
+                  strokeLinecap="round"
+                  strokeDasharray="283"
+                  strokeDashoffset={283 - (progress / 100) * 283}
+                  className="transition-all duration-1000"
+                />
+              </svg>
+            )}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className={cn('font-bold tracking-tighter font-mono', timeFontSize)}>
+                {formatTime(pomodoro.remainingSeconds)}
+              </span>
             </div>
-
+          </div>
+          
+          {showTimeAdjust && (
             <Button 
               size="icon" 
               variant="ghost"
               onClick={increaseWorkDuration}
               disabled={pomodoro.status !== 'idle'}
-              className={sizeMode === 'compact' ? 'w-7 h-7' : 'w-8 h-8'}
+              className="w-8 h-8"
             >
-              <Plus className={sizeMode === 'compact' ? 'w-3 h-3' : 'w-4 h-4'} />
+              <Plus className="w-4 h-4" />
             </Button>
-          </div>
-        )}
-
-        <div className="relative mb-4" style={{ width: circleSize, height: circleSize }}>
-          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-            <circle
-              cx="50"
-              cy="50"
-              r="45"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="6"
-              className="text-muted"
-              opacity="0.2"
-            />
-            <circle
-              cx="50"
-              cy="50"
-              r="45"
-              fill="none"
-              stroke={getPhaseColor()}
-              strokeWidth="6"
-              strokeLinecap="round"
-              strokeDasharray="283"
-              strokeDashoffset={283 - (progress / 100) * 283}
-              className="transition-all duration-1000"
-            />
-          </svg>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className={cn('font-bold tracking-tighter font-mono', timeFontSize)}>
-              {formatTime(pomodoro.remainingSeconds)}
-            </span>
-          </div>
+          )}
         </div>
 
         <div className="flex items-center gap-1 flex-wrap justify-center">

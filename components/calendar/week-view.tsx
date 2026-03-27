@@ -6,7 +6,6 @@ import type { Task, Tag, DateNote } from '@/lib/types'
 import { timeToMinutes, minutesToTime, sortTasksByTime } from '@/lib/task-utils'
 import { calculateTaskLayoutsGrouped, type TaskLayoutInfo } from '@/lib/task-layout'
 import { useStore, useLanguage } from '@/lib/store'
-import { useTranslations } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 import { Edit3, StickyNote } from 'lucide-react'
 import { DEFAULT_TAG_COLOR } from '@/lib/colors'
@@ -73,7 +72,6 @@ export function WeekView({
   onDeleteTask,
 }: WeekViewProps) {
   const lang = useLanguage()
-  const t = useTranslations(lang)
   const { updateTask } = useStore()
   const scrollRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
@@ -153,6 +151,7 @@ export function WeekView({
   const dragRef = useRef<DragState | null>(null)
   const [ghost, setGhost] = useState<GhostBlock | null>(null)
   const [snapLine, setSnapLine] = useState<{ y: number; colIndex: number } | null>(null)
+  const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null)
 
   // ── Box select state ──────────────────────────────────────────────────────
   const boxSelectRef = useRef<{
@@ -237,6 +236,14 @@ export function WeekView({
       if (task.startTime) edges.push(timeToMinutes(task.startTime))
       if (task.endTime) edges.push(timeToMinutes(task.endTime))
     })
+    
+    const todayStr = format(new Date(), 'yyyy-MM-dd')
+    if (dateStr === todayStr) {
+      const now = new Date()
+      const nowMin = now.getHours() * 60 + now.getMinutes()
+      edges.push(nowMin)
+    }
+    
     return edges
   }, [days, tasks])
 
@@ -391,6 +398,7 @@ export function WeekView({
     if (!drag) return
     dragRef.current = null
     setSnapLine(null)
+    setDraggingTaskId(null)
     ;(e.target as HTMLElement).releasePointerCapture?.(e.pointerId)
 
     if (!ghost) { setGhost(null); return }
@@ -440,6 +448,7 @@ export function WeekView({
       dragRef.current = null
       setGhost(null)
       setSnapLine(null)
+      setDraggingTaskId(null)
       const boxSelect = boxSelectRef.current
       if (boxSelect.isSelecting) {
         boxSelect.isSelecting = false
@@ -514,11 +523,16 @@ export function WeekView({
                             return (
                               <div
                                 key={task.id}
-                                className="flex items-center gap-1.5 py-0.5 cursor-pointer hover:opacity-80"
+                                className="flex items-center gap-1.5 py-0.5 cursor-pointer hover:opacity-80 min-w-0"
                                 onClick={e => { e.stopPropagation(); onOpenTask(task) }}
+                                style={{ overflow: 'hidden' }}
                               >
                                 <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                                <span className="text-[11px] truncate flex-1">
+                                <span className="text-[11px] flex-1 min-w-0" style={{
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap'
+                                }}>
                                   {task.title}
                                 </span>
                               </div>
@@ -543,12 +557,16 @@ export function WeekView({
               </div>
               {dateNote && (
                 <div 
-                  className="text-[9px] text-muted-foreground leading-tight mb-0.5 line-clamp-1 cursor-pointer px-1"
+                  className="text-[9px] text-muted-foreground leading-tight mb-0.5 cursor-pointer px-1 overflow-hidden"
                   onClick={() => onOpenDateNote(dateStr)}
+                  style={{
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    maxHeight: '2.4em',
+                  }}
                 >
-                  {dateNote.content.length > 20 
-                    ? dateNote.content.slice(0, 20) + '...' 
-                    : dateNote.content}
+                  {dateNote.content}
                 </div>
               )}
               {allDayForDay.slice(0, 2).map(task => {
@@ -559,11 +577,14 @@ export function WeekView({
                 return (
                   <div
                     key={task.id}
-                    className="text-[9px] rounded-sm px-1 mb-0.5 truncate cursor-pointer font-medium transition-all group"
+                    className="text-[9px] rounded-sm px-1 mb-0.5 cursor-pointer font-medium transition-all group min-w-0"
                     style={{ 
                       backgroundColor: color + (isDimmed ? '18' : '28'), 
                       color,
                       opacity: isDimmed ? 0.6 : 1,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
                     }}
                     onClick={() => onOpenTask(task)}
                   >
@@ -697,7 +718,7 @@ export function WeekView({
                     key={layout.task.id}
                     task={layout.task}
                     tags={tags}
-                    hourHeight={hourHeight}
+                    _hourHeight={hourHeight}
                     selectMode={selectMode}
                     selected={selectedIds.has(layout.task.id)}
                     isActive={activeTaskId === layout.task.id}
@@ -724,6 +745,7 @@ export function WeekView({
                         lastTime: now,
                         velocity: 0,
                       }
+                      setDraggingTaskId(layout.task.id)
                       setGhost({
                         dateStr,
                         startMin: timeToMinutes(layout.task.startTime!),
@@ -734,11 +756,11 @@ export function WeekView({
                       const newStatus = layout.task.status === 'completed' ? 'pending' : 'completed'
                       updateTask(layout.task.id, { status: newStatus })
                     }}
-                    dayStartTime={dayStartTime}
+                    _dayStartTime={dayStartTime}
                     topPadding={TOP_PADDING}
                     onClick={() => setActiveTaskId(activeTaskId === layout.task.id ? null : layout.task.id)}
                     layoutInfo={layout}
-                    ghostTime={ghost && ghost.dateStr === dateStr && dragRef.current?.taskId === layout.task.id ? { startMin: ghost.startMin, endMin: ghost.endMin } : undefined}
+                    ghostTime={ghost && ghost.dateStr === dateStr && draggingTaskId === layout.task.id ? { startMin: ghost.startMin, endMin: ghost.endMin } : undefined}
                   />
                 )})}
               </div>
@@ -825,40 +847,27 @@ function NotesDisplay({ notes, availableHeight, primaryColor }: {
   availableHeight: number
   primaryColor: string 
 }) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [isOverflow, setIsOverflow] = useState(false)
-  
-  useEffect(() => {
-    const el = containerRef.current
-    if (!el) return
-    const checkOverflow = () => {
-      setIsOverflow(el.scrollHeight > el.clientHeight)
-    }
-    checkOverflow()
-  }, [notes, availableHeight])
-
   return (
     <div 
-      ref={containerRef}
       className="text-[8px] leading-tight mt-0.5 overflow-hidden"
       style={{ 
         color: primaryColor,
         opacity: 0.7,
+        display: '-webkit-box',
+        WebkitLineClamp: Math.max(1, Math.floor((availableHeight - 10) / 10)),
+        WebkitBoxOrient: 'vertical',
         maxHeight: availableHeight - 10,
       }}
     >
       {notes}
-      {isOverflow && (
-        <span className="opacity-80">...</span>
-      )}
     </div>
   )
 }
 
-function WeekTaskBlock({ task, tags, hourHeight, selectMode, selected, isActive, onToggleSelect, onOpenTask, onLongPress, onDragStart, onToggleComplete, dayStartTime, topPadding, onClick, layoutInfo, ghostTime }: {
+function WeekTaskBlock({ task, tags, _hourHeight, selectMode, selected, isActive, onToggleSelect, onOpenTask, onLongPress, onDragStart, onToggleComplete, _dayStartTime, topPadding, onClick, layoutInfo, ghostTime }: {
   task: Task
   tags: Tag[]
-  hourHeight: number
+  _hourHeight: number
   selectMode: boolean
   selected: boolean
   isActive: boolean
@@ -867,7 +876,7 @@ function WeekTaskBlock({ task, tags, hourHeight, selectMode, selected, isActive,
   onLongPress: () => void
   onDragStart: (mode: DragMode, e: React.PointerEvent<HTMLDivElement>) => void
   onToggleComplete: () => void
-  dayStartTime: number
+  _dayStartTime: number
   topPadding: number
   onClick: () => void
   layoutInfo: TaskLayoutInfo
@@ -918,8 +927,10 @@ function WeekTaskBlock({ task, tags, hourHeight, selectMode, selected, isActive,
           zIndex: isActive ? 50 : selected ? 15 : 10,
         }}
         onClick={(e) => {
-          if (!selectMode) {
-            onClick()
+          if (selectMode) {
+            onToggleSelect()
+          } else if (!didDrag.current) {
+            onOpenTask()
           }
         }}
         onPointerDown={e => {
@@ -936,7 +947,7 @@ function WeekTaskBlock({ task, tags, hourHeight, selectMode, selected, isActive,
           didDrag.current = true
           if (pressTimer.current) clearTimeout(pressTimer.current)
         }}
-        onPointerUp={() => {
+        onPointerUp={(e) => {
           if (pressTimer.current) clearTimeout(pressTimer.current)
         }}
         title={`${task.title}\n${task.startTime} – ${task.endTime}`}
@@ -1023,7 +1034,7 @@ function WeekTaskBlock({ task, tags, hourHeight, selectMode, selected, isActive,
         </div>
         
         <div 
-          className="flex-1 relative rounded-r-md"
+          className="flex-1 relative rounded-r-md overflow-hidden"
           style={{ backgroundColor: colorWithOpacity(primaryColor, isDimmed ? 10 : 16) }}
         >
           <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-0" />
@@ -1100,12 +1111,19 @@ function WeekTaskBlock({ task, tags, hourHeight, selectMode, selected, isActive,
             </div>
           )}
 
-          <div className={paddingClass}>
+          <div className={cn(paddingClass, 'min-w-0')} style={{ overflow: 'hidden' }}>
             <p className={cn(
-              'font-semibold leading-tight truncate pr-4',
+              'font-semibold leading-tight',
               titleFontSize,
               isSkipped && 'line-through'
-            )} style={{ color: primaryColor }}>
+            )} style={{ 
+              color: primaryColor, 
+              paddingRight: displayMode === 'compact' ? '20px' : '24px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              width: '100%'
+            }}>
               {task.title}
             </p>
             {showTime && (

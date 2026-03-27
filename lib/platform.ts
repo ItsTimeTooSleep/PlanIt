@@ -77,6 +77,25 @@ export interface TrayMenuState {
   windowVisible: boolean
 }
 
+export interface TrayMenuLabels {
+  show: string
+  hide: string
+  add_task: string
+  pomodoro: string
+  start_focus: string
+  stop_focus: string
+  short_break: string
+  long_break: string
+  focus_mode: string
+  enter_focus_mode: string
+  exit_focus_mode: string
+  settings: string
+  check_update: string
+  contact_us: string
+  quit: string
+  tooltip: string
+}
+
 export interface PlatformAPI {
   capabilities: PlatformCapabilities
   
@@ -93,6 +112,7 @@ export interface PlatformAPI {
   onTrayEvent: (callback: (eventId: string) => void) => () => void
   
   updateTrayMenu: (state: TrayMenuState) => Promise<void>
+  updateTrayMenuLabels: (labels: TrayMenuLabels) => Promise<void>
   
   registerGlobalShortcut: (config: GlobalShortcutConfig) => Promise<boolean>
   unregisterGlobalShortcut: (accelerator: string) => Promise<void>
@@ -176,6 +196,10 @@ const webAPI: PlatformAPI = {
   },
   
   updateTrayMenu: async () => {
+    console.warn('[Platform] System tray is not supported on web platform')
+  },
+  
+  updateTrayMenuLabels: async () => {
     console.warn('[Platform] System tray is not supported on web platform')
   },
   
@@ -378,6 +402,10 @@ async function createTauriAPI(platform: PlatformType): Promise<PlatformAPI> {
     trayCallbacks.forEach(cb => cb(event.payload))
   }).catch(console.error)
   
+  listen<string>('tray-add-task', () => {
+    trayCallbacks.forEach(cb => cb('add-task'))
+  }).catch(console.error)
+  
   listen<string>('open-settings', () => {
     trayCallbacks.forEach(cb => cb('settings'))
   }).catch(console.error)
@@ -450,6 +478,10 @@ async function createTauriAPI(platform: PlatformType): Promise<PlatformAPI> {
           window_visible: state.windowVisible,
         },
       })
+    },
+    
+    updateTrayMenuLabels: async (labels: TrayMenuLabels) => {
+      await invoke('update_tray_menu_labels', { labels })
     },
     
     registerGlobalShortcut: async (config: GlobalShortcutConfig) => {

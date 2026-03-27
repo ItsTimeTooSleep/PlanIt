@@ -72,11 +72,17 @@ export function StatsView() {
 
   // Tag breakdown for pie chart
   const tagMinutes: Record<string, number> = {}
+  let noTagMinutes = 0
+  
   completedCur.forEach(task => {
     const mins = taskDurationMinutes(task)
-    task.tagIds.forEach(tid => {
-      tagMinutes[tid] = (tagMinutes[tid] ?? 0) + mins
-    })
+    if (task.tagIds.length === 0) {
+      noTagMinutes += mins
+    } else {
+      task.tagIds.forEach(tid => {
+        tagMinutes[tid] = (tagMinutes[tid] ?? 0) + mins
+      })
+    }
   })
 
   const pieData = Object.entries(tagMinutes)
@@ -84,7 +90,14 @@ export function StatsView() {
       const tag = state.tags.find(t => t.id === tagId)
       return { name: tag?.name ?? tagId, minutes, color: tag?.color ?? DEFAULT_TAG_COLOR }
     })
-    .sort((a, b) => b.minutes - a.minutes)
+
+  // Add no-tag category if there are any tasks without tags
+  if (noTagMinutes > 0) {
+    pieData.push({ name: t.stats.noTag, minutes: noTagMinutes, color: DEFAULT_TAG_COLOR })
+  }
+
+  // Sort all data by minutes descending
+  pieData.sort((a, b) => b.minutes - a.minutes)
 
   // Efficiency line chart: daily completed minutes in current range
   const days = eachDayOfInterval({ start: interval.start, end: interval.end })
