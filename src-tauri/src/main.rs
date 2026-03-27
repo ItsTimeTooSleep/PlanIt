@@ -1,6 +1,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 use planit_lib::{
     enter_focus_mode_impl, exit_focus_mode_impl, get_auto_launch_impl, get_platform_info_impl,
     is_focus_mode_active_impl, open_file_picker_impl, read_clipboard_impl, read_file_impl,
