@@ -690,9 +690,9 @@ export function WeekView({
 
                 {/* Now indicator */}
                 {isNowDay && nowMin !== null && nowMin >= dayStartTime * 60 && nowMin <= dayEndTime * 60 && (
-                  <div className="absolute left-0 right-0 pointer-events-none z-20 flex items-center" style={{ top: TOP_PADDING + ((nowMin - dayStartTime * 60) / 60) * hourHeight }}>
-                    <div className="w-3 h-3 rounded-full bg-primary shrink-0 shadow-lg shadow-primary/30" />
-                    <div className="flex-1 h-0.5 bg-gradient-to-r from-primary to-primary/40" />
+                  <div className="absolute left-0 right-0 pointer-events-none z-20" style={{ top: TOP_PADDING + ((nowMin - dayStartTime * 60) / 60) * hourHeight }}>
+                    <div className="absolute w-3 h-3 rounded-full bg-primary shadow-lg shadow-primary/30 -translate-y-1/2" />
+                    <div className="absolute left-3 right-0 h-0.5 bg-gradient-to-r from-primary to-primary/40 -translate-y-1/2" />
                   </div>
                 )}
 

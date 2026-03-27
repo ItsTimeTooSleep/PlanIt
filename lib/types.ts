@@ -104,6 +104,7 @@ export interface AppSettings {
   calendar: CalendarSettings
   closeBehavior: CloseBehavior
   sound: SoundSettings
+  firstLaunchDate?: string
 }
 
 export interface PomodoroSettings {

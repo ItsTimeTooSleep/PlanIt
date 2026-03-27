@@ -3,9 +3,9 @@
 import { useLanguage } from '@/lib/store'
 import { useTranslations } from '@/lib/i18n'
 import type { Tag } from '@/lib/types'
-import { Tabs, AnimatedTabsList, AnimatedTabsTrigger, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
-import { Plus, ArrowUpDown, List, Tag as TagIcon, Check } from 'lucide-react'
+import { Progress } from '@/components/ui/progress'
+import { Plus, ArrowUpDown, List, Tag as TagIcon, Check, Calendar, Clock, ChevronDown, Eye } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +29,8 @@ interface FilterBarProps {
   groupBy: GroupBy
   viewMode: ViewMode
   tags: Tag[]
+  completedCount: number
+  totalCount: number
   onTimeFilterChange: (filter: TimeFilter) => void
   onStatusFilterChange: (filter: StatusFilter) => void
   onTagFilterChange: (tagId: string | null) => void
@@ -46,6 +48,8 @@ export function FilterBar({
   groupBy,
   viewMode,
   tags,
+  completedCount,
+  totalCount,
   onTimeFilterChange,
   onStatusFilterChange,
   onTagFilterChange,
@@ -63,122 +67,218 @@ export function FilterBar({
 
   return (
     <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border/60">
-      <div className="max-w-5xl mx-auto px-6 py-5 space-y-5">
+      <div className="max-w-5xl mx-auto px-6 py-3 space-y-3">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">{t.todo.title}</h1>
-            <p className="text-muted-foreground text-sm mt-0.5">{t.todo.subtitle}</p>
+          <h1 className="text-xl font-bold tracking-tight">{t.todo.title}</h1>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground mr-2">
+              <Progress
+                value={totalCount > 0 ? (completedCount / totalCount) * 100 : 0}
+                className="h-1.5 w-16"
+              />
+              <span className="tabular-nums">{completedCount}/{totalCount}</span>
+            </div>
+            <Button onClick={onAddTask} size="sm" className="shadow-sm h-7">
+              <Plus className="w-3.5 h-3.5 mr-1" />
+              {t.todo.addTask}
+            </Button>
           </div>
-          <Button onClick={onAddTask} className="shadow-sm">
-            <Plus className="w-4 h-4 mr-2" />
-            {t.todo.addTask}
-          </Button>
         </div>
 
-        <div className="space-y-4">
-          <div className="flex items-center gap-3">
-            <Tabs value={viewMode} onValueChange={(v) => onViewModeChange(v as ViewMode)}>
-              <AnimatedTabsList className="grid grid-cols-2">
-                <AnimatedTabsTrigger value="byDate">{t.todo.viewMode.byDate}</AnimatedTabsTrigger>
-                <AnimatedTabsTrigger value="byDueDate">{t.todo.viewMode.byDueDate}</AnimatedTabsTrigger>
-              </AnimatedTabsList>
-            </Tabs>
-          </div>
-          <Tabs value={timeFilter} onValueChange={(v) => onTimeFilterChange(v as TimeFilter)}>
-            <AnimatedTabsList className="grid grid-cols-6 w-full max-w-2xl">
-              <AnimatedTabsTrigger value="today">{t.todo.timeFilter.today}</AnimatedTabsTrigger>
-              <AnimatedTabsTrigger value="week">{t.todo.timeFilter.week}</AnimatedTabsTrigger>
-              <AnimatedTabsTrigger value="month">{t.todo.timeFilter.month}</AnimatedTabsTrigger>
-              <AnimatedTabsTrigger value="overdue">{t.todo.timeFilter.overdue}</AnimatedTabsTrigger>
-              <AnimatedTabsTrigger value="upcoming">{t.todo.timeFilter.upcoming}</AnimatedTabsTrigger>
-              <AnimatedTabsTrigger value="all">{t.todo.timeFilter.all}</AnimatedTabsTrigger>
-            </AnimatedTabsList>
-          </Tabs>
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-7 shadow-sm gap-1">
+                <Eye className="w-3.5 h-3.5" />
+                <span className="text-xs">{t.todo.viewMode[viewMode]}</span>
+                <ChevronDown className="w-3 h-3 opacity-50" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-32">
+              <DropdownMenuLabel className="text-xs">{t.todo.viewMode.label}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onViewModeChange('byDate')} className="flex items-center justify-between text-xs">
+                {t.todo.viewMode.byDate}
+                {viewMode === 'byDate' && <Check className="w-3.5 h-3.5" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onViewModeChange('byDueDate')} className="flex items-center justify-between text-xs">
+                {t.todo.viewMode.byDueDate}
+                {viewMode === 'byDueDate' && <Check className="w-3.5 h-3.5" />}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <Tabs value={statusFilter} onValueChange={(v) => onStatusFilterChange(v as StatusFilter)}>
-              <AnimatedTabsList className="grid grid-cols-4">
-                <AnimatedTabsTrigger value="pending">{t.todo.statusFilter.pending}</AnimatedTabsTrigger>
-                <AnimatedTabsTrigger value="completed">{t.todo.statusFilter.completed}</AnimatedTabsTrigger>
-                <AnimatedTabsTrigger value="skipped">{t.todo.statusFilter.skipped}</AnimatedTabsTrigger>
-                <AnimatedTabsTrigger value="all">{t.todo.statusFilter.all}</AnimatedTabsTrigger>
-              </AnimatedTabsList>
-            </Tabs>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-7 shadow-sm gap-1">
+                <Calendar className="w-3.5 h-3.5" />
+                <span className="text-xs">{t.todo.timeFilter[timeFilter]}</span>
+                <ChevronDown className="w-3 h-3 opacity-50" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-32">
+              <DropdownMenuLabel className="text-xs">{t.todo.timeFilter.label}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onTimeFilterChange('today')} className="flex items-center justify-between text-xs">
+                {t.todo.timeFilter.today}
+                {timeFilter === 'today' && <Check className="w-3.5 h-3.5" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onTimeFilterChange('week')} className="flex items-center justify-between text-xs">
+                {t.todo.timeFilter.week}
+                {timeFilter === 'week' && <Check className="w-3.5 h-3.5" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onTimeFilterChange('month')} className="flex items-center justify-between text-xs">
+                {t.todo.timeFilter.month}
+                {timeFilter === 'month' && <Check className="w-3.5 h-3.5" />}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onTimeFilterChange('overdue')} className="flex items-center justify-between text-xs">
+                {t.todo.timeFilter.overdue}
+                {timeFilter === 'overdue' && <Check className="w-3.5 h-3.5" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onTimeFilterChange('upcoming')} className="flex items-center justify-between text-xs">
+                {t.todo.timeFilter.upcoming}
+                {timeFilter === 'upcoming' && <Check className="w-3.5 h-3.5" />}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onTimeFilterChange('all')} className="flex items-center justify-between text-xs">
+                {t.todo.timeFilter.all}
+                {timeFilter === 'all' && <Check className="w-3.5 h-3.5" />}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-            <div className="flex-1" />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-7 shadow-sm gap-1">
+                <Clock className="w-3.5 h-3.5" />
+                <span className="text-xs">{t.todo.statusFilter[statusFilter]}</span>
+                <ChevronDown className="w-3 h-3 opacity-50" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-28">
+              <DropdownMenuLabel className="text-xs">{t.todo.statusFilter.label}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onStatusFilterChange('pending')} className="flex items-center justify-between text-xs">
+                {t.todo.statusFilter.pending}
+                {statusFilter === 'pending' && <Check className="w-3.5 h-3.5" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onStatusFilterChange('completed')} className="flex items-center justify-between text-xs">
+                {t.todo.statusFilter.completed}
+                {statusFilter === 'completed' && <Check className="w-3.5 h-3.5" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onStatusFilterChange('skipped')} className="flex items-center justify-between text-xs">
+                {t.todo.statusFilter.skipped}
+                {statusFilter === 'skipped' && <Check className="w-3.5 h-3.5" />}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onStatusFilterChange('all')} className="flex items-center justify-between text-xs">
+                {t.todo.statusFilter.all}
+                {statusFilter === 'all' && <Check className="w-3.5 h-3.5" />}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-            {tags.length > 0 && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 shadow-sm">
-                    <TagIcon className="w-3.5 h-3.5 mr-1.5" />
-                    {selectedTagName || t.todo.tagFilter.all}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-40">
-                  <DropdownMenuLabel>{t.todo.tagFilter.label}</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
+          {tags.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="h-7 shadow-sm gap-1">
+                  <TagIcon className="w-3.5 h-3.5" />
+                  <span className="text-xs max-w-16 truncate">{selectedTagName || t.todo.tagFilter.all}</span>
+                  <ChevronDown className="w-3 h-3 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-36">
+                <DropdownMenuLabel className="text-xs">{t.todo.tagFilter.label}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => onTagFilterChange(null)}
+                  className="flex items-center justify-between text-xs"
+                >
+                  {t.todo.tagFilter.all}
+                  {tagFilter === null && <Check className="w-3.5 h-3.5" />}
+                </DropdownMenuItem>
+                {tags.map(tag => (
                   <DropdownMenuItem 
-                    onClick={() => onTagFilterChange(null)}
-                    className="flex items-center justify-between"
+                    key={tag.id}
+                    onClick={() => onTagFilterChange(tag.id)}
+                    className="flex items-center justify-between text-xs"
                   >
-                    {t.todo.tagFilter.all}
-                    {tagFilter === null && <Check className="w-4 h-4" />}
+                    <span className="flex items-center gap-1.5">
+                      <span 
+                        className="w-2 h-2 rounded-full shrink-0" 
+                        style={{ backgroundColor: tag.color }}
+                      />
+                      <span className="truncate">{tag.name}</span>
+                    </span>
+                    {tagFilter === tag.id && <Check className="w-3.5 h-3.5 shrink-0" />}
                   </DropdownMenuItem>
-                  {tags.map(tag => (
-                    <DropdownMenuItem 
-                      key={tag.id}
-                      onClick={() => onTagFilterChange(tag.id)}
-                      className="flex items-center justify-between"
-                    >
-                      <span className="flex items-center gap-2">
-                        <span 
-                          className="w-2.5 h-2.5 rounded-full" 
-                          style={{ backgroundColor: tag.color }}
-                        />
-                        {tag.name}
-                      </span>
-                      {tagFilter === tag.id && <Check className="w-4 h-4" />}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-8 shadow-sm">
-                  <ArrowUpDown className="w-3.5 h-3.5 mr-1.5" />
-                  {t.todo.sortBy[sortBy]}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-36">
-                <DropdownMenuLabel>{t.todo.sortBy.date}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => onSortByChange('date')}>{t.todo.sortBy.date}</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onSortByChange('time')}>{t.todo.sortBy.time}</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onSortByChange('title')}>{t.todo.sortBy.title}</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onSortByChange('status')}>{t.todo.sortBy.status}</DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
             </DropdownMenu>
+          )}
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-8 shadow-sm">
-                  <List className="w-3.5 h-3.5 mr-1.5" />
-                  {t.todo.groupBy[groupBy]}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-36">
-                <DropdownMenuLabel>{t.todo.groupBy.none}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => onGroupByChange('none')}>{t.todo.groupBy.none}</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onGroupByChange('date')}>{t.todo.groupBy.date}</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onGroupByChange('status')}>{t.todo.groupBy.status}</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onGroupByChange('tag')}>{t.todo.groupBy.tag}</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          <div className="flex-1" />
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-7 shadow-sm gap-1">
+                <ArrowUpDown className="w-3.5 h-3.5" />
+                <span className="text-xs">{t.todo.sortBy[sortBy]}</span>
+                <ChevronDown className="w-3 h-3 opacity-50" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-28">
+              <DropdownMenuLabel className="text-xs">{t.todo.sortBy.label}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onSortByChange('date')} className="flex items-center justify-between text-xs">
+                {t.todo.sortBy.date}
+                {sortBy === 'date' && <Check className="w-3.5 h-3.5" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onSortByChange('time')} className="flex items-center justify-between text-xs">
+                {t.todo.sortBy.time}
+                {sortBy === 'time' && <Check className="w-3.5 h-3.5" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onSortByChange('title')} className="flex items-center justify-between text-xs">
+                {t.todo.sortBy.title}
+                {sortBy === 'title' && <Check className="w-3.5 h-3.5" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onSortByChange('status')} className="flex items-center justify-between text-xs">
+                {t.todo.sortBy.status}
+                {sortBy === 'status' && <Check className="w-3.5 h-3.5" />}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="h-7 shadow-sm gap-1">
+                <List className="w-3.5 h-3.5" />
+                <span className="text-xs">{t.todo.groupBy[groupBy]}</span>
+                <ChevronDown className="w-3 h-3 opacity-50" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-28">
+              <DropdownMenuLabel className="text-xs">{t.todo.groupBy.label}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onGroupByChange('none')} className="flex items-center justify-between text-xs">
+                {t.todo.groupBy.none}
+                {groupBy === 'none' && <Check className="w-3.5 h-3.5" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onGroupByChange('date')} className="flex items-center justify-between text-xs">
+                {t.todo.groupBy.date}
+                {groupBy === 'date' && <Check className="w-3.5 h-3.5" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onGroupByChange('status')} className="flex items-center justify-between text-xs">
+                {t.todo.groupBy.status}
+                {groupBy === 'status' && <Check className="w-3.5 h-3.5" />}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onGroupByChange('tag')} className="flex items-center justify-between text-xs">
+                {t.todo.groupBy.tag}
+                {groupBy === 'tag' && <Check className="w-3.5 h-3.5" />}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </div>

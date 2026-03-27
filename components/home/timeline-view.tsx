@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useCallback, useEffect, useMemo } from 'react'
+import { usePathname } from 'next/navigation'
 import { format } from 'date-fns'
 import type { Task, Tag } from '@/lib/types'
 import { sortTasksByTime, timeToMinutes, minutesToTime } from '@/lib/task-utils'
@@ -30,6 +31,7 @@ interface TimelineViewProps {
  * 显示当日任务的时间分布，支持碰撞布局避免重叠
  */
 export function TimelineView({ now, today, tasks, tags, lang, onTaskClick, onTaskToggle, onOpenCreate, onOpenPomodoro }: TimelineViewProps) {
+  const pathname = usePathname()
   const timelineRef = useRef<HTMLDivElement>(null)
   const lastScrollRef = useRef<number>(Date.now())
   const autoScrollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -68,7 +70,7 @@ export function TimelineView({ now, today, tasks, tags, lang, onTaskClick, onTas
     setTimeout(() => {
       scrollToNow('instant')
     }, 100)
-  }, [])
+  }, [pathname, scrollToNow])
 
   useEffect(() => {
     autoScrollTimerRef.current = setInterval(() => {
@@ -189,14 +191,14 @@ export function TimelineView({ now, today, tasks, tags, lang, onTaskClick, onTas
             })}
 
             <div
-              className="absolute flex items-center pointer-events-none z-20"
+              className="absolute pointer-events-none z-20"
               style={{ top: nowTop + 20, left: 0, right: 0 }}
             >
-              <span className="w-16 text-right pr-4 text-sm font-semibold text-primary tabular-nums shrink-0 select-none">
+              <span className="absolute -translate-y-1/2 w-16 text-right pr-4 text-sm font-semibold text-primary tabular-nums select-none">
                 {format(now, 'HH:mm')}
               </span>
-              <div className="w-2.5 h-2.5 rounded-full bg-primary shrink-0 shadow-lg" />
-              <div className="flex-1 h-0.5 bg-gradient-to-r from-primary/60 to-transparent" />
+              <div className="absolute left-16 w-2.5 h-2.5 rounded-full bg-primary shadow-lg -translate-y-1/2" />
+              <div className="absolute left-16 right-0 h-0.5 bg-gradient-to-r from-primary/60 to-transparent -translate-y-1/2" />
             </div>
 
             {taskLayouts.map(layout => {

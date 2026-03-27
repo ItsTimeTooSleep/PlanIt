@@ -426,6 +426,14 @@ async function createTauriAPI(platform: PlatformType): Promise<PlatformAPI> {
     trayCallbacks.forEach(cb => cb(`shortcut:${event.payload}`))
   }).catch(console.error)
   
+  listen<boolean>('window-visibility-changed', (event) => {
+    if (event.payload) {
+      trayCallbacks.forEach(cb => cb('show'))
+    } else {
+      trayCallbacks.forEach(cb => cb('hide'))
+    }
+  }).catch(console.error)
+  
   return {
     capabilities,
     

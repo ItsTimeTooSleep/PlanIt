@@ -9,7 +9,6 @@ import { zhCN, enUS } from 'date-fns/locale'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Card } from '@/components/ui/card'
 import { Empty } from '@/components/ui/empty'
-import { Progress } from '@/components/ui/progress'
 import { TaskModal } from '@/components/task-modal'
 import { FilterBar, type TimeFilter, type StatusFilter, type SortBy, type GroupBy, type ViewMode } from './filter-bar'
 import { TaskItem } from './task-item'
@@ -23,12 +22,12 @@ export function TodoView() {
   const t = useTranslations(lang)
   const { state, addTask, updateTask } = useStore()
   
-  const [timeFilter, setTimeFilter] = useState<TimeFilter>('today')
+  const [timeFilter, setTimeFilter] = useState<TimeFilter>('week')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('pending')
   const [tagFilter, setTagFilter] = useState<string | null>(null)
-  const [sortBy, setSortBy] = useState<SortBy>('date')
+  const [sortBy, setSortBy] = useState<SortBy>('time')
   const [groupBy, setGroupBy] = useState<GroupBy>('date')
-  const [viewMode, setViewMode] = useState<ViewMode>('byDate')
+  const [viewMode, setViewMode] = useState<ViewMode>('byDueDate')
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
 
@@ -200,6 +199,8 @@ export function TodoView() {
         groupBy={groupBy}
         viewMode={viewMode}
         tags={state.tags}
+        completedCount={allTasksCompletedCount}
+        totalCount={allTasksWithTimeAndTagFilter.length}
         onTimeFilterChange={setTimeFilter}
         onStatusFilterChange={setStatusFilter}
         onTagFilterChange={setTagFilter}
@@ -209,24 +210,7 @@ export function TodoView() {
         onAddTask={handleAddTask}
       />
 
-      <div className="px-6 py-4 bg-muted/20 border-b border-border/60">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex items-center justify-between mb-2.5">
-            <span className="text-sm font-medium">
-              {t.todo.completedCount(allTasksCompletedCount, allTasksWithTimeAndTagFilter.length)}
-            </span>
-            <span className="text-sm text-muted-foreground">
-              {allTasksWithTimeAndTagFilter.length} {t.dashboard.tasks}
-            </span>
-          </div>
-          <Progress
-            value={allTasksWithTimeAndTagFilter.length > 0 ? (allTasksCompletedCount / allTasksWithTimeAndTagFilter.length) * 100 : 0}
-            className="h-2"
-          />
-        </div>
-      </div>
-
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 h-0">
         <div className="max-w-5xl mx-auto p-6 space-y-6">
           {filteredAndSortedTasks.length === 0 ? (
             <Empty

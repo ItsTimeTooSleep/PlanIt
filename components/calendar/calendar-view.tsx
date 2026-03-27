@@ -52,6 +52,7 @@ export function CalendarView() {
   const [isBatchMenuSticky, setIsBatchMenuSticky] = useState(false)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null)
+  const [hasNavigated, setHasNavigated] = useState(false)
 
   const tomorrow = useMemo(() => format(addDays(new Date(), 1), 'yyyy-MM-dd'), [])
 
@@ -68,14 +69,17 @@ export function CalendarView() {
 
   function goBack() {
     setReferenceDate(prev => view === 'week' ? subWeeks(prev, 1) : subMonths(prev, 1))
+    setHasNavigated(true)
   }
 
   function goForward() {
     setReferenceDate(prev => view === 'week' ? addWeeks(prev, 1) : addMonths(prev, 1))
+    setHasNavigated(true)
   }
 
   function goToday() {
     setReferenceDate(new Date())
+    setHasNavigated(false)
   }
 
   function openCreate(date: string, startTime?: string, endTime?: string) {
@@ -231,19 +235,20 @@ export function CalendarView() {
     <div className="flex flex-col h-[calc(100vh-2.25rem)] ml-16">
       {/* Toolbar */}
       <div className="flex items-center gap-2 px-4 pt-4 pb-3 shrink-0 flex-wrap">
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 flex-1 justify-center">
           <Button variant="ghost" size="icon" onClick={goBack} className="w-8 h-8">
             <ChevronLeft className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="sm" onClick={goToday} className="text-xs px-2">
-            {t.calendar.today}
-          </Button>
+          <h2 className="text-sm font-semibold min-w-[160px] text-center">{title}</h2>
           <Button variant="ghost" size="icon" onClick={goForward} className="w-8 h-8">
             <ChevronRight className="w-4 h-4" />
           </Button>
+          {hasNavigated && (
+            <Button variant="ghost" size="sm" onClick={goToday} className="text-xs px-2 ml-1">
+              {t.calendar.thisWeek}
+            </Button>
+          )}
         </div>
-
-        <h2 className="flex-1 text-sm font-semibold text-center">{title}</h2>
 
         <div className="flex items-center gap-1">
           <Button

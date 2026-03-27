@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useCallback, useEffect, useMemo, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { format } from 'date-fns'
 import { Plus, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -54,6 +55,7 @@ export function TimelineWidget({
   onOpenPomodoro,
   className 
 }: TimelineWidgetProps) {
+  const pathname = usePathname()
   const timelineRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const lastScrollRef = useRef<number>(Date.now())
@@ -139,7 +141,7 @@ export function TimelineWidget({
     setTimeout(() => {
       scrollToNow('instant')
     }, 100)
-  }, [])
+  }, [pathname, scrollToNow])
 
   useEffect(() => {
     if (!autoScroll) return
@@ -263,14 +265,14 @@ export function TimelineWidget({
 
             {showCurrentTimeLine && (
               <div
-                className="absolute flex items-center pointer-events-none z-20"
+                className="absolute pointer-events-none z-20"
                 style={{ top: nowTop + 20, left: 0, right: 0 }}
               >
-                <span className={cn('w-14 text-right pr-3 font-semibold text-primary tabular-nums shrink-0 select-none', hourLabelFontSize)}>
+                <span className={cn('absolute -translate-y-1/2 w-14 text-right pr-3 font-semibold text-primary tabular-nums select-none', hourLabelFontSize)}>
                   {format(now, 'HH:mm')}
                 </span>
-                <div className="w-2.5 h-2.5 rounded-full bg-primary shrink-0 shadow-lg" />
-                <div className="flex-1 h-0.5 bg-gradient-to-r from-primary/60 to-transparent" />
+                <div className="absolute left-14 w-2.5 h-2.5 rounded-full bg-primary shadow-lg -translate-y-1/2" />
+                <div className="absolute left-14 right-0 h-0.5 bg-gradient-to-r from-primary/60 to-transparent -translate-y-1/2" />
               </div>
             )}
 

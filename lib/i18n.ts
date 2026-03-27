@@ -144,6 +144,7 @@ const zh = {
     prevMonth: '上个月',
     nextMonth: '下个月',
     today: '今天',
+    thisWeek: '本周',
     undo: '撤销',
     redo: '重做',
     selectMode: '选择模式',
@@ -328,10 +329,12 @@ const zh = {
     title: '待办事项',
     subtitle: '管理所有任务',
     viewMode: {
+      label: '视图模式',
       byDate: '按计划日期',
       byDueDate: '按截止日期',
     },
     timeFilter: {
+      label: '时间范围',
       all: '全部',
       today: '今天',
       week: '本周',
@@ -340,6 +343,7 @@ const zh = {
       upcoming: '即将到来',
     },
     statusFilter: {
+      label: '任务状态',
       all: '全部状态',
       pending: '待处理',
       completed: '已完成',
@@ -350,12 +354,14 @@ const zh = {
       all: '全部标签',
     },
     sortBy: {
+      label: '排序方式',
       date: '按日期',
       time: '按时间',
       title: '按标题',
       status: '按状态',
     },
     groupBy: {
+      label: '分组方式',
       none: '不分组',
       date: '按日期',
       status: '按状态',
@@ -585,6 +591,7 @@ const en = {
     prevMonth: 'Previous Month',
     nextMonth: 'Next Month',
     today: 'Today',
+    thisWeek: 'This Week',
     undo: 'Undo',
     redo: 'Redo',
     selectMode: 'Select',
@@ -769,10 +776,12 @@ const en = {
     title: 'To Do List',
     subtitle: 'Manage all your tasks',
     viewMode: {
+      label: 'View Mode',
       byDate: 'By Plan Date',
       byDueDate: 'By Due Date',
     },
     timeFilter: {
+      label: 'Time Range',
       all: 'All',
       today: 'Today',
       week: 'This Week',
@@ -781,6 +790,7 @@ const en = {
       upcoming: 'Upcoming',
     },
     statusFilter: {
+      label: 'Task Status',
       all: 'All Status',
       pending: 'Pending',
       completed: 'Completed',
@@ -791,12 +801,14 @@ const en = {
       all: 'All Tags',
     },
     sortBy: {
+      label: 'Sort By',
       date: 'By Date',
       time: 'By Time',
       title: 'By Title',
       status: 'By Status',
     },
     groupBy: {
+      label: 'Group By',
       none: 'No Grouping',
       date: 'By Date',
       status: 'By Status',
@@ -1016,6 +1028,7 @@ export type Translations = {
     readonly prevMonth: string
     readonly nextMonth: string
     readonly today: string
+    readonly thisWeek: string
     readonly undo: string
     readonly redo: string
     readonly selectMode: string
@@ -1194,10 +1207,12 @@ export type Translations = {
     readonly title: string
     readonly subtitle: string
     readonly viewMode: {
+      readonly label: string
       readonly byDate: string
       readonly byDueDate: string
     }
     readonly timeFilter: {
+      readonly label: string
       readonly all: string
       readonly today: string
       readonly week: string
@@ -1206,6 +1221,7 @@ export type Translations = {
       readonly upcoming: string
     }
     readonly statusFilter: {
+      readonly label: string
       readonly all: string
       readonly pending: string
       readonly completed: string
@@ -1216,12 +1232,14 @@ export type Translations = {
       readonly all: string
     }
     readonly sortBy: {
+      readonly label: string
       readonly date: string
       readonly time: string
       readonly title: string
       readonly status: string
     }
     readonly groupBy: {
+      readonly label: string
       readonly none: string
       readonly date: string
       readonly status: string

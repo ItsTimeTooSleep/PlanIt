@@ -112,7 +112,7 @@ function createDefaultLayout(): WidgetLayout {
         position: { x: 83.33333333333334, y: 2.5 },
         size: { width: 15, height: 17.5 },
         zIndex: 4,
-        config: { targetDate: '2026-03-20', name: '目标日期', showIcon: false },
+        config: { targetDate: '2026-03-20', name: '旅程', showIcon: false, isJourneyMode: true },
         createdAt: now,
         updatedAt: now,
       },

@@ -217,6 +217,7 @@ export interface CountdownConfig {
   targetDate?: string;
   name?: string;
   showIcon?: boolean;
+  isJourneyMode?: boolean;
 }
 
 export const SEARCH_ENGINES: SearchEngineConfig[] = [
@@ -312,5 +313,5 @@ export const DEFAULT_WIDGET_CONFIGS: Record<WidgetType, Record<string, unknown>>
   timeline: { showHourLabels: true, showCurrentTimeLine: true, showTaskDetails: true, autoScroll: true },
   line: { color: '#888888', thickness: 2, opacity: 100, style: 'solid' },
   text: { content: '', fontSize: 16, fontWeight: 'normal', textAlign: 'left', color: '#333333', backgroundColor: 'transparent' },
-  countdown: { targetDate: new Date().toISOString().split('T')[0], name: '目标日期', showIcon: true },
+  countdown: { targetDate: new Date().toISOString().split('T')[0], name: '目标日期', showIcon: true, isJourneyMode: true },
 };

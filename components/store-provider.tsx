@@ -68,7 +68,17 @@ const STORAGE_KEY = 'planit_data'
 function load(): AppState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return DEFAULT_STATE
+    const isFirstLaunch = !raw
+    if (isFirstLaunch) {
+      const stateWithFirstLaunch = {
+        ...DEFAULT_STATE,
+        settings: {
+          ...DEFAULT_STATE.settings,
+          firstLaunchDate: new Date().toISOString().split('T')[0],
+        },
+      }
+      return stateWithFirstLaunch
+    }
     const parsed = JSON.parse(raw) as Partial<AppState> & {
       settings?: { notificationsEnabled?: boolean }
     }
@@ -95,6 +105,7 @@ function load(): AppState {
       settings: { 
         ...DEFAULT_STATE.settings, 
         ...migratedSettings,
+        firstLaunchDate: migratedSettings.firstLaunchDate ?? new Date().toISOString().split('T')[0],
         notifications: {
           ...DEFAULT_STATE.settings.notifications,
           ...(migratedSettings.notifications ?? {})
@@ -111,7 +122,13 @@ function load(): AppState {
       pomodoro: { ...DEFAULT_POMODORO, ...(parsed.pomodoro ?? {}) },
     }
   } catch {
-    return DEFAULT_STATE
+    return {
+      ...DEFAULT_STATE,
+      settings: {
+        ...DEFAULT_STATE.settings,
+        firstLaunchDate: new Date().toISOString().split('T')[0],
+      },
+    }
   }
 }
 

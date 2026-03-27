@@ -20,8 +20,8 @@ export function PomodoroDialog() {
         className="w-full max-w-5xl h-[90vh] p-0 overflow-hidden"
         showCloseButton={false}
       >
-        <DialogTitle>
-          <VisuallyHidden>{t.pomodoro.title}</VisuallyHidden>
+        <DialogTitle className="absolute -m-px h-px w-px overflow-hidden whitespace-nowrap border-0 p-0">
+          {t.pomodoro.title}
         </DialogTitle>
         <div className="w-full h-full">
           <PomodoroTimer />

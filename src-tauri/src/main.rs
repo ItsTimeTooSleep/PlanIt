@@ -147,6 +147,7 @@ fn main() {
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.show();
                 let _ = window.set_focus();
+                let _ = window.emit("window-visibility-changed", true);
             }
         }))
         .setup(|app| {
@@ -156,6 +157,7 @@ fn main() {
             if let Some(window) = app.get_webview_window("main") {
                 if start_minimized {
                     window.hide().map_err(|e| format!("Failed to hide window: {}", e))?;
+                    let _ = window.emit("window-visibility-changed", false);
                 }
             }
             
@@ -192,6 +194,7 @@ fn main() {
                 if &*close_behavior == "tray" {
                     api.prevent_close();
                     window.hide().unwrap();
+                    let _ = window.emit("window-visibility-changed", false);
                 }
             }
         })

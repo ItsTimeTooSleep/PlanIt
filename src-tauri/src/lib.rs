@@ -368,11 +368,13 @@ pub fn setup_system_tray(app: &AppHandle<Wry>) -> Result<(), Box<dyn std::error:
                 if let Some(window) = app.get_webview_window("main") {
                     let _ = window.show();
                     let _ = window.set_focus();
+                    let _ = window.emit("window-visibility-changed", true);
                 }
             }
             "hide" => {
                 if let Some(window) = app.get_webview_window("main") {
                     let _ = window.hide();
+                    let _ = window.emit("window-visibility-changed", false);
                 }
             }
             "add-task" => {
@@ -435,9 +437,11 @@ pub fn setup_system_tray(app: &AppHandle<Wry>) -> Result<(), Box<dyn std::error:
                 if let Some(window) = app.get_webview_window("main") {
                     if window.is_visible().unwrap_or(false) {
                         let _ = window.hide();
+                        let _ = window.emit("window-visibility-changed", false);
                     } else {
                         let _ = window.show();
                         let _ = window.set_focus();
+                        let _ = window.emit("window-visibility-changed", true);
                     }
                 }
             }
