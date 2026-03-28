@@ -179,13 +179,32 @@ export function usePomodoro() {
     })
   }, [customWorkMinutes, updatePomodoro])
 
+  const getUpcomingPhaseInfo = useCallback(() => {
+    if (pomodoro.phase !== 'work') {
+      return { hasBreak: false, nextPhase: 'work' as PomodoroPhase, isFullSession: true }
+    }
+    
+    const workDurationSeconds = pomodoro.settings.workDuration * 60
+    const isFullSession = pomodoro.totalSeconds >= workDurationSeconds
+    
+    if (skipBreaks || !isFullSession) {
+      return { hasBreak: false, nextPhase: 'work' as PomodoroPhase, isFullSession }
+    }
+    
+    const nextPhase = getNextPhase(pomodoro.phase, pomodoro.completedSessions, pomodoro.settings)
+    return { hasBreak: nextPhase !== 'work', nextPhase, isFullSession }
+  }, [pomodoro.phase, pomodoro.totalSeconds, pomodoro.settings, pomodoro.completedSessions, skipBreaks])
+
   const switchToNextPhase = useCallback(() => {
     let newCompletedSessions = pomodoro.completedSessions
     if (pomodoro.phase === 'work') {
       newCompletedSessions += 1
     }
 
-    if (skipBreaks && (pomodoro.phase === 'shortBreak' || pomodoro.phase === 'longBreak')) {
+    const workDurationSeconds = pomodoro.settings.workDuration * 60
+    const isFullSession = pomodoro.phase !== 'work' || pomodoro.totalSeconds >= workDurationSeconds
+
+    if (skipBreaks || !isFullSession) {
       const nextPhase = 'work'
       let nextDuration: number
       if (currentTask) {
@@ -198,8 +217,8 @@ export function usePomodoro() {
         phase: nextPhase,
         remainingSeconds: nextDuration,
         totalSeconds: nextDuration,
-        completedSessions: newCompletedSessions,
-        status: pomodoro.settings.autoStartWork ? 'running' : 'idle',
+        completedSessions: isFullSession ? newCompletedSessions : pomodoro.completedSessions,
+        status: 'idle',
       })
       return
     }
@@ -216,18 +235,14 @@ export function usePomodoro() {
       nextDuration = getPhaseDuration(nextPhase, pomodoro.settings)
     }
 
-    const shouldAutoStart = nextPhase === 'work' 
-      ? pomodoro.settings.autoStartWork 
-      : pomodoro.settings.autoStartBreaks
-
     updatePomodoro({
       phase: nextPhase,
       remainingSeconds: nextDuration,
       totalSeconds: nextDuration,
       completedSessions: newCompletedSessions,
-      status: shouldAutoStart ? 'running' : 'idle',
+      status: 'idle',
     })
-  }, [pomodoro.phase, pomodoro.completedSessions, pomodoro.settings, skipBreaks, currentTask, customWorkMinutes, updatePomodoro])
+  }, [pomodoro.phase, pomodoro.totalSeconds, pomodoro.completedSessions, pomodoro.settings, skipBreaks, currentTask, customWorkMinutes, updatePomodoro])
 
   useEffect(() => {
     activeUpdatePomodoro = updatePomodoro
@@ -261,15 +276,12 @@ export function usePomodoro() {
     }
   }, [pomodoro.status])
 
-  useEffect(() => {
-    if (pomodoro.status === 'finished') {
-      switchToNextPhase()
-    }
-  }, [pomodoro.status, switchToNextPhase])
-
   const calculateBreakCount = useCallback(() => {
-    const workMinutes = Math.ceil(pomodoro.totalSeconds / 60)
-    const sessionCount = Math.ceil(workMinutes / pomodoro.settings.workDuration)
+    const workDurationSeconds = pomodoro.settings.workDuration * 60
+    if (pomodoro.totalSeconds < workDurationSeconds) {
+      return { shortBreakCount: 0, longBreakCount: 0 }
+    }
+    const sessionCount = Math.ceil(pomodoro.totalSeconds / workDurationSeconds)
     const longBreakCount = Math.floor(sessionCount / pomodoro.settings.workSessionsBeforeLongBreak)
     const shortBreakCount = sessionCount - longBreakCount - 1
     return { shortBreakCount: Math.max(0, shortBreakCount), longBreakCount }
@@ -285,6 +297,7 @@ export function usePomodoro() {
     startPomodoro,
     resetToToolMode,
     switchToNextPhase,
+    getUpcomingPhaseInfo,
     getNextPhase: () => getNextPhase(pomodoro.phase, pomodoro.completedSessions, pomodoro.settings),
     skipBreaks,
     setSkipBreaks,

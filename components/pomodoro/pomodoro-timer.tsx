@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
-import { Play, Pause, Square, Maximize, Minimize, Plus, Minus, Shield, Coffee, Battery } from 'lucide-react'
+import { Play, Pause, Square, Maximize, Minimize, Plus, Minus, Shield, Coffee, Battery, CheckCircle, RotateCcw, SkipForward } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { usePomodoro, useFullscreen } from '@/lib/pomodoro-hooks'
@@ -59,6 +59,8 @@ export function PomodoroTimer() {
     increaseWorkDuration,
     decreaseWorkDuration,
     calculateBreakCount,
+    switchToNextPhase,
+    getUpcomingPhaseInfo,
   } = usePomodoro()
   const { isFullscreen, toggleFullscreen } = useFullscreen()
   const [showFocusMode, setShowFocusMode] = useState(false)
@@ -66,10 +68,7 @@ export function PomodoroTimer() {
   const timeRef = useRef(0)
   
   const [blobs, setBlobs] = useState<AnimatedBlob[]>([
-    { x: -100, y: -100, scale: 1, opacity: 0.22, colorIndex: 0, colorOffset: 0 },
-    { x: -80, y: -80, scale: 1, opacity: 0.18, colorIndex: 1, colorOffset: Math.PI * 0.5 },
-    { x: -120, y: -60, scale: 0.9, opacity: 0.14, colorIndex: 2, colorOffset: Math.PI },
-    { x: -60, y: -120, scale: 0.85, opacity: 0.12, colorIndex: 3, colorOffset: Math.PI * 1.5 },
+    { x: 0, y: 280, scale: 1.1, opacity: 0.35, colorIndex: 0, colorOffset: 0 },
   ])
 
   const currentColorVariants = useMemo(() => {
@@ -78,18 +77,15 @@ export function PomodoroTimer() {
 
   useEffect(() => {
     const animate = () => {
-      timeRef.current += 0.004
+      timeRef.current += 0.003
       
-      setBlobs(prev => prev.map((blob, index) => {
-        const speedMultiplier = 1 + index * 0.15
-        const offset = blob.colorOffset
-        
+      setBlobs(prev => prev.map((blob) => {
         return {
           ...blob,
-          x: -100 + Math.sin(timeRef.current * (0.6 + index * 0.1) + offset) * (50 + index * 15),
-          y: -100 + Math.cos(timeRef.current * (0.5 + index * 0.12) + offset) * (45 + index * 12),
-          scale: 0.8 + Math.sin(timeRef.current * (0.8 + index * 0.1) + offset) * 0.25,
-          opacity: 0.08 + Math.sin(timeRef.current * (1.0 + index * 0.08) + offset) * 0.10,
+          x: Math.sin(timeRef.current * 0.4) * 120,
+          y: 280 + Math.sin(timeRef.current * 0.3) * 30,
+          scale: 1.1 + Math.sin(timeRef.current * 0.5) * 0.3,
+          opacity: 0.35 + Math.sin(timeRef.current * 0.6) * 0.15,
         }
       }))
       
@@ -145,9 +141,8 @@ export function PomodoroTimer() {
     return (
       <div className="flex flex-col items-center justify-center w-full h-full relative overflow-hidden">
         {blobs.map((blob, index) => {
-          const size = 320 + index * 40
-          const blur = 100 + index * 15
-          const isRight = index % 2 === 0
+          const size = 350
+          const blur = 80
           
           return (
             <div
@@ -157,10 +152,8 @@ export function PomodoroTimer() {
                 backgroundColor: currentColorVariants[blob.colorIndex % currentColorVariants.length],
                 width: `${size}px`,
                 height: `${size}px`,
-                right: isRight ? '-100px' : 'auto',
-                left: !isRight ? '-80px' : 'auto',
-                top: isRight ? `${blob.y}px` : 'auto',
-                bottom: !isRight ? `${blob.y}px` : 'auto',
+                left: `calc(50% - ${size / 2}px + ${blob.x}px)`,
+                top: `calc(50% - ${size / 2}px + ${blob.y}px)`,
                 opacity: blob.opacity,
                 transform: `scale(${blob.scale})`,
                 filter: `blur(${blur}px)`
@@ -253,9 +246,8 @@ export function PomodoroTimer() {
   return (
     <div className="flex flex-col items-center justify-center w-full h-full relative overflow-hidden">
       {blobs.map((blob, index) => {
-        const size = 340 + index * 40
-        const blur = 110 + index * 15
-        const isRight = index % 2 === 0
+        const size = 350
+        const blur = 80
         
         return (
           <div
@@ -265,10 +257,8 @@ export function PomodoroTimer() {
               backgroundColor: currentColorVariants[blob.colorIndex % currentColorVariants.length],
               width: `${size}px`,
               height: `${size}px`,
-              right: isRight ? '-100px' : 'auto',
-              left: !isRight ? '-80px' : 'auto',
-              top: isRight ? `${blob.y}px` : 'auto',
-              bottom: !isRight ? `${blob.y}px` : 'auto',
+              left: `calc(50% - ${size / 2}px + ${blob.x}px)`,
+              top: `calc(50% - ${size / 2}px + ${blob.y}px)`,
               opacity: blob.opacity,
               transform: `scale(${blob.scale})`,
               filter: `blur(${blur}px)`
@@ -361,6 +351,117 @@ export function PomodoroTimer() {
           </Button>
         </div>
       )}
+
+      {pomodoro.status === 'finished' && (() => {
+        const { hasBreak, nextPhase, isFullSession } = getUpcomingPhaseInfo()
+        const completedMinutes = Math.floor(pomodoro.totalSeconds / 60)
+        const completedSeconds = pomodoro.totalSeconds % 60
+        
+        return (
+          <div className="relative z-10 flex flex-col items-center gap-8">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
+                <CheckCircle className="w-12 h-12 text-primary" />
+              </div>
+              
+              <div className="text-center">
+                <h2 className="text-2xl font-bold mb-2">
+                  {lang === 'zh' ? '专注完成！' : 'Focus Complete!'}
+                </h2>
+                <p className="text-muted-foreground">
+                  {lang === 'zh' 
+                    ? `专注时长: ${completedMinutes}分${completedSeconds > 0 ? completedSeconds + '秒' : ''}`
+                    : `Focus duration: ${completedMinutes}m${completedSeconds > 0 ? completedSeconds + 's' : ''}`
+                  }
+                </p>
+                {isFullSession && pomodoro.phase === 'work' && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {lang === 'zh' 
+                      ? `已完成 ${pomodoro.completedSessions + 1} 个番茄钟`
+                      : `${pomodoro.completedSessions + 1} pomodoros completed`
+                    }
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center gap-3">
+              {hasBreak && (
+                <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted/30 mb-2">
+                  {nextPhase === 'shortBreak' ? (
+                    <>
+                      <Coffee className="w-4 h-4 text-emerald-500" />
+                      <span className="text-sm">
+                        {lang === 'zh' ? '短休息' : 'Short Break'}: {pomodoro.settings.shortBreakDuration}min
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <Battery className="w-4 h-4 text-blue-500" />
+                      <span className="text-sm">
+                        {lang === 'zh' ? '长休息' : 'Long Break'}: {pomodoro.settings.longBreakDuration}min
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
+
+              <div className="flex items-center gap-3">
+                {hasBreak && (
+                  <Button 
+                    variant="outline"
+                    className="rounded-full"
+                    onClick={() => {
+                      switchToNextPhase()
+                      startTimer()
+                    }}
+                  >
+                    {nextPhase === 'shortBreak' ? (
+                      <>
+                        <Coffee className="w-4 h-4 mr-2" />
+                        {lang === 'zh' ? '开始休息' : 'Start Break'}
+                      </>
+                    ) : (
+                      <>
+                        <Battery className="w-4 h-4 mr-2" />
+                        {lang === 'zh' ? '开始长休息' : 'Start Long Break'}
+                      </>
+                    )}
+                  </Button>
+                )}
+                
+                <Button 
+                  className="rounded-full"
+                  onClick={() => {
+                    switchToNextPhase()
+                  }}
+                >
+                  {hasBreak ? (
+                    <>
+                      <SkipForward className="w-4 h-4 mr-2" />
+                      {lang === 'zh' ? '跳过休息' : 'Skip Break'}
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-4 h-4 mr-2" />
+                      {lang === 'zh' ? '继续专注' : 'Continue Focus'}
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              <Button 
+                variant="ghost"
+                size="sm"
+                onClick={stopTimer}
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                {lang === 'zh' ? '重置' : 'Reset'}
+              </Button>
+            </div>
+          </div>
+        )
+      })()}
 
       {(pomodoro.status === 'running' || pomodoro.status === 'paused') && (
         <div className="relative z-10 flex flex-col items-center gap-12">

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
-import { Play, Pause, RotateCcw, SkipForward, Coffee, Brain, Timer, Plus, Minus } from 'lucide-react'
+import { Play, Pause, RotateCcw, SkipForward, Coffee, Brain, Timer, Plus, Minus, CheckCircle, Battery } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useLanguage } from '@/lib/store'
@@ -147,12 +147,6 @@ export function PomodoroWidget({ id, config, className }: BaseWidgetProps) {
     }
   }, [pomodoro.status])
 
-  useEffect(() => {
-    if (pomodoro.status === 'finished') {
-      switchToNextPhase()
-    }
-  }, [pomodoro.status])
-
   const startTimer = useCallback(() => {
     setPomodoro(prev => ({ ...prev, status: 'running' }))
   }, [])
@@ -196,11 +190,41 @@ export function PomodoroWidget({ id, config, className }: BaseWidgetProps) {
     setWorkDuration(newMinutes)
   }, [pomodoro.totalSeconds, setWorkDuration])
 
+  const getUpcomingPhaseInfo = useCallback(() => {
+    if (pomodoro.phase !== 'work') {
+      return { hasBreak: false, nextPhase: 'work' as PomodoroPhase, isFullSession: true }
+    }
+    
+    const workDurationSeconds = pomodoro.settings.workDuration * 60
+    const isFullSession = pomodoro.totalSeconds >= workDurationSeconds
+    
+    if (!isFullSession) {
+      return { hasBreak: false, nextPhase: 'work' as PomodoroPhase, isFullSession }
+    }
+    
+    const nextPhase = getNextPhase(pomodoro.phase, pomodoro.completedSessions, pomodoro.settings)
+    return { hasBreak: nextPhase !== 'work', nextPhase, isFullSession }
+  }, [pomodoro.phase, pomodoro.totalSeconds, pomodoro.settings, pomodoro.completedSessions])
+
   const switchToNextPhase = useCallback(() => {
     setPomodoro(prev => {
       let newCompletedSessions = prev.completedSessions
       if (prev.phase === 'work') {
         newCompletedSessions += 1
+      }
+
+      const workDurationSeconds = prev.settings.workDuration * 60
+      const isFullSession = prev.phase !== 'work' || prev.totalSeconds >= workDurationSeconds
+
+      if (!isFullSession) {
+        return {
+          ...prev,
+          phase: 'work',
+          remainingSeconds: prev.customWorkMinutes * 60,
+          totalSeconds: prev.customWorkMinutes * 60,
+          completedSessions: prev.completedSessions,
+          status: 'idle',
+        }
       }
 
       const nextPhase = getNextPhase(prev.phase, prev.completedSessions, prev.settings)
@@ -347,6 +371,73 @@ export function PomodoroWidget({ id, config, className }: BaseWidgetProps) {
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center p-4">
+        {pomodoro.status === 'finished' ? (
+          (() => {
+            const { hasBreak, nextPhase, isFullSession } = getUpcomingPhaseInfo()
+            const completedMinutes = Math.floor(pomodoro.totalSeconds / 60)
+            
+            return (
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <CheckCircle className="w-6 h-6 text-primary" />
+                </div>
+                
+                <div className="text-center">
+                  <p className="text-sm font-medium">
+                    {lang === 'zh' ? '专注完成！' : 'Complete!'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {completedMinutes}{lang === 'zh' ? '分钟' : 'min'}
+                  </p>
+                </div>
+
+                {hasBreak && (
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-muted/30 text-xs">
+                    {nextPhase === 'shortBreak' ? (
+                      <>
+                        <Coffee className="w-3 h-3 text-emerald-500" />
+                        <span>{pomodoro.settings.shortBreakDuration}min</span>
+                      </>
+                    ) : (
+                      <>
+                        <Battery className="w-3 h-3 text-blue-500" />
+                        <span>{pomodoro.settings.longBreakDuration}min</span>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2">
+                  {hasBreak && (
+                    <Button 
+                      size="sm"
+                      variant="outline"
+                      className="rounded-full text-xs"
+                      onClick={() => {
+                        switchToNextPhase()
+                        startTimer()
+                      }}
+                    >
+                      {lang === 'zh' ? '休息' : 'Break'}
+                    </Button>
+                  )}
+                  
+                  <Button 
+                    size="sm"
+                    className="rounded-full text-xs"
+                    onClick={switchToNextPhase}
+                  >
+                    {hasBreak 
+                      ? (lang === 'zh' ? '跳过' : 'Skip')
+                      : (lang === 'zh' ? '继续' : 'Continue')
+                    }
+                  </Button>
+                </div>
+              </div>
+            )
+          })()
+        ) : (
+          <>
         <div className="relative mb-4 flex items-center justify-center gap-2" style={{ minHeight: circleSize }}>
           {showTimeAdjust && (
             <Button 
@@ -447,6 +538,8 @@ export function PomodoroWidget({ id, config, className }: BaseWidgetProps) {
             <Timer className="w-3 h-3" />
             {lang === 'zh' ? '已完成' : 'Completed'}: {pomodoro.completedSessions}
           </div>
+        )}
+          </>
         )}
       </div>
     </div>
