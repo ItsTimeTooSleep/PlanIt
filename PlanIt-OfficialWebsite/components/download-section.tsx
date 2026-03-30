@@ -12,7 +12,7 @@ const platforms = [
     size: "68 MB",
     requirement: "macOS 12.0 或更高版本",
     downloadUrl: "#",
-    primary: true,
+    primary: false,
   },
   {
     name: "Windows",
@@ -21,7 +21,7 @@ const platforms = [
     size: "72 MB",
     requirement: "Windows 10/11 64位",
     downloadUrl: "#",
-    primary: false,
+    primary: true,
   },
   {
     name: "Linux",
@@ -30,11 +30,12 @@ const platforms = [
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
       </svg>
     ),
-    version: "2.0.1",
-    size: "65 MB",
+    version: "即将发行",
+    size: "",
     requirement: "Ubuntu 20.04+ / Fedora 35+",
     downloadUrl: "#",
     primary: false,
+    comingSoon: true,
   },
 ];
 
@@ -91,12 +92,19 @@ export function DownloadSection() {
             >
               <div
                 className={`relative p-6 rounded-2xl border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group ${
-                  platform.primary
+                  platform.comingSoon
+                    ? "bg-muted/30 border-dashed opacity-70 hover:opacity-100"
+                    : platform.primary
                     ? "bg-primary text-primary-foreground border-primary"
                     : "bg-card border-border hover:border-accent/50"
                 }`}
               >
-                {platform.primary && (
+                {platform.comingSoon && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-chart-4 text-chart-4-foreground text-xs font-medium rounded-full">
+                    即将发行
+                  </div>
+                )}
+                {platform.primary && !platform.comingSoon && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-accent text-accent-foreground text-xs font-medium rounded-full">
                     推荐
                   </div>
@@ -104,38 +112,51 @@ export function DownloadSection() {
                 <div className="flex flex-col items-center text-center">
                   <div
                     className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110 ${
-                      platform.primary
+                      platform.primary && !platform.comingSoon
                         ? "bg-primary-foreground/10"
                         : "bg-secondary"
                     }`}
                   >
                     <platform.icon
                       className={`w-8 h-8 ${
-                        platform.primary ? "text-primary-foreground" : "text-foreground"
+                        platform.primary && !platform.comingSoon ? "text-primary-foreground" : "text-foreground"
                       }`}
                     />
                   </div>
                   <h3 className="text-xl font-semibold mb-1">{platform.name}</h3>
                   <p
                     className={`text-sm mb-4 ${
-                      platform.primary
+                      platform.primary && !platform.comingSoon
                         ? "text-primary-foreground/70"
                         : "text-muted-foreground"
                     }`}
                   >
-                    版本 {platform.version} · {platform.size}
+                    {platform.version}
+                    {platform.size && ` · ${platform.size}`}
                   </p>
-                  <Button
-                    variant={platform.primary ? "secondary" : "default"}
-                    className="w-full gap-2 group/btn"
-                  >
-                    <Download className="w-4 h-4" />
-                    下载
-                    <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 transition-all group-hover/btn:opacity-100 group-hover/btn:translate-x-0" />
-                  </Button>
+                  {platform.comingSoon ? (
+                    <Button
+                      variant="secondary"
+                      disabled
+                      className="w-full gap-2"
+                    >
+                      敬请期待
+                    </Button>
+                  ) : (
+                    <Button
+                      variant={platform.primary ? "secondary" : "default"}
+                      className="w-full gap-2 group/btn"
+                    >
+                      <Download className="w-4 h-4" />
+                      下载
+                      <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 transition-all group-hover/btn:opacity-100 group-hover/btn:translate-x-0" />
+                    </Button>
+                  )}
                   <p
                     className={`text-xs mt-3 ${
-                      platform.primary
+                      platform.comingSoon
+                        ? "text-muted-foreground/50"
+                        : platform.primary && !platform.comingSoon
                         ? "text-primary-foreground/50"
                         : "text-muted-foreground/70"
                     }`}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // 生成模拟数据
 function generateData(days: number) {
@@ -32,9 +32,11 @@ function generateData(days: number) {
 export function AnalyticsReveal() {
   const sectionRef = useRef<HTMLElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
-  
-  // 生成30天的数据
-  const allData = useMemo(() => generateData(30), []);
+  const [allData, setAllData] = useState<ReturnType<typeof generateData>>([]);
+
+  useEffect(() => {
+    setAllData(generateData(30));
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {

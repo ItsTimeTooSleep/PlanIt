@@ -28,9 +28,11 @@ export function HeroSection() {
   const titleScale = Math.max(1 - scrollProgress * 0.2, 0.8);
 
   // 截图动画：从底部向上移动、放大
-  const screenshotTranslateY = 100 - scrollProgress * 180; // 从 100% 移动到 -80%
-  const screenshotScale = 0.85 + scrollProgress * 0.2;
-  const screenshotOpacity = 0.4 + scrollProgress * 0.6;
+  // 初始值70%：截图底部在视口下方，露出约30%在标题下方
+  // 最终值-60%：截图向上移动，完全展现并停在舒适位置
+  const screenshotTranslateY = 70 - scrollProgress * 130;
+  const screenshotScale = 0.75 + scrollProgress * 0.3;
+  const screenshotOpacity = 0.5 + scrollProgress * 0.5;
 
   return (
     <section
@@ -54,15 +56,15 @@ export function HeroSection() {
 
         {/* Title Group - 滚动时变淡，高度固定 */}
         <div
-          className="absolute inset-x-0 top-1/2 -translate-y-1/2 text-center px-6 transition-all duration-100 will-change-transform z-10"
+          className="absolute inset-x-0 top-16 text-center px-6 transition-all duration-100 will-change-transform z-10"
           style={{
             opacity: titleOpacity,
-            transform: `translateY(-50%) scale(${titleScale})`,
+            transform: `scale(${titleScale})`,
           }}
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm mb-8 border border-border">
             <span className="w-2 h-2 rounded-full bg-chart-4 animate-pulse" />
-            全新 2.0 版本已发布
+            1.0 版本正式发布
           </div>
 
           <h1 className="text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight text-balance max-w-4xl mx-auto">
@@ -104,13 +106,13 @@ export function HeroSection() {
 
         {/* Screenshot - 从底部向上移动、放大 */}
         <div
-          className="absolute inset-x-0 bottom-0 flex justify-center px-6 transition-all duration-100 will-change-transform"
+          className="absolute inset-x-0 bottom-0 flex justify-center px-4 transition-all duration-100 will-change-transform"
           style={{
             transform: `translateY(${screenshotTranslateY}%)`,
             opacity: screenshotOpacity,
           }}
         >
-          <div 
+          <div
             className="relative w-full max-w-5xl transition-transform duration-100"
             style={{ transform: `scale(${screenshotScale})` }}
           >
@@ -125,76 +127,11 @@ export function HeroSection() {
                 </span>
               </div>
               <div className="aspect-[16/9] bg-card rounded-t-lg overflow-hidden border border-b-0 border-border">
-                {/* Mock App Interface */}
-                <div className="h-full flex">
-                  {/* Sidebar */}
-                  <div className="w-56 bg-secondary/50 border-r border-border p-4 flex flex-col gap-3">
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center">
-                        <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-accent" stroke="currentColor" strokeWidth="2">
-                          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                      </div>
-                      <span className="font-semibold text-sm">PlanIt</span>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-accent/10 text-accent text-sm">
-                        <div className="w-4 h-4 rounded bg-accent/20" />
-                        <span>今日任务</span>
-                      </div>
-                      <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-muted-foreground text-sm hover:bg-secondary">
-                        <div className="w-4 h-4 rounded bg-muted" />
-                        <span>日历</span>
-                      </div>
-                      <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-muted-foreground text-sm hover:bg-secondary">
-                        <div className="w-4 h-4 rounded bg-muted" />
-                        <span>笔记</span>
-                      </div>
-                      <div className="flex items-center gap-2 px-3 py-2 rounded-lg text-muted-foreground text-sm hover:bg-secondary">
-                        <div className="w-4 h-4 rounded bg-muted" />
-                        <span>统计</span>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Main Content */}
-                  <div className="flex-1 p-6">
-                    <div className="flex items-center justify-between mb-6">
-                      <div>
-                        <h2 className="text-lg font-semibold">今日任务</h2>
-                        <p className="text-xs text-muted-foreground">3月30日 周日</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="px-3 py-1.5 rounded-lg bg-accent text-accent-foreground text-xs">+ 新建任务</div>
-                      </div>
-                    </div>
-                    {/* Task List */}
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/50 border border-border">
-                        <div className="w-5 h-5 rounded-full border-2 border-chart-4 flex items-center justify-center">
-                          <div className="w-2.5 h-2.5 rounded-full bg-chart-4" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm line-through text-muted-foreground">完成项目提案</p>
-                        </div>
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-chart-4/10 text-chart-4">已完成</span>
-                      </div>
-                      <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/50 border border-border">
-                        <div className="w-5 h-5 rounded-full border-2 border-accent" />
-                        <div className="flex-1">
-                          <p className="text-sm">准备周一会议材料</p>
-                        </div>
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-accent/10 text-accent">进行中</span>
-                      </div>
-                      <div className="flex items-center gap-3 p-3 rounded-xl bg-secondary/50 border border-border">
-                        <div className="w-5 h-5 rounded-full border-2 border-muted-foreground/30" />
-                        <div className="flex-1">
-                          <p className="text-sm">阅读技术文档</p>
-                        </div>
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">待办</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <img
+                  src="/screenshot-home.png"
+                  alt="PlanIt 主界面截图"
+                  className="w-full h-full object-cover object-top"
+                />
               </div>
             </div>
           </div>
