@@ -2,7 +2,7 @@ export type TaskStatus = 'pending' | 'completed' | 'skipped'
 export type RepeatFrequency = 'none' | 'daily' | 'workdays' | 'weekly' | 'monthly' | 'yearly' | 'custom'
 export type Language = 'zh' | 'en'
 export type PomodoroPhase = 'work' | 'shortBreak' | 'longBreak'
-export type PomodoroStatus = 'idle' | 'running' | 'paused' | 'finished'
+export type PomodoroStatus = 'idle' | 'running' | 'paused' | 'finished' | 'summary'
 export type NoteStatus = 'active' | 'completed'
 export type NoteColor = 'yellow' | 'pink' | 'blue' | 'green' | 'purple' | 'orange'
 export type NoteLineType = 'straight' | 'arrow'
@@ -126,6 +126,11 @@ export interface PomodoroState {
   totalSeconds: number
   completedSessions: number
   settings: PomodoroSettings
+  startTime: Date | null
+  scheduledEndTime: Date | null
+  actualEndTime: Date | null
+  shortBreakCount: number
+  longBreakCount: number
 }
 
 export interface AppState {

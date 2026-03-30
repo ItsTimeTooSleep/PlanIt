@@ -100,7 +100,16 @@ export function usePomodoro() {
     : null
 
   const startTimer = useCallback(() => {
-    updatePomodoro({ status: 'running' })
+    const now = new Date()
+    updatePomodoro(prev => {
+      const scheduledEnd = new Date(now.getTime() + prev.remainingSeconds * 1000)
+      return {
+        status: 'running',
+        startTime: prev.startTime ?? now,
+        scheduledEndTime: scheduledEnd,
+        actualEndTime: null,
+      }
+    })
   }, [updatePomodoro])
 
   const pauseTimer = useCallback(() => {
@@ -115,8 +124,20 @@ export function usePomodoro() {
       remainingSeconds: pomodoro.settings.workDuration * 60,
       totalSeconds: pomodoro.settings.workDuration * 60,
       completedSessions: 0,
+      startTime: null,
+      scheduledEndTime: null,
+      actualEndTime: null,
+      shortBreakCount: 0,
+      longBreakCount: 0,
     })
   }, [pomodoro.settings.workDuration, updatePomodoro])
+
+  const stopTimerWithSummary = useCallback(() => {
+    updatePomodoro({
+      actualEndTime: new Date(),
+      status: 'summary',
+    })
+  }, [updatePomodoro])
 
   const setWorkDuration = useCallback((minutes: number) => {
     const duration = Math.max(1, Math.min(240, minutes)) * 60
@@ -270,6 +291,7 @@ export function usePomodoro() {
                 return {
                   status: 'finished',
                   remainingSeconds: 0,
+                  actualEndTime: new Date(),
                 }
               }
               return {
@@ -337,6 +359,7 @@ export function usePomodoro() {
     startTimer,
     pauseTimer,
     stopTimer,
+    stopTimerWithSummary,
     startPomodoro,
     resetToToolMode,
     switchToNextPhase,

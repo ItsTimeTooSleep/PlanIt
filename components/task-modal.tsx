@@ -26,12 +26,13 @@ interface TaskModalProps {
   defaultDate?: string
   defaultStartTime?: string
   defaultEndTime?: string
+  defaultStatus?: TaskStatus
 }
 
 const WEEKDAY_LABELS = ['日', '一', '二', '三', '四', '五', '六']
 const WEEKDAY_LABELS_EN = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
-export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, defaultEndTime }: TaskModalProps) {
+export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, defaultEndTime, defaultStatus }: TaskModalProps) {
   const lang = useLanguage()
   const t = useTranslations(lang)
   const { state, addTask, updateTask, deleteTask, deleteTasks } = useStore()
@@ -106,7 +107,7 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
       setRepeatInterval(1)
       setRepeatUnit('days')
       setNotes('')
-      setStatus('pending')
+      setStatus(defaultStatus ?? 'pending')
       setDueDateOffset(0)
       setShowAdvancedOptions(false)
     }
@@ -116,7 +117,7 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
     setCustomTagColor('#000000')
     setUseCustomColor(false)
     setShowDeleteConfirm(false)
-  }, [open, task, defaultDate, defaultStartTime, defaultEndTime, today, tomorrow])
+  }, [open, task, defaultDate, defaultStartTime, defaultEndTime, defaultStatus, today, tomorrow])
 
   function handleSave() {
     if (!title.trim()) return
@@ -497,22 +498,20 @@ export function TaskModal({ open, onClose, task, defaultDate, defaultStartTime, 
             </Collapsible>
           )}
 
-          {/* Status (only for existing tasks) */}
-          {task && (
-            <div className="flex flex-col gap-1.5">
-              <Label>{t.task.status}</Label>
-              <Select value={status} onValueChange={v => setStatus(v as TaskStatus)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pending">{t.status.pending}</SelectItem>
-                  <SelectItem value="completed">{t.status.completed}</SelectItem>
-                  <SelectItem value="skipped">{t.status.skipped}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+          {/* Status */}
+          <div className="flex flex-col gap-1.5">
+            <Label>{t.task.status}</Label>
+            <Select value={status} onValueChange={v => setStatus(v as TaskStatus)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pending">{t.status.pending}</SelectItem>
+                <SelectItem value="completed">{t.status.completed}</SelectItem>
+                <SelectItem value="skipped">{t.status.skipped}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
           {/* Notes */}
           <div className="flex flex-col gap-1.5">

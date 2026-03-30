@@ -10,6 +10,7 @@ import { useTranslations } from '@/lib/i18n'
 import { usePomodoroDialog } from '@/lib/pomodoro-context'
 import { useDesktopOnly } from '@/components/platform-provider'
 import { FocusMode } from '@/components/desktop/focus-mode'
+import { PomodoroSummary } from './pomodoro-summary'
 import { POMODORO_COLORS } from '@/lib/colors'
 
 interface AnimatedBlob {
@@ -54,6 +55,7 @@ export function PomodoroTimer() {
     startTimer,
     pauseTimer,
     stopTimer,
+    stopTimerWithSummary,
     skipBreaks,
     setSkipBreaks,
     increaseWorkDuration,
@@ -101,6 +103,19 @@ export function PomodoroTimer() {
     }
   }, [])
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (pomodoro.status === 'running') {
+          pauseTimer()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [pomodoro.status, pauseTimer])
+
   const progress = pomodoro.totalSeconds > 0 
     ? ((pomodoro.totalSeconds - pomodoro.remainingSeconds) / pomodoro.totalSeconds) * 100 
     : 0
@@ -136,6 +151,60 @@ export function PomodoroTimer() {
   }, [])
 
   const { shortBreakCount, longBreakCount } = calculateBreakCount()
+
+  const isWorkPhase = pomodoro.phase === 'work'
+  const focusTimeElapsed = pomodoro.startTime ? 
+    Math.floor((Date.now() - pomodoro.startTime.getTime()) / 1000) : 
+    (pomodoro.totalSeconds - pomodoro.remainingSeconds)
+  const hasFocusedOneMinute = focusTimeElapsed >= 60
+
+  const handleStop = useCallback(() => {
+    if (isWorkPhase && hasFocusedOneMinute) {
+      stopTimerWithSummary()
+    } else {
+      stopTimer()
+    }
+  }, [isWorkPhase, hasFocusedOneMinute, stopTimerWithSummary, stopTimer])
+
+  const handleCloseSummary = useCallback(() => {
+    stopTimer()
+  }, [stopTimer])
+
+  useEffect(() => {
+    if (pomodoro.status === 'finished' && isWorkPhase && hasFocusedOneMinute) {
+      stopTimerWithSummary()
+    }
+  }, [pomodoro.status, isWorkPhase, hasFocusedOneMinute, stopTimerWithSummary])
+
+  if (pomodoro.status === 'summary') {
+    return (
+      <div className="flex flex-col items-center justify-center w-full h-full relative overflow-hidden">
+        {blobs.map((blob, index) => {
+          const size = 350
+          const blur = 80
+          
+          return (
+            <div
+              key={index}
+              className="absolute rounded-full transition-all duration-500 ease-out"
+              style={{
+                backgroundColor: currentColorVariants[blob.colorIndex % currentColorVariants.length],
+                width: `${size}px`,
+                height: `${size}px`,
+                left: `calc(50% - ${size / 2}px + ${blob.x}px)`,
+                top: `calc(50% - ${size / 2}px + ${blob.y}px)`,
+                opacity: blob.opacity,
+                transform: `scale(${blob.scale})`,
+                filter: `blur(${blur}px)`
+              }}
+            />
+          )
+        })}
+        
+        <PomodoroSummary onClose={handleCloseSummary} />
+      </div>
+    )
+  }
 
   if (isTaskMode && currentTask) {
     return (
@@ -229,7 +298,7 @@ export function PomodoroTimer() {
               className="w-10 h-10 rounded-full"
               variant="ghost"
               onClick={() => {
-                stopTimer()
+                handleStop()
                 close()
               }}
             >
@@ -555,7 +624,7 @@ export function PomodoroTimer() {
                   size="icon" 
                   className="w-9 h-9 rounded-full"
                   variant="ghost"
-                  onClick={stopTimer}
+                  onClick={handleStop}
                 >
                   <Square className="w-4 h-4" />
                 </Button>

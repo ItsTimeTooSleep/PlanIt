@@ -10,7 +10,7 @@ import { PomodoroTimer } from './pomodoro-timer'
 export function PomodoroDialog() {
   const lang = useLanguage()
   const t = useTranslations(lang)
-  const { isOpen, close, open } = usePomodoroDialog()
+  const { isOpen, close } = usePomodoroDialog()
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {

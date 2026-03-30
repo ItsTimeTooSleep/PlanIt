@@ -29,7 +29,9 @@ export function NavBar() {
   const isPomodoroActive = state.pomodoro.status !== 'idle'
 
   const handleOpenToolPomodoro = () => {
-    resetToToolMode()
+    if (!isPomodoroActive) {
+      resetToToolMode()
+    }
     open()
   }
 

@@ -27,6 +27,11 @@ const DEFAULT_POMODORO: PomodoroState = {
     autoStartBreaks: true,
     autoStartWork: false,
   },
+  startTime: null,
+  scheduledEndTime: null,
+  actualEndTime: null,
+  shortBreakCount: 0,
+  longBreakCount: 0,
 }
 
 const DEFAULT_STATE: AppState = {

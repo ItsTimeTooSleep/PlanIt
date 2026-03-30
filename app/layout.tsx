@@ -17,7 +17,6 @@ const geist = Geist({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'PlanIt',
   description: 'A personal time management web app for students. Plan your day, track completion, and review your time.',
-  generator: 'v0.app',
   icons: {
     icon: [
       { url: '/icon.svg', type: 'image/svg+xml' },

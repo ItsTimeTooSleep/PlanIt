@@ -218,7 +218,8 @@ export function WeekView({
   // Helpers: convert pointer position → minutes + column
   const getMinuteFromY = useCallback((y: number) => {
     const raw = dayStartTime * 60 + (y / hourHeight) * 60
-    return Math.max(dayStartTime * 60, Math.min(Math.round(raw / timeSnap) * timeSnap, dayEndTime * 60))
+    const maxMinutes = dayEndTime === 24 ? 24 * 60 : dayEndTime * 60
+    return Math.max(dayStartTime * 60, Math.min(Math.round(raw / timeSnap) * timeSnap, maxMinutes))
   }, [dayStartTime, dayEndTime, hourHeight, timeSnap])
 
   const getColFromX = useCallback((x: number): number => {
@@ -297,13 +298,14 @@ export function WeekView({
       }
     }
 
-    if (closestEdge !== null) {
+    const maxMinutes = dayEndTime === 24 ? 24 * 60 : dayEndTime * 60
+    if (closestEdge !== null && closestEdge <= maxMinutes) {
       const snapLineY = TOP_PADDING + ((closestEdge - dayStartTime * 60) / 60) * hourHeight
       return { snappedMin: closestEdge, snapLineY }
     }
 
     return { snappedMin: targetMin, snapLineY: null }
-  }, [snapEnabled, snapThreshold, getSnapEdges, dayStartTime, hourHeight])
+  }, [snapEnabled, snapThreshold, getSnapEdges, dayStartTime, dayEndTime, hourHeight])
 
   // ── Pointer handlers ──────────────────────────────────────────────────────
 
@@ -326,6 +328,7 @@ export function WeekView({
     const currentMin = getMinuteFromY(Math.max(0, adjustedY))
     const colIndex = getColFromX(x)
     const dateStr = format(days[colIndex], 'yyyy-MM-dd')
+    const maxMinutes = dayEndTime === 24 ? 24 * 60 : dayEndTime * 60
 
     if (drag.mode === 'create') {
       const rawStartMin = Math.min(drag.startMin, currentMin)
@@ -335,13 +338,13 @@ export function WeekView({
       const { snappedMin: snappedEnd, snapLineY: snapEndLine } = calculateSnap(rawEndMin, colIndex, velocity)
       
       const startMin = snappedStart !== rawStartMin ? snappedStart : rawStartMin
-      const endMin = snappedEnd !== rawEndMin ? snappedEnd : rawEndMin
+      const endMin = Math.min(snappedEnd !== rawEndMin ? snappedEnd : rawEndMin, maxMinutes)
       
       setGhost({ dateStr, startMin, endMin })
       
       if (snapStartLine !== null) {
         setSnapLine({ y: snapStartLine, colIndex })
-      } else if (snapEndLine !== null) {
+      } else if (snapEndLine !== null && snappedEnd <= maxMinutes) {
         setSnapLine({ y: snapEndLine, colIndex })
       } else {
         setSnapLine(null)
@@ -350,14 +353,14 @@ export function WeekView({
     } else if (drag.mode === 'move' && drag.origStartMin !== undefined && drag.origEndMin !== undefined) {
       const delta = currentMin - drag.startMin
       const dur = drag.origEndMin - drag.origStartMin
-      const rawNewStart = Math.max(dayStartTime * 60, Math.min(drag.origStartMin + delta, dayEndTime * 60 - dur))
+      const rawNewStart = Math.max(dayStartTime * 60, Math.min(drag.origStartMin + delta, maxMinutes - dur))
       
       const { snappedMin: snappedStart, snapLineY } = calculateSnap(rawNewStart, colIndex, velocity, drag.taskId)
-      const newStart = snappedStart
+      const newStart = Math.min(snappedStart, maxMinutes - dur)
       
       setGhost({ dateStr, startMin: newStart, endMin: newStart + dur })
       
-      if (snapLineY !== null) {
+      if (snapLineY !== null && snappedStart <= maxMinutes - dur) {
         setSnapLine({ y: snapLineY, colIndex })
       } else {
         setSnapLine(null)
@@ -378,14 +381,14 @@ export function WeekView({
       }
 
     } else if (drag.mode === 'resize-bottom' && drag.origStartMin !== undefined) {
-      const rawNewEnd = Math.min(dayEndTime * 60, Math.max(currentMin, drag.origStartMin + timeSnap))
+      const rawNewEnd = Math.min(maxMinutes, Math.max(currentMin, drag.origStartMin + timeSnap))
       
       const { snappedMin: snappedEnd, snapLineY } = calculateSnap(rawNewEnd, drag.colIndex, velocity, drag.taskId)
-      const newEnd = snappedEnd
+      const newEnd = Math.min(snappedEnd, maxMinutes)
       
       setGhost({ dateStr: format(days[drag.colIndex], 'yyyy-MM-dd'), startMin: drag.origStartMin, endMin: newEnd })
       
-      if (snapLineY !== null) {
+      if (snapLineY !== null && snappedEnd <= maxMinutes) {
         setSnapLine({ y: snapLineY, colIndex: drag.colIndex })
       } else {
         setSnapLine(null)

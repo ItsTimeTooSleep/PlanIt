@@ -50,11 +50,18 @@ export function calculateTaskLayouts(
 
   const tasksWithTime = tasks
     .filter(t => t.startTime && t.endTime)
-    .map(task => ({
-      task,
-      startMin: timeToMinutes(task.startTime!),
-      endMin: timeToMinutes(task.endTime!),
-    }))
+    .map(task => {
+      let startMin = timeToMinutes(task.startTime!)
+      let endMin = timeToMinutes(task.endTime!)
+      if (endMin <= startMin) {
+        endMin += 24 * 60
+      }
+      return {
+        task,
+        startMin,
+        endMin,
+      }
+    })
     .sort((a, b) => a.startMin - b.startMin)
 
   if (tasksWithTime.length === 0) return []
@@ -124,11 +131,18 @@ export function calculateTaskLayoutsGrouped(
 
   const tasksWithTime = tasks
     .filter(t => t.startTime && t.endTime)
-    .map(task => ({
-      task,
-      startMin: timeToMinutes(task.startTime!),
-      endMin: timeToMinutes(task.endTime!),
-    }))
+    .map(task => {
+      let startMin = timeToMinutes(task.startTime!)
+      let endMin = timeToMinutes(task.endTime!)
+      if (endMin <= startMin) {
+        endMin += 24 * 60
+      }
+      return {
+        task,
+        startMin,
+        endMin,
+      }
+    })
     .sort((a, b) => a.startMin - b.startMin)
 
   if (tasksWithTime.length === 0) return []
