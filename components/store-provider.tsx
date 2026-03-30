@@ -44,6 +44,7 @@ const DEFAULT_STATE: AppState = {
       showEndNotification: true,
     },
     closeBehavior: 'exit',
+    startupPage: '/home',
     calendar: { 
       dayStartTime: 0, 
       dayEndTime: 24, 
@@ -94,6 +95,10 @@ function load(): AppState {
         ...DEFAULT_STATE.settings.notifications,
         enabled: (migratedSettings as any).notificationsEnabled
       }
+    }
+
+    if ((migratedSettings as any).startupPage === '/') {
+      migratedSettings.startupPage = '/home'
     }
     
     return {

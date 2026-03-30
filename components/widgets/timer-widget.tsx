@@ -36,6 +36,8 @@ export function TimerWidget({ id: _id, config, className }: BaseWidgetProps) {
   const [initialTime, setInitialTime] = useState(timerConfig.defaultTime || 300)
   const [isRunning, setIsRunning] = useState(false)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const startTimeRef = useRef<number | null>(null)
+  const timeAtStartRef = useRef<number>(0)
 
   const showPresets = (config?.showPresets as boolean) ?? true
   const showModeSwitch = (config?.showModeSwitch as boolean) ?? true
@@ -108,21 +110,28 @@ export function TimerWidget({ id: _id, config, className }: BaseWidgetProps) {
 
   useEffect(() => {
     if (isRunning) {
+      startTimeRef.current = Date.now()
+      timeAtStartRef.current = time
+      
       intervalRef.current = setInterval(() => {
-        setTime((prev) => {
+        if (startTimeRef.current !== null) {
+          const now = Date.now()
+          const elapsedSeconds = Math.floor((now - startTimeRef.current) / 1000)
+          
           if (mode === 'countdown') {
-            if (prev <= 1) {
+            const newTime = Math.max(0, timeAtStartRef.current - elapsedSeconds)
+            setTime(newTime)
+            if (newTime === 0) {
               setIsRunning(false)
-              return 0
             }
-            return prev - 1
           } else {
-            return prev + 1
+            setTime(timeAtStartRef.current + elapsedSeconds)
           }
-        })
+        }
       }, 1000)
     } else if (intervalRef.current) {
       clearInterval(intervalRef.current)
+      startTimeRef.current = null
     }
 
     return () => {
@@ -130,6 +139,28 @@ export function TimerWidget({ id: _id, config, className }: BaseWidgetProps) {
         clearInterval(intervalRef.current)
       }
     }
+  }, [isRunning, mode])
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && isRunning && startTimeRef.current !== null) {
+        const now = Date.now()
+        const elapsedSeconds = Math.floor((now - startTimeRef.current) / 1000)
+        
+        if (mode === 'countdown') {
+          const newTime = Math.max(0, timeAtStartRef.current - elapsedSeconds)
+          setTime(newTime)
+          if (newTime === 0) {
+            setIsRunning(false)
+          }
+        } else {
+          setTime(timeAtStartRef.current + elapsedSeconds)
+        }
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
   }, [isRunning, mode])
 
   useEffect(() => {

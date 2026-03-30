@@ -278,12 +278,34 @@ const zh = {
     madeWith: '用心制作',
     author: '作者',
     sponsor: '赞助支持',
+    otherProjects: '更多作品',
+    otherProjectsDesc: '探索更多实用工具',
+    econgrapher: 'EconGrapher',
+    econgrapherDesc: '一键生成专业经济学图表，AP微观/宏观经济学备考神器',
+    econgrapherTag: 'AI驱动',
+    gpaCalculator: 'GPA Calculator',
+    gpaCalculatorDesc: '简洁高效的加权GPA计算器，支持多种评分体系',
+    gpaCalculatorTag: '学生必备',
+    teamsCrypt: 'TeamsCrypt',
+    teamsCryptDesc: '为学生打造的 Microsoft Teams 加密聊天扩展，保护隐私安全',
+    teamsCryptTag: '隐私保护',
+    canvaHelper: 'CanvaHelper',
+    canvaHelperDesc: 'Canva 海量素材，无需会员，付费素材也能用，创作更自由',
+    canvaHelperTag: '设计神器',
     sound: '音效设置',
     soundDesc: '任务事件音效提醒',
     enableSound: '开启音效',
     playOnTaskStart: '任务开始时播放',
     playOnTaskEnd: '任务结束时播放',
     playOnTaskComplete: '任务完成时播放',
+    startupPage: '启动页面',
+    startupPageDesc: '应用启动时显示的页面',
+    startupPageHome: '主页',
+    startupPageCalendar: '日历',
+    startupPageTodo: '待办',
+    startupPageNote: '笔记',
+    startupPageStats: '统计',
+    startupPageSettings: '设置',
   },
 
   batch: {
@@ -725,12 +747,34 @@ const en = {
     madeWith: 'Made with care',
     author: 'Author',
     sponsor: 'Sponsor',
+    otherProjects: 'More Projects',
+    otherProjectsDesc: 'Explore more useful tools',
+    econgrapher: 'EconGrapher',
+    econgrapherDesc: 'Generate professional economics charts instantly — ace AP Micro/Macro',
+    econgrapherTag: 'AI-Powered',
+    gpaCalculator: 'GPA Calculator',
+    gpaCalculatorDesc: 'Clean & efficient weighted GPA calculator with multiple grading scales',
+    gpaCalculatorTag: 'Student Essential',
+    teamsCrypt: 'TeamsCrypt',
+    teamsCryptDesc: 'Encrypted chat extension for Microsoft Teams, designed for students',
+    teamsCryptTag: 'Privacy',
+    canvaHelper: 'CanvaHelper',
+    canvaHelperDesc: 'Unlock premium Canva assets for free — design without limits',
+    canvaHelperTag: 'Design Tool',
     sound: 'Sound Settings',
     soundDesc: 'Sound effects for task events',
     enableSound: 'Enable Sound',
     playOnTaskStart: 'Play when task starts',
     playOnTaskEnd: 'Play when task ends',
     playOnTaskComplete: 'Play when task completes',
+    startupPage: 'Startup Page',
+    startupPageDesc: 'Page to display when app starts',
+    startupPageHome: 'Home',
+    startupPageCalendar: 'Calendar',
+    startupPageTodo: 'To Do',
+    startupPageNote: 'Notes',
+    startupPageStats: 'Stats',
+    startupPageSettings: 'Settings',
   },
 
   batch: {
@@ -1159,12 +1203,34 @@ export type Translations = {
     readonly madeWith: string
     readonly author: string
     readonly sponsor: string
+    readonly otherProjects: string
+    readonly otherProjectsDesc: string
+    readonly econgrapher: string
+    readonly econgrapherDesc: string
+    readonly econgrapherTag: string
+    readonly gpaCalculator: string
+    readonly gpaCalculatorDesc: string
+    readonly gpaCalculatorTag: string
+    readonly teamsCrypt: string
+    readonly teamsCryptDesc: string
+    readonly teamsCryptTag: string
+    readonly canvaHelper: string
+    readonly canvaHelperDesc: string
+    readonly canvaHelperTag: string
     readonly sound: string
     readonly soundDesc: string
     readonly enableSound: string
     readonly playOnTaskStart: string
     readonly playOnTaskEnd: string
     readonly playOnTaskComplete: string
+    readonly startupPage: string
+    readonly startupPageDesc: string
+    readonly startupPageHome: string
+    readonly startupPageCalendar: string
+    readonly startupPageTodo: string
+    readonly startupPageNote: string
+    readonly startupPageStats: string
+    readonly startupPageSettings: string
   }
   readonly batch: {
     readonly title: string

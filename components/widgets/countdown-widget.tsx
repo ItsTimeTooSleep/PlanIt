@@ -1,14 +1,13 @@
 'use client'
 
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
-import { Settings, CalendarClock, Calendar } from 'lucide-react'
+import { Settings, CalendarClock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import type { BaseWidgetProps, CountdownConfig } from '@/lib/widget-types'
-import { useStore } from '@/lib/store'
 
 type SizeMode = 'compact' | 'normal' | 'large'
 
@@ -31,16 +30,9 @@ export function CountdownWidget({ id, config, onConfigChange, className }: BaseW
   const [isOpen, setIsOpen] = useState(false)
   const [sizeMode, setSizeMode] = useState<SizeMode>('normal')
   const [containerSize, setContainerSize] = useState<ContainerSize>({ width: 200, height: 120 })
-  const { state } = useStore()
   
-  const firstLaunchDate = state.settings.firstLaunchDate ?? new Date().toISOString().split('T')[0]
-  const isJourneyMode = (config?.isJourneyMode as boolean) ?? true
-  const targetDate = isJourneyMode 
-    ? firstLaunchDate 
-    : ((config?.targetDate as string) ?? new Date().toISOString().split('T')[0])
-  const name = isJourneyMode 
-    ? '旅程' 
-    : ((config?.name as string) ?? '目标日期')
+  const targetDate = (config?.targetDate as string) ?? new Date().toISOString().split('T')[0]
+  const name = (config?.name as string) ?? '目标日期'
   const showIcon = (config?.showIcon as boolean) ?? true
 
   useEffect(() => {
@@ -156,9 +148,7 @@ export function CountdownWidget({ id, config, onConfigChange, className }: BaseW
         )}
         
         <div className={cn('text-muted-foreground', labelFontSize)}>
-          {isJourneyMode ? (
-            <>开启{name}已经</>
-          ) : countdownInfo.isPast ? (
+          {countdownInfo.isPast ? (
             <>距离{name}已经过了</>
           ) : countdownInfo.diffDays === 0 ? (
             <>今天是{name}</>
@@ -170,14 +160,14 @@ export function CountdownWidget({ id, config, onConfigChange, className }: BaseW
         <div className={cn(
           'font-bold',
           daysFontSize,
-          countdownInfo.isPast || isJourneyMode ? 'text-primary' : 'text-primary'
+          countdownInfo.isPast ? 'text-primary' : 'text-primary'
         )}>
-          {countdownInfo.diffDays === 0 && !isJourneyMode ? (
+          {countdownInfo.diffDays === 0 ? (
             '今天'
           ) : (
             <>
               {formatDays(countdownInfo.days)}
-              {(countdownInfo.isPast || isJourneyMode) && '了'}
+              {countdownInfo.isPast && '了'}
             </>
           )}
         </div>
@@ -192,47 +182,32 @@ export function CountdownWidget({ id, config, onConfigChange, className }: BaseW
               'absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity',
               isOpen && 'opacity-100'
             )}
+            onMouseDown={(e) => e.stopPropagation()}
           >
             <Settings className="w-3.5 h-3.5" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-64" align="end">
+        <PopoverContent className="w-64 select-text" align="end" onMouseDown={(e) => e.stopPropagation()}>
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label className="text-xs">旅程模式</Label>
-              <Button
-                variant={isJourneyMode ? 'default' : 'outline'}
-                size="sm"
-                className="h-7 text-xs"
-                onClick={() => handleConfigChange('isJourneyMode', !isJourneyMode)}
-              >
-                {isJourneyMode ? '开启' : '关闭'}
-              </Button>
+            <div className="space-y-2">
+              <Label className="text-xs">目标名称</Label>
+              <Input
+                value={name}
+                onChange={(e) => handleConfigChange('name', e.target.value)}
+                placeholder="例如：生日、考试..."
+                className="h-8 text-sm"
+              />
             </div>
 
-            {!isJourneyMode && (
-              <>
-                <div className="space-y-2">
-                  <Label className="text-xs">目标名称</Label>
-                  <Input
-                    value={name}
-                    onChange={(e) => handleConfigChange('name', e.target.value)}
-                    placeholder="例如：生日、考试..."
-                    className="h-8 text-sm"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-xs">目标日期</Label>
-                  <Input
-                    type="date"
-                    value={targetDate}
-                    onChange={(e) => handleConfigChange('targetDate', e.target.value)}
-                    className="h-8 text-sm"
-                  />
-                </div>
-              </>
-            )}
+            <div className="space-y-2">
+              <Label className="text-xs">目标日期</Label>
+              <Input
+                type="date"
+                value={targetDate}
+                onChange={(e) => handleConfigChange('targetDate', e.target.value)}
+                className="h-8 text-sm"
+              />
+            </div>
 
             <div className="flex items-center justify-between">
               <Label className="text-xs">显示图标</Label>

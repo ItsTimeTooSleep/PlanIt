@@ -105,6 +105,17 @@ export function TimelineWidget({
     return () => clearInterval(intervalId)
   }, [])
 
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        setNow(new Date())
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [])
+
   const currentHourHeight = HOUR_HEIGHT_CONFIG[sizeMode] || hourHeight
 
   const nowMinutes = now.getHours() * 60 + now.getMinutes()

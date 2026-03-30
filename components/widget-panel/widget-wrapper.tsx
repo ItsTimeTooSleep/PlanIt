@@ -92,7 +92,13 @@ export const WidgetWrapper = memo(function WidgetWrapper({
       if (isLocked) return
       const target = e.target as HTMLElement
       
-      if (target.closest('[data-resize-handle]') || target.closest('[data-widget-controls]')) {
+      if (
+        target.closest('[data-resize-handle]') ||
+        target.closest('[data-widget-controls]') ||
+        target.closest('[data-radix-popper-content-wrapper]') ||
+        target.closest('[role="dialog"]') ||
+        target.closest('[data-radix-collection-item]')
+      ) {
         return
       }
 

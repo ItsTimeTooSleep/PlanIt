@@ -58,6 +58,7 @@ function generateId(): string {
 
 function createDefaultLayout(): WidgetLayout {
   const now = new Date().toISOString()
+  const today = new Date().toISOString().split('T')[0]
   return {
     id: generateId(),
     name: '默认界面',
@@ -112,7 +113,7 @@ function createDefaultLayout(): WidgetLayout {
         position: { x: 83.33333333333334, y: 2.5 },
         size: { width: 15, height: 17.5 },
         zIndex: 4,
-        config: { targetDate: '2026-03-20', name: '旅程', showIcon: false, isJourneyMode: true },
+        config: { targetDate: today, name: '旅程', showIcon: false },
         createdAt: now,
         updatedAt: now,
       },

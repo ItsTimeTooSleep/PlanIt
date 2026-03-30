@@ -20,7 +20,7 @@ import { DateNoteModal } from './date-note-modal'
 import type { Task } from '@/lib/types'
 import {
   addWeeks, subWeeks, addMonths, subMonths,
-  startOfWeek, endOfWeek, addDays, format,
+  startOfWeek, endOfWeek, addDays, format, isSameWeek,
 } from 'date-fns'
 
 type CalView = 'week' | 'month'
@@ -52,7 +52,6 @@ export function CalendarView() {
   const [isBatchMenuSticky, setIsBatchMenuSticky] = useState(false)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null)
-  const [hasNavigated, setHasNavigated] = useState(false)
 
   const tomorrow = useMemo(() => format(addDays(new Date(), 1), 'yyyy-MM-dd'), [])
 
@@ -69,17 +68,14 @@ export function CalendarView() {
 
   function goBack() {
     setReferenceDate(prev => view === 'week' ? subWeeks(prev, 1) : subMonths(prev, 1))
-    setHasNavigated(true)
   }
 
   function goForward() {
     setReferenceDate(prev => view === 'week' ? addWeeks(prev, 1) : addMonths(prev, 1))
-    setHasNavigated(true)
   }
 
   function goToday() {
     setReferenceDate(new Date())
-    setHasNavigated(false)
   }
 
   function openCreate(date: string, startTime?: string, endTime?: string) {
@@ -243,7 +239,7 @@ export function CalendarView() {
           <Button variant="ghost" size="icon" onClick={goForward} className="w-8 h-8">
             <ChevronRight className="w-4 h-4" />
           </Button>
-          {hasNavigated && (
+          {!isSameWeek(referenceDate, new Date(), { weekStartsOn: 0 }) && (
             <Button variant="ghost" size="sm" onClick={goToday} className="text-xs px-2 ml-1">
               {t.calendar.thisWeek}
             </Button>

@@ -88,6 +88,23 @@ export function WeekView({
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null)
   const [gridWidth, setGridWidth] = useState(0)
   const [hoveredDueDate, setHoveredDueDate] = useState<string | null>(null)
+  const [currentTime, setCurrentTime] = useState(new Date())
+
+  useEffect(() => {
+    const intervalId = setInterval(() => setCurrentTime(new Date()), 60000)
+    return () => clearInterval(intervalId)
+  }, [])
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        setCurrentTime(new Date())
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [])
 
   useEffect(() => {
     const el = gridRef.current
@@ -145,7 +162,7 @@ export function WeekView({
     }
   }, [dayStartTime, dayEndTime, hourHeight])
 
-  const todayStr = format(new Date(), 'yyyy-MM-dd')
+  const todayStr = format(currentTime, 'yyyy-MM-dd')
 
   // ── Drag state ────────────────────────────────────────────────────────────
   const dragRef = useRef<DragState | null>(null)
@@ -237,15 +254,14 @@ export function WeekView({
       if (task.endTime) edges.push(timeToMinutes(task.endTime))
     })
     
-    const todayStr = format(new Date(), 'yyyy-MM-dd')
-    if (dateStr === todayStr) {
-      const now = new Date()
-      const nowMin = now.getHours() * 60 + now.getMinutes()
+    const todayStrLocal = format(currentTime, 'yyyy-MM-dd')
+    if (dateStr === todayStrLocal) {
+      const nowMin = currentTime.getHours() * 60 + currentTime.getMinutes()
       edges.push(nowMin)
     }
     
     return edges
-  }, [days, tasks])
+  }, [days, tasks, currentTime])
 
   /**
    * 智能磁吸计算
@@ -628,7 +644,7 @@ export function WeekView({
             const dateStr = format(day, 'yyyy-MM-dd')
             const dayTasks = sortTasksByTime(tasks.filter(t => t.date === dateStr && !t.isAllDay))
             const isNowDay = dateStr === todayStr
-            const nowMin = isNowDay ? new Date().getHours() * 60 + new Date().getMinutes() : null
+            const nowMin = isNowDay ? currentTime.getHours() * 60 + currentTime.getMinutes() : null
             const ghostHere = ghost?.dateStr === dateStr ? ghost : null
 
             const taskLayouts = calculateTaskLayoutsGrouped(dayTasks, hourHeight, dayStartTime * 60)

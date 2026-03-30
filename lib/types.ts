@@ -83,6 +83,7 @@ export interface Task {
 }
 
 export type CloseBehavior = 'exit' | 'tray'
+export type StartupPage = '/home' | '/calendar' | '/todo' | '/note' | '/stats' | '/settings'
 
 export interface NotificationSettings {
   enabled: boolean
@@ -104,6 +105,7 @@ export interface AppSettings {
   calendar: CalendarSettings
   closeBehavior: CloseBehavior
   sound: SoundSettings
+  startupPage: StartupPage
   firstLaunchDate?: string
 }
 

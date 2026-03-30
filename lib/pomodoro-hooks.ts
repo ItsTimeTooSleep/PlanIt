@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import { useStore, useLanguage } from '@/lib/store'
 import { useTranslations } from '@/lib/i18n'
 import type { PomodoroPhase, Task, PomodoroState } from '@/lib/types'
@@ -8,6 +8,8 @@ import { timeToMinutes } from '@/lib/task-utils'
 
 let globalTimerRef: NodeJS.Timeout | null = null
 let activeUpdatePomodoro: ((updates: Partial<PomodoroState> | ((prev: PomodoroState) => Partial<PomodoroState>)) => void) | null = null
+let timerStartTimestamp: number | null = null
+let timerRemainingAtStart: number | null = null
 
 export function formatTime(seconds: number): string {
   const mins = Math.floor(seconds / 60)
@@ -250,19 +252,28 @@ export function usePomodoro() {
 
   useEffect(() => {
     if (pomodoro.status === 'running') {
+      timerStartTimestamp = Date.now()
+      timerRemainingAtStart = pomodoro.remainingSeconds
+      
       if (!globalTimerRef) {
         globalTimerRef = setInterval(() => {
-          if (activeUpdatePomodoro) {
+          if (activeUpdatePomodoro && timerStartTimestamp !== null && timerRemainingAtStart !== null) {
+            const now = Date.now()
+            const elapsedSeconds = Math.floor((now - timerStartTimestamp) / 1000)
+            const newRemaining = timerRemainingAtStart - elapsedSeconds
+            
             activeUpdatePomodoro(prevPomodoro => {
-              if (prevPomodoro.remainingSeconds <= 1) {
+              if (newRemaining <= 0) {
                 clearGlobalTimer()
+                timerStartTimestamp = null
+                timerRemainingAtStart = null
                 return {
                   status: 'finished',
                   remainingSeconds: 0,
                 }
               }
               return {
-                remainingSeconds: prevPomodoro.remainingSeconds - 1,
+                remainingSeconds: newRemaining,
               }
             })
           }
@@ -270,10 +281,42 @@ export function usePomodoro() {
       }
     } else {
       clearGlobalTimer()
+      timerStartTimestamp = null
+      timerRemainingAtStart = null
     }
 
     return () => {
     }
+  }, [pomodoro.status, pomodoro.remainingSeconds])
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && pomodoro.status === 'running' && timerStartTimestamp !== null && timerRemainingAtStart !== null) {
+        const now = Date.now()
+        const elapsedSeconds = Math.floor((now - timerStartTimestamp) / 1000)
+        const newRemaining = timerRemainingAtStart - elapsedSeconds
+        
+        if (activeUpdatePomodoro) {
+          activeUpdatePomodoro(prevPomodoro => {
+            if (newRemaining <= 0) {
+              clearGlobalTimer()
+              timerStartTimestamp = null
+              timerRemainingAtStart = null
+              return {
+                status: 'finished',
+                remainingSeconds: 0,
+              }
+            }
+            return {
+              remainingSeconds: newRemaining,
+            }
+          })
+        }
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
   }, [pomodoro.status])
 
   const calculateBreakCount = useCallback(() => {

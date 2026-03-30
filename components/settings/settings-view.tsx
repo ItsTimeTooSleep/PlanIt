@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useLanguage } from '@/lib/store'
 import { useTranslations } from '@/lib/i18n'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, ExternalLink } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { AppIcon } from '@/components/app-icon'
 import { getAppVersion } from '@/lib/version'
@@ -126,6 +126,43 @@ export function SettingsView() {
                 {t.settings.sponsor}
               </a>
             </div>
+            <div className="pt-4 mt-3 border-t border-border/40">
+              <p className="text-xs text-muted-foreground mb-3">{t.settings.otherProjectsDesc}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <ProjectCard
+                  href="http://econgrapher.pages.dev/"
+                  imageSrc="/project-econgrapher.png"
+                  title={t.settings.econgrapher}
+                  description={t.settings.econgrapherDesc}
+                  tag={t.settings.econgrapherTag}
+                  color="violet"
+                />
+                <ProjectCard
+                  href="https://itstimetoosleep.github.io/gpa-calculator/"
+                  imageSrc="/project-gpacalculator.png"
+                  title={t.settings.gpaCalculator}
+                  description={t.settings.gpaCalculatorDesc}
+                  tag={t.settings.gpaCalculatorTag}
+                  color="amber"
+                />
+                <ProjectCard
+                  href="https://teamscrypt.pages.dev/"
+                  imageSrc="/project-teamscrypt.png"
+                  title={t.settings.teamsCrypt}
+                  description={t.settings.teamsCryptDesc}
+                  tag={t.settings.teamsCryptTag}
+                  color="slate"
+                />
+                <ProjectCard
+                  href="https://canvahelper.pages.dev/"
+                  imageSrc="/project-canvahelper.png"
+                  title={t.settings.canvaHelper}
+                  description={t.settings.canvaHelperDesc}
+                  tag={t.settings.canvaHelperTag}
+                  color="cyan"
+                />
+              </div>
+            </div>
           </div>
         </Section>
       </div>
@@ -178,5 +215,115 @@ function Section({
         </div>
       </div>
     </section>
+  )
+}
+
+function ProjectCard({
+  href,
+  imageSrc,
+  title,
+  description,
+  tag,
+  color,
+}: {
+  href: string
+  imageSrc: string
+  title: string
+  description: string
+  tag: string
+  color: 'violet' | 'amber' | 'slate' | 'cyan'
+}) {
+  const cardRef = useRef<HTMLAnchorElement>(null)
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+  const [isHovered, setIsHovered] = useState(false)
+
+  const colorStyles = {
+    violet: {
+      border: 'hover:border-violet-500/30 dark:hover:border-violet-500/40',
+      tagBg: 'bg-violet-500/15 dark:bg-violet-400/20',
+      tagText: 'text-violet-600 dark:text-violet-400',
+      glowColor: 'rgba(139, 92, 246, 0.15)',
+      glowColorDark: 'rgba(167, 139, 250, 0.2)',
+    },
+    amber: {
+      border: 'hover:border-amber-500/30 dark:hover:border-amber-500/40',
+      tagBg: 'bg-amber-500/15 dark:bg-amber-400/20',
+      tagText: 'text-amber-600 dark:text-amber-400',
+      glowColor: 'rgba(245, 158, 11, 0.15)',
+      glowColorDark: 'rgba(251, 191, 36, 0.2)',
+    },
+    slate: {
+      border: 'hover:border-slate-400/40 dark:hover:border-slate-400/50',
+      tagBg: 'bg-slate-400/15 dark:bg-slate-400/20',
+      tagText: 'text-slate-600 dark:text-slate-400',
+      glowColor: 'rgba(148, 163, 184, 0.15)',
+      glowColorDark: 'rgba(203, 213, 225, 0.2)',
+    },
+    cyan: {
+      border: 'hover:border-cyan-500/30 dark:hover:border-cyan-500/40',
+      tagBg: 'bg-cyan-500/15 dark:bg-cyan-400/20',
+      tagText: 'text-cyan-600 dark:text-cyan-400',
+      glowColor: 'rgba(6, 182, 212, 0.15)',
+      glowColorDark: 'rgba(34, 211, 238, 0.2)',
+    },
+  }
+
+  const styles = colorStyles[color]
+
+  /**
+   * 处理鼠标移动事件
+   * @param e - 鼠标事件对象
+   */
+  function handleMouseMove(e: React.MouseEvent<HTMLAnchorElement>) {
+    if (!cardRef.current) return
+    const rect = cardRef.current.getBoundingClientRect()
+    setMousePos({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    })
+  }
+
+  return (
+    <a
+      ref={cardRef}
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className={cn(
+        'group relative flex items-start gap-3 p-3 rounded-lg border border-border/50 transition-all duration-300 overflow-hidden',
+        styles.border
+      )}
+    >
+      <div
+        className="pointer-events-none absolute inset-0 rounded-lg transition-opacity duration-500 ease-out"
+        style={{
+          background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, ${styles.glowColor}, transparent 40%)`,
+          opacity: isHovered ? 1 : 0,
+        }}
+      />
+      <div
+        className="pointer-events-none absolute inset-0 rounded-lg transition-opacity duration-500 ease-out"
+        style={{
+          background: `radial-gradient(400px circle at ${mousePos.x}px ${mousePos.y}px, ${styles.glowColorDark}, transparent 40%)`,
+          opacity: isHovered ? 0.5 : 0,
+        }}
+      />
+      <div className="flex-shrink-0 w-9 h-9 rounded-lg overflow-hidden relative z-10 bg-muted/50">
+        <img src={imageSrc} alt={title} className="w-full h-full object-cover" />
+      </div>
+      <div className="flex-1 min-w-0 relative z-10">
+        <div className="flex items-center gap-2">
+          <p className="text-sm font-medium truncate">{title}</p>
+          <span className={cn('px-1.5 py-0.5 text-[10px] font-medium rounded', styles.tagBg, styles.tagText)}>
+            {tag}
+          </span>
+        </div>
+        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{description}</p>
+      </div>
+      <ExternalLink className="w-3.5 h-3.5 text-muted-foreground/50 group-hover:text-muted-foreground group-hover:opacity-100 opacity-0 transition-all duration-200 flex-shrink-0 mt-1 relative z-10" />
+    </a>
   )
 }

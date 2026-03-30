@@ -1,12 +1,13 @@
 'use client'
 
 import { Switch } from '@/components/ui/switch'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useStore, useLanguage } from '@/lib/store'
 import { useTranslations } from '@/lib/i18n'
 import { useDesktopOnly, usePlatform } from '@/components/platform-provider'
 import { AutoLaunchToggle } from '@/components/desktop/auto-launch-toggle'
 import { useState, useEffect, useCallback } from 'react'
-import type { CloseBehavior } from '@/lib/types'
+import type { CloseBehavior, StartupPage } from '@/lib/types'
 import { SettingRow, SettingGroup, SettingSubGroup } from './setting-row'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 
@@ -18,6 +19,15 @@ const LANGUAGES: { value: 'zh' | 'en'; label: string }[] = [
 const CLOSE_BEHAVIORS: { value: CloseBehavior; labelKey: 'closeBehaviorExit' | 'closeBehaviorTray' }[] = [
   { value: 'exit', labelKey: 'closeBehaviorExit' },
   { value: 'tray', labelKey: 'closeBehaviorTray' },
+]
+
+const STARTUP_PAGES: { value: StartupPage; labelKey: 'startupPageHome' | 'startupPageCalendar' | 'startupPageTodo' | 'startupPageNote' | 'startupPageStats' | 'startupPageSettings' }[] = [
+  { value: '/home', labelKey: 'startupPageHome' },
+  { value: '/calendar', labelKey: 'startupPageCalendar' },
+  { value: '/todo', labelKey: 'startupPageTodo' },
+  { value: '/note', labelKey: 'startupPageNote' },
+  { value: '/stats', labelKey: 'startupPageStats' },
+  { value: '/settings', labelKey: 'startupPageSettings' },
 ]
 
 export function GeneralSettings() {
@@ -52,6 +62,24 @@ export function GeneralSettings() {
           value={state.settings.language}
           onChange={(value) => updateSettings({ language: value })}
         />
+      </SettingRow>
+
+      <SettingRow label={t.settings.startupPage} description={t.settings.startupPageDesc}>
+        <Select
+          value={state.settings.startupPage}
+          onValueChange={(value) => updateSettings({ startupPage: value as StartupPage })}
+        >
+          <SelectTrigger className="w-32">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {STARTUP_PAGES.map(p => (
+              <SelectItem key={p.value} value={p.value}>
+                {t.settings[p.labelKey]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </SettingRow>
 
       <SettingGroup bordered>

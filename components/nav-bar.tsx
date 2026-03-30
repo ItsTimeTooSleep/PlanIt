@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 import { AppIcon } from '@/components/app-icon'
 
 const NAV_ITEMS = [
-  { href: '/', labelKey: 'home' as const, icon: LayoutDashboard },
+  { href: '/home', labelKey: 'home' as const, icon: LayoutDashboard },
   { href: '/calendar', labelKey: 'calendar' as const, icon: CalendarDays },
   { href: '/todo', labelKey: 'todo' as const, icon: CheckSquare },
   { href: '/note', labelKey: 'note' as const, icon: StickyNote },
@@ -41,7 +41,9 @@ export function NavBar() {
         <AppIcon size={36} variant="neutral" className="mb-4 shrink-0" />
 
         {NAV_ITEMS.map(({ href, labelKey, icon: Icon }) => {
-          const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href)
+          const isActive = href === '/home' 
+            ? pathname === '/home' || pathname === '/' 
+            : pathname.startsWith(href)
           return (
             <Link
               key={href}
@@ -79,7 +81,9 @@ export function NavBar() {
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur border-t border-border">
         <div className="flex items-center justify-around h-16 px-2">
           {NAV_ITEMS.map(({ href, labelKey, icon: Icon }) => {
-            const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href)
+            const isActive = href === '/home' 
+              ? pathname === '/home' || pathname === '/' 
+              : pathname.startsWith(href)
             return (
               <Link
                 key={href}
