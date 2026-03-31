@@ -91,6 +91,7 @@ export interface TrayMenuLabels {
   exit_focus_mode: string
   settings: string
   check_update: string
+  visit_website: string
   contact_us: string
   quit: string
   tooltip: string

@@ -277,6 +277,7 @@ const zh = {
     versionPrefix: '版本 ',
     madeWith: '用心制作',
     author: '作者',
+    officialWebsite: '官网',
     sponsor: '赞助支持',
     otherProjects: '更多作品',
     otherProjectsDesc: '探索更多实用工具',
@@ -463,6 +464,7 @@ const zh = {
     exitFocusMode: '退出聚焦模式',
     settings: '设置',
     checkUpdate: '检查更新',
+    visitWebsite: '访问官网',
     contactUs: '联系我们',
     quit: '退出',
     tooltip: 'PlanIt - 专注效率',
@@ -746,6 +748,7 @@ const en = {
     versionPrefix: 'Version ',
     madeWith: 'Made with care',
     author: 'Author',
+    officialWebsite: 'Website',
     sponsor: 'Sponsor',
     otherProjects: 'More Projects',
     otherProjectsDesc: 'Explore more useful tools',
@@ -932,6 +935,7 @@ const en = {
     exitFocusMode: 'Exit Focus Mode',
     settings: 'Settings',
     checkUpdate: 'Check for Updates',
+    visitWebsite: 'Visit Website',
     contactUs: 'Contact Us',
     quit: 'Quit',
     tooltip: 'PlanIt - Focus & Productivity',
@@ -1202,6 +1206,7 @@ export type Translations = {
     readonly versionPrefix: string
     readonly madeWith: string
     readonly author: string
+    readonly officialWebsite: string
     readonly sponsor: string
     readonly otherProjects: string
     readonly otherProjectsDesc: string
@@ -1383,6 +1388,7 @@ export type Translations = {
     readonly exitFocusMode: string
     readonly settings: string
     readonly checkUpdate: string
+    readonly visitWebsite: string
     readonly contactUs: string
     readonly quit: string
     readonly tooltip: string

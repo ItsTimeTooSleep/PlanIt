@@ -35,6 +35,7 @@ pub struct TrayMenuLabels {
     pub exit_focus_mode: String,
     pub settings: String,
     pub check_update: String,
+    pub visit_website: String,
     pub contact_us: String,
     pub quit: String,
     pub tooltip: String,
@@ -54,6 +55,7 @@ pub struct TrayMenuItems {
     pub exit_focus_mode_item: MenuItem<Wry>,
     pub settings_item: MenuItem<Wry>,
     pub check_update_item: MenuItem<Wry>,
+    pub visit_website_item: MenuItem<Wry>,
     pub contact_us_item: MenuItem<Wry>,
     pub quit_item: MenuItem<Wry>,
 }
@@ -317,6 +319,7 @@ pub fn setup_system_tray(app: &AppHandle<Wry>) -> Result<(), Box<dyn std::error:
     
     let separator3 = PredefinedMenuItem::separator(app)?;
     
+    let visit_website_item = MenuItem::with_id(app, "visit-website", "访问官网", true, None::<&str>)?;
     let contact_us_item = MenuItem::with_id(app, "contact-us", "联系我们", true, None::<&str>)?;
     let quit_item = MenuItem::with_id(app, "quit", "退出", true, None::<&str>)?;
     
@@ -333,6 +336,7 @@ pub fn setup_system_tray(app: &AppHandle<Wry>) -> Result<(), Box<dyn std::error:
             &settings_item,
             &check_update_item,
             &separator3,
+            &visit_website_item,
             &contact_us_item,
             &quit_item,
         ],
@@ -352,6 +356,7 @@ pub fn setup_system_tray(app: &AppHandle<Wry>) -> Result<(), Box<dyn std::error:
         exit_focus_mode_item: exit_focus_mode_item.clone(),
         settings_item: settings_item.clone(),
         check_update_item: check_update_item.clone(),
+        visit_website_item: visit_website_item.clone(),
         contact_us_item: contact_us_item.clone(),
         quit_item: quit_item.clone(),
     };
@@ -416,6 +421,10 @@ pub fn setup_system_tray(app: &AppHandle<Wry>) -> Result<(), Box<dyn std::error:
                 if let Some(window) = app.get_webview_window("main") {
                     let _ = window.emit("check-for-updates", ());
                 }
+            }
+            "visit-website" => {
+                use tauri_plugin_opener::OpenerExt;
+                let _ = app.opener().open_url("https://planit.vervel.app", None::<&str>);
             }
             "contact-us" => {
                 use tauri_plugin_opener::OpenerExt;
@@ -482,6 +491,7 @@ pub fn update_tray_menu_labels_impl(app: &AppHandle<Wry>, labels: TrayMenuLabels
     let _ = menu_items.exit_focus_mode_item.set_text(labels.exit_focus_mode);
     let _ = menu_items.settings_item.set_text(labels.settings);
     let _ = menu_items.check_update_item.set_text(labels.check_update);
+    let _ = menu_items.visit_website_item.set_text(labels.visit_website);
     let _ = menu_items.contact_us_item.set_text(labels.contact_us);
     let _ = menu_items.quit_item.set_text(labels.quit);
     

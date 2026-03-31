@@ -117,6 +117,18 @@ export function SettingsView() {
                   William Zhang
                 </a>
               </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="text-muted-foreground">{t.settings.officialWebsite || '官网'}:</span>
+                <a
+                  href="https://planit.vervel.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline inline-flex items-center gap-1"
+                >
+                  planit.vervel.app
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
               <a
                 href="https://afdian.com/a/itstimetoosleep"
                 target="_blank"

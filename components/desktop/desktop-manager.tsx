@@ -107,6 +107,11 @@ export function DesktopManager() {
     console.log('Check for updates')
   }, [])
 
+  const handleVisitWebsite = useCallback(() => {
+    if (!api) return
+    api.openExternalLink('https://planit.vervel.app').catch(console.error)
+  }, [api])
+
   const handleAddTask = useCallback(() => {
     setTaskModalOpen(true)
   }, [])
@@ -129,6 +134,7 @@ export function DesktopManager() {
         onExitFocusMode={handleExitFocusMode}
         onOpenSettings={handleOpenSettings}
         onCheckUpdate={handleCheckUpdate}
+        onVisitWebsite={handleVisitWebsite}
       />
       <TaskModal
         open={taskModalOpen}

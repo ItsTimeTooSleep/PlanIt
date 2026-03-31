@@ -17,6 +17,7 @@ interface SystemTrayManagerProps {
   onExitFocusMode?: () => void
   onOpenSettings?: () => void
   onCheckUpdate?: () => void
+  onVisitWebsite?: () => void
 }
 
 /**
@@ -33,6 +34,7 @@ interface SystemTrayManagerProps {
  * @param props.onExitFocusMode - 退出聚焦模式回调
  * @param props.onOpenSettings - 打开设置回调
  * @param props.onCheckUpdate - 检查更新回调
+ * @param props.onVisitWebsite - 访问官网回调
  */
 export function SystemTrayManager({
   onShowWindow,
@@ -46,6 +48,7 @@ export function SystemTrayManager({
   onExitFocusMode,
   onOpenSettings,
   onCheckUpdate,
+  onVisitWebsite,
 }: SystemTrayManagerProps) {
   const shouldRender = useDesktopOnly()
   const { api, isReady } = usePlatform()
@@ -90,6 +93,9 @@ export function SystemTrayManager({
         case 'check-update':
           onCheckUpdate?.()
           break
+        case 'visit-website':
+          onVisitWebsite?.()
+          break
         case 'quit':
           api.closeWindow().catch(console.error)
           break
@@ -99,7 +105,7 @@ export function SystemTrayManager({
     return () => {
       unsubscribe()
     }
-  }, [api, isReady, onShowWindow, onHideWindow, onAddTask, onStartPomodoro, onStopPomodoro, onShortBreak, onLongBreak, onEnterFocusMode, onExitFocusMode, onOpenSettings, onCheckUpdate])
+  }, [api, isReady, onShowWindow, onHideWindow, onAddTask, onStartPomodoro, onStopPomodoro, onShortBreak, onLongBreak, onEnterFocusMode, onExitFocusMode, onOpenSettings, onCheckUpdate, onVisitWebsite])
 
   useEffect(() => {
     if (!api?.capabilities.supportsSystemTray || !isReady) return
@@ -118,6 +124,7 @@ export function SystemTrayManager({
       exit_focus_mode: t.tray.exitFocusMode,
       settings: t.tray.settings,
       check_update: t.tray.checkUpdate,
+      visit_website: t.tray.visitWebsite,
       contact_us: t.tray.contactUs,
       quit: t.tray.quit,
       tooltip: t.tray.tooltip,

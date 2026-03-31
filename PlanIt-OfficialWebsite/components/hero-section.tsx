@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Apple, Monitor } from "lucide-react";
+import { APP_VERSION } from "@/lib/version";
 
 export function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -64,7 +65,7 @@ export function HeroSection() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm mb-8 border border-border">
             <span className="w-2 h-2 rounded-full bg-chart-4 animate-pulse" />
-            1.0 版本正式发布
+            {APP_VERSION} 版本正式发布
           </div>
 
           <h1 className="text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight text-balance max-w-4xl mx-auto">
@@ -78,12 +79,16 @@ export function HeroSection() {
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button size="lg" className="gap-2 px-8 group">
-              免费下载
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            <Button size="lg" className="gap-2 px-8 group" asChild>
+              <a href="https://github.com/itstimetoosleep/PlanIt/releases/latest" target="_blank" rel="noopener noreferrer">
+                免费下载
+                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </a>
             </Button>
-            <Button size="lg" variant="outline" className="gap-2">
-              了解更多
+            <Button size="lg" variant="outline" className="gap-2" asChild>
+              <a href="#features">
+                了解更多
+              </a>
             </Button>
           </div>
           <div className="mt-6 flex items-center justify-center gap-6 text-sm text-muted-foreground">

@@ -3,24 +3,27 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Apple, Monitor, Download, ArrowRight } from "lucide-react";
+import { APP_VERSION } from "@/lib/version";
+
+const GITHUB_RELEASES_URL = "https://github.com/itstimetoosleep/PlanIt/releases/latest";
 
 const platforms = [
   {
     name: "macOS",
     icon: Apple,
-    version: "2.0.1",
+    version: APP_VERSION,
     size: "68 MB",
     requirement: "macOS 12.0 或更高版本",
-    downloadUrl: "#",
+    downloadUrl: GITHUB_RELEASES_URL,
     primary: false,
   },
   {
     name: "Windows",
     icon: Monitor,
-    version: "2.0.1",
+    version: APP_VERSION,
     size: "72 MB",
     requirement: "Windows 10/11 64位",
-    downloadUrl: "#",
+    downloadUrl: GITHUB_RELEASES_URL,
     primary: true,
   },
   {
@@ -33,7 +36,7 @@ const platforms = [
     version: "即将发行",
     size: "",
     requirement: "Ubuntu 20.04+ / Fedora 35+",
-    downloadUrl: "#",
+    downloadUrl: GITHUB_RELEASES_URL,
     primary: false,
     comingSoon: true,
   },
@@ -146,10 +149,17 @@ export function DownloadSection() {
                     <Button
                       variant={platform.primary ? "secondary" : "default"}
                       className="w-full gap-2 group/btn"
+                      asChild
                     >
-                      <Download className="w-4 h-4" />
-                      下载
-                      <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 transition-all group-hover/btn:opacity-100 group-hover/btn:translate-x-0" />
+                      <a
+                        href={platform.downloadUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Download className="w-4 h-4" />
+                        下载
+                        <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 transition-all group-hover/btn:opacity-100 group-hover/btn:translate-x-0" />
+                      </a>
                     </Button>
                   )}
                   <p
@@ -182,14 +192,14 @@ export function DownloadSection() {
               需要其他版本？查看我们的历史版本或获取测试版
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
-              <Button variant="outline" size="sm">
-                历史版本
+              <Button variant="outline" size="sm" asChild>
+                <a href="https://github.com/itstimetoosleep/PlanIt/releases" target="_blank" rel="noopener noreferrer">历史版本</a>
               </Button>
-              <Button variant="outline" size="sm">
-                Beta 测试版
+              <Button variant="outline" size="sm" asChild>
+                <a href="https://github.com/itstimetoosleep/PlanIt/releases" target="_blank" rel="noopener noreferrer">Beta 测试版</a>
               </Button>
-              <Button variant="outline" size="sm">
-                更新日志
+              <Button variant="outline" size="sm" asChild>
+                <a href="https://github.com/itstimetoosleep/PlanIt/releases" target="_blank" rel="noopener noreferrer">更新日志</a>
               </Button>
             </div>
           </div>

@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 const socialLinks = [
   {
     name: "GitHub",
-    href: "#",
+    href: "https://github.com/itstimetoosleep/PlanIt",
     icon: (
       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
         <path

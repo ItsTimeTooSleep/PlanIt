@@ -19,8 +19,6 @@ export function Header() {
 
   const navItems = [
     { label: "功能", href: "#features" },
-    { label: "产品截图", href: "#screenshots" },
-    { label: "统计", href: "#stats" },
     { label: "下载", href: "#download" },
   ];
 
@@ -72,10 +70,17 @@ export function Header() {
         </nav>
 
         <div className="hidden md:flex items-center gap-4">
-          <Button variant="ghost" size="sm">
-            登录
+          <a
+            href="https://github.com/itstimetoosleep/PlanIt"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            GitHub
+          </a>
+          <Button size="sm" asChild>
+            <a href="https://github.com/itstimetoosleep/PlanIt/releases/latest">免费下载</a>
           </Button>
-          <Button size="sm">免费下载</Button>
         </div>
 
         <button
@@ -105,10 +110,17 @@ export function Header() {
             </a>
           ))}
           <div className="flex flex-col gap-2 pt-4 border-t border-border">
-            <Button variant="ghost" size="sm">
-              登录
+            <a
+              href="https://github.com/itstimetoosleep/PlanIt"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+            >
+              GitHub
+            </a>
+            <Button size="sm" asChild>
+              <a href="https://github.com/itstimetoosleep/PlanIt/releases/latest">免费下载</a>
             </Button>
-            <Button size="sm">免费下载</Button>
           </div>
         </nav>
       </div>
