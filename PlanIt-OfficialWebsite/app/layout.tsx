@@ -12,15 +12,15 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: '/icon-dark-32x32.svg',
+        url: '/PlanIt/icon-dark-32x32.svg',
         media: '(prefers-color-scheme: light)',
       },
       {
-        url: '/icon-light-32x32.svg',
+        url: '/PlanIt/icon-light-32x32.svg',
         media: '(prefers-color-scheme: dark)',
       },
     ],
-    apple: '/apple-icon.png',
+    apple: '/PlanIt/apple-icon.png',
   },
 }
 

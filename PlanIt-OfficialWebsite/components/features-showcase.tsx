@@ -29,7 +29,7 @@ const features: Feature[] = [
     description: "创建任务、添加标签、追踪状态，让每一项待办都井井有条",
     color: "text-blue-500",
     bgColor: "bg-blue-500/10",
-    screenshot: "/screenshot-newtask.png",
+    screenshot: "/PlanIt/screenshot-newtask.png",
   },
   {
     id: 2,
@@ -38,7 +38,7 @@ const features: Feature[] = [
     description: "周视图与月视图灵活切换，支持日期笔记，规划一目了然",
     color: "text-emerald-500",
     bgColor: "bg-emerald-500/10",
-    screenshot: "/screenshot-calendar.png",
+    screenshot: "/PlanIt/screenshot-calendar.png",
   },
   {
     id: 3,
@@ -47,7 +47,7 @@ const features: Feature[] = [
     description: "专注模式帮助你保持高效，科学管理工作与休息时间",
     color: "text-orange-500",
     bgColor: "bg-orange-500/10",
-    screenshot: "/screenshot-pomodoro.png",
+    screenshot: "/PlanIt/screenshot-pomodoro.png",
   },
   {
     id: 4,
@@ -56,7 +56,7 @@ const features: Feature[] = [
     description: "多彩笔记卡片，随时记录灵感，让想法不再流失",
     color: "text-yellow-500",
     bgColor: "bg-yellow-500/10",
-    screenshot: "/screenshot-notes.png",
+    screenshot: "/PlanIt/screenshot-notes.png",
   },
   {
     id: 5,
@@ -65,7 +65,7 @@ const features: Feature[] = [
     description: "可拖拽的多种类型小组件，打造专属工作空间",
     color: "text-pink-500",
     bgColor: "bg-pink-500/10",
-    screenshot: "/screenshot-custom.png",
+    screenshot: "/PlanIt/screenshot-custom.png",
   },
   {
     id: 6,
@@ -74,7 +74,7 @@ const features: Feature[] = [
     description: "图表可视化展示效率数据，了解自己的工作习惯",
     color: "text-cyan-500",
     bgColor: "bg-cyan-500/10",
-    screenshot: "/screenshot-analysis.png",
+    screenshot: "/PlanIt/screenshot-analysis.png",
   },
 ];
 

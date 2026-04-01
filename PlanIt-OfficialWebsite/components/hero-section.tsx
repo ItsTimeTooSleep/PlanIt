@@ -133,7 +133,7 @@ export function HeroSection() {
               </div>
               <div className="aspect-[16/9] bg-card rounded-t-lg overflow-hidden border border-b-0 border-border">
                 <img
-                  src="/screenshot-home.png"
+                  src="/PlanIt/screenshot-home.png"
                   alt="PlanIt 主界面截图"
                   className="w-full h-full object-cover object-top"
                 />
