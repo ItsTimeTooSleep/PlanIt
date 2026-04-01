@@ -5,10 +5,17 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Apple, Monitor } from "lucide-react";
 import { APP_VERSION } from "@/lib/version";
 import { getAssetPath } from "@/lib/base-path";
+import { useGitHubRelease } from "@/hooks/use-github-release";
+
+const GITHUB_OWNER = "itstimetoosleep";
+const GITHUB_REPO = "PlanIt";
 
 export function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const { release } = useGitHubRelease(GITHUB_OWNER, GITHUB_REPO);
+  
+  const displayVersion = release?.tag_name || APP_VERSION;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -66,7 +73,7 @@ export function HeroSection() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm mb-8 border border-border">
             <span className="w-2 h-2 rounded-full bg-chart-4 animate-pulse" />
-            {APP_VERSION} 版本正式发布
+            {displayVersion} 版本正式发布
           </div>
 
           <h1 className="text-4xl md:text-6xl lg:text-8xl font-bold tracking-tight text-balance max-w-4xl mx-auto">

@@ -62,10 +62,10 @@ export function AnalyticsTransition() {
             }`}
           >
             {[
-              { value: "30+", label: "追踪天数" },
-              { value: "85%", label: "效率提升" },
-              { value: "10k+", label: "活跃用户" },
-              { value: "4.9", label: "用户评分" },
+              { value: "持续记录", label: "追踪天数" },
+              { value: "专注提升", label: "效率优化" },
+              { value: "全新体验", label: "开始使用" },
+              { value: "简单易用", label: "直观设计" },
             ].map((stat, index) => (
               <div
                 key={stat.label}
