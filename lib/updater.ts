@@ -5,7 +5,7 @@
  * @file lib/updater.ts
  */
 
-import { checkUpdate, installUpdate } from '@tauri-apps/plugin-updater'
+import { check } from '@tauri-apps/plugin-updater'
 import { relaunch } from '@tauri-apps/plugin-process'
 import { toast } from 'sonner'
 
@@ -171,9 +171,9 @@ export class UpdaterManager {
    */
   public async checkForUpdates(showToastIfLatest: boolean = true, forceCheck: boolean = false): Promise<boolean> {
     try {
-      const update = await checkUpdate()
+      const update = await check()
 
-      if (update?.available) {
+      if (update) {
         this.currentUpdate = {
           version: update.version,
           body: update.body,
@@ -241,13 +241,15 @@ export class UpdaterManager {
       this.isDownloading = true
       toast.loading(this.messages.updateDownloading)
 
-      await installUpdate()
+      const update = await check()
+      if (update) {
+        await update.downloadAndInstall()
+        toast.dismiss()
+        toast.success(this.messages.updateInstalled)
 
-      toast.dismiss()
-      toast.success(this.messages.updateInstalled)
-
-      await new Promise(resolve => setTimeout(resolve, 1500))
-      await relaunch()
+        await new Promise(resolve => setTimeout(resolve, 1500))
+        await relaunch()
+      }
     } catch (error) {
       console.error('[UpdaterManager] Failed to install update:', error)
       toast.dismiss()
