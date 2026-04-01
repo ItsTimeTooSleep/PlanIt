@@ -1,6 +1,0 @@
-1:"$Sreact.fragment"
-2:I[49495,["/PlanIt/_next/static/chunks/143cyk1jqgicn.js","/PlanIt/_next/static/chunks/0kbe5tyo0f4ad.js"],"ViewportBoundary"]
-3:I[49495,["/PlanIt/_next/static/chunks/143cyk1jqgicn.js","/PlanIt/_next/static/chunks/0kbe5tyo0f4ad.js"],"MetadataBoundary"]
-4:"$Sreact.suspense"
-5:I[85295,["/PlanIt/_next/static/chunks/143cyk1jqgicn.js","/PlanIt/_next/static/chunks/0kbe5tyo0f4ad.js"],"IconMark"]
-0:{"rsc":["$","$1","h",{"children":[null,["$","$L2",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","div",null,{"hidden":true,"children":["$","$L3",null,{"children":["$","$4",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"PlanIt - 规划时间，掌控生活"}],["$","meta","1",{"name":"description","content":"高效任务管理工具，帮助学生和知识工作者更好地规划时间、保持专注、提升效率"}],["$","link","2",{"rel":"icon","href":"/icon-dark-32x32.svg","media":"(prefers-color-scheme: light)"}],["$","link","3",{"rel":"icon","href":"/icon-light-32x32.svg","media":"(prefers-color-scheme: dark)"}],["$","link","4",{"rel":"apple-touch-icon","href":"/apple-icon.png"}],["$","$L5","5",{}]]}]}]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"dXNZUHVxoUXtPCTu5jLLm"}
