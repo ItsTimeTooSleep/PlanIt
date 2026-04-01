@@ -427,7 +427,7 @@ pub fn setup_system_tray(app: &AppHandle<Wry>) -> Result<(), Box<dyn std::error:
             }
             "visit-website" => {
                 use tauri_plugin_opener::OpenerExt;
-                let _ = app.opener().open_url("https://itstimetoosleep.github.io/PlanIt", None::<&str>);
+                let _ = app.opener().open_url("https://getplanit.vercel.app", None::<&str>);
             }
             "contact-us" => {
                 use tauri_plugin_opener::OpenerExt;

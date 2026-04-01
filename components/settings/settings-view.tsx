@@ -7,6 +7,7 @@ import { ChevronRight, ExternalLink, Loader2, Copy, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { AppIcon } from '@/components/app-icon'
 import { getAppVersion } from '@/lib/version'
+import { OFFICIAL_WEBSITE } from '@/lib/config'
 import { UpdaterManager } from '@/lib/updater'
 import { Button } from '@/components/ui/button'
 import { usePlatform } from '@/components/platform-provider'
@@ -236,12 +237,12 @@ export function SettingsView() {
               <div className="flex items-center gap-2 text-xs">
                 <span className="text-muted-foreground">{t.settings.officialWebsite || '官网'}:</span>
                 <a
-                  href="https://itstimetoosleep.github.io/PlanIt"
+                  href={OFFICIAL_WEBSITE}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline inline-flex items-center gap-1"
                 >
-                  itstimetoosleep.github.io/PlanIt
+                  {OFFICIAL_WEBSITE.replace('https://', '')}
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </div>

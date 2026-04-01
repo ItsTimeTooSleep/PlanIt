@@ -11,6 +11,7 @@ import { useTranslations } from '@/lib/i18n'
 import type { TrayMenuState } from '@/lib/platform'
 import { TaskModal } from '@/components/task-modal'
 import { UpdaterManager } from '@/lib/updater'
+import { OFFICIAL_WEBSITE } from '@/lib/config'
 
 /**
  * 桌面端管理组件
@@ -141,7 +142,7 @@ export function DesktopManager() {
 
   const handleVisitWebsite = useCallback(() => {
     if (!api) return
-    api.openExternalLink('https://itstimetoosleep.github.io/PlanIt').catch(console.error)
+    api.openExternalLink(OFFICIAL_WEBSITE).catch(console.error)
   }, [api])
 
   const handleAddTask = useCallback(() => {
