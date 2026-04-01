@@ -2,7 +2,6 @@
 const nextConfig = {
   output: 'export',
   distDir: 'dist',
-  basePath: '/PlanIt',
   typescript: {
     ignoreBuildErrors: true,
   },

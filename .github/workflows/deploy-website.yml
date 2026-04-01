@@ -52,7 +52,7 @@ jobs:
         run: pnpm install
 
       - name: Build with Next.js
-        run: pnpm next build
+        run: NEXT_PUBLIC_BASE_PATH=/PlanIt pnpm next build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
