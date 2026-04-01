@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Apple, Monitor } from "lucide-react";
 import { APP_VERSION } from "@/lib/version";
-import { getAssetPath } from "@/lib/base-path";
 import { useGitHubRelease } from "@/hooks/use-github-release";
 
 const GITHUB_OWNER = "itstimetoosleep";
@@ -141,7 +140,7 @@ export function HeroSection() {
               </div>
               <div className="aspect-[16/9] bg-card rounded-t-lg overflow-hidden border border-b-0 border-border">
                 <img
-                  src={getAssetPath("/screenshot-home.png")}
+                  src="/screenshot-home.png"
                   alt="PlanIt 主界面截图"
                   className="w-full h-full object-cover object-top"
                 />

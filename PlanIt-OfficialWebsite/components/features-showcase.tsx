@@ -10,7 +10,6 @@ import {
   BarChart3,
   LucideIcon,
 } from "lucide-react";
-import { getAssetPath } from "@/lib/base-path";
 
 interface Feature {
   id: number;
@@ -240,7 +239,7 @@ export function FeaturesShowcase() {
                         </div>
                         <div className="w-full h-full rounded-lg overflow-hidden">
                           <img
-                            src={getAssetPath(feature.screenshot)}
+                            src={feature.screenshot}
                             alt={feature.title}
                             className="w-full h-full object-contain"
                           />
