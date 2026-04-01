@@ -9,7 +9,7 @@ import { PomodoroDialogProvider } from '@/lib/pomodoro-context'
 import { PomodoroDialog } from '@/components/pomodoro/pomodoro-dialog'
 import { DynamicTitle } from '@/components/dynamic-title'
 import { DisableContextMenu } from '@/components/disable-context-menu'
-import { Toaster } from '@/components/ui/toaster'
+import { Toaster } from '@/components/ui/sonner'
 import { UpdateProvider } from '@/components/update-provider'
 import './globals.css'
 

@@ -17,6 +17,9 @@ type UpdateMessages = {
   updateInstalled: string
   updateConfirmTitle: string
   updateConfirmBody: string
+  updateChecking: string
+  updateNetworkError: string
+  updateTimeoutError: string
 }
 
 type UpdateInfo = {
@@ -26,6 +29,16 @@ type UpdateInfo = {
 }
 
 type UpdateDialogCallback = (update: UpdateInfo) => void
+type CheckStateCallback = (isChecking: boolean) => void
+type UpdateErrorCallback = (errorMessage: string, errorDetail?: string) => void
+
+type UpdateErrorType = 'network' | 'timeout' | 'unknown'
+
+type UpdateError = {
+  type: UpdateErrorType
+  message: string
+  originalError?: unknown
+}
 
 /**
  * 更新管理器类
@@ -37,8 +50,11 @@ export class UpdaterManager {
   private skippedVersionKey = 'skipped_update_version'
   private messages: UpdateMessages
   private onUpdateAvailableCallback?: UpdateDialogCallback
+  private onCheckStateChangeCallback?: CheckStateCallback
+  private onUpdateErrorCallback?: UpdateErrorCallback
   private currentUpdate?: UpdateInfo
   private isDownloading = false
+  private isChecking = false
 
   /**
    * 获取 UpdaterManager 单例实例
@@ -64,6 +80,9 @@ export class UpdaterManager {
       updateInstalled: 'Update complete, restarting app...',
       updateConfirmTitle: 'New version available',
       updateConfirmBody: 'Click OK to start updating',
+      updateChecking: 'Checking for updates...',
+      updateNetworkError: 'Network error. Please check your connection.',
+      updateTimeoutError: 'Request timed out. Please try again.',
       ...messages
     }
   }
@@ -75,6 +94,33 @@ export class UpdaterManager {
    */
   public setOnUpdateAvailable(callback: UpdateDialogCallback): void {
     this.onUpdateAvailableCallback = callback
+  }
+
+  /**
+   * 设置检查状态变化的回调函数
+   *
+   * @param {CheckStateCallback} callback - 回调函数
+   */
+  public setOnCheckStateChange(callback: CheckStateCallback): void {
+    this.onCheckStateChangeCallback = callback
+  }
+
+  /**
+   * 设置更新错误时的回调函数
+   *
+   * @param {UpdateErrorCallback} callback - 回调函数
+   */
+  public setOnUpdateError(callback: UpdateErrorCallback): void {
+    this.onUpdateErrorCallback = callback
+  }
+
+  /**
+   * 获取当前检查状态
+   *
+   * @returns {boolean} 是否正在检查
+   */
+  public getIsChecking(): boolean {
+    return this.isChecking
   }
 
   /**
@@ -163,6 +209,50 @@ export class UpdaterManager {
   }
 
   /**
+   * 解析错误类型
+   *
+   * @param {unknown} error - 原始错误
+   * @returns {UpdateError} 解析后的错误信息
+   */
+  private parseError(error: unknown): UpdateError {
+    if (error instanceof Error) {
+      const errorMessage = error.message.toLowerCase()
+      
+      if (
+        errorMessage.includes('network') ||
+        errorMessage.includes('fetch') ||
+        errorMessage.includes('connection') ||
+        errorMessage.includes('offline') ||
+        errorMessage.includes('enetunreach') ||
+        errorMessage.includes('econnrefused')
+      ) {
+        return {
+          type: 'network',
+          message: this.messages.updateNetworkError,
+          originalError: error
+        }
+      }
+      
+      if (
+        errorMessage.includes('timeout') ||
+        errorMessage.includes('etimedout')
+      ) {
+        return {
+          type: 'timeout',
+          message: this.messages.updateTimeoutError,
+          originalError: error
+        }
+      }
+    }
+    
+    return {
+      type: 'unknown',
+      message: this.messages.updateError,
+      originalError: error
+    }
+  }
+
+  /**
    * 检查更新
    *
    * @param {boolean} showToastIfLatest - 如果是最新版本是否显示提示
@@ -170,8 +260,18 @@ export class UpdaterManager {
    * @returns {Promise<boolean>} 是否有可用更新
    */
   public async checkForUpdates(showToastIfLatest: boolean = true, forceCheck: boolean = false): Promise<boolean> {
+    if (this.isChecking) {
+      return false
+    }
+
+    this.isChecking = true
+    this.onCheckStateChangeCallback?.(true)
+
+    const checkingToastId = toast.loading(this.messages.updateChecking)
+
     try {
       const update = await check()
+      toast.dismiss(checkingToastId)
 
       if (update) {
         this.currentUpdate = {
@@ -200,8 +300,19 @@ export class UpdaterManager {
       }
     } catch (error) {
       console.error('[UpdaterManager] Failed to check for updates:', error)
-      toast.error(this.messages.updateError)
+      toast.dismiss(checkingToastId)
+
+      const parsedError = this.parseError(error)
+      toast.error(parsedError.message)
+      // 构建详细错误信息
+      const errorDetail = error instanceof Error
+        ? `[UpdaterManager] Failed to check for updates: "${error.message}"`
+        : `[UpdaterManager] Failed to check for updates: "${String(error)}"`
+      this.onUpdateErrorCallback?.(parsedError.message, errorDetail)
       return false
+    } finally {
+      this.isChecking = false
+      this.onCheckStateChangeCallback?.(false)
     }
   }
 

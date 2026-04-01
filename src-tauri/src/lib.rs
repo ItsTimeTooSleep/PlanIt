@@ -419,12 +419,15 @@ pub fn setup_system_tray(app: &AppHandle<Wry>) -> Result<(), Box<dyn std::error:
             }
             "check-update" => {
                 if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.show();
+                    let _ = window.set_focus();
+                    let _ = window.emit("window-visibility-changed", true);
                     let _ = window.emit("check-for-updates", ());
                 }
             }
             "visit-website" => {
                 use tauri_plugin_opener::OpenerExt;
-                let _ = app.opener().open_url("https://planit.vervel.app", None::<&str>);
+                let _ = app.opener().open_url("https://itstimetoosleep.github.io/PlanIt", None::<&str>);
             }
             "contact-us" => {
                 use tauri_plugin_opener::OpenerExt;

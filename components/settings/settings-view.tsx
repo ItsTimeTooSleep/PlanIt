@@ -1,14 +1,15 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useLanguage } from '@/lib/store'
 import { useTranslations } from '@/lib/i18n'
-import { ChevronRight, ExternalLink } from 'lucide-react'
+import { ChevronRight, ExternalLink, Loader2, Copy, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { AppIcon } from '@/components/app-icon'
 import { getAppVersion } from '@/lib/version'
 import { UpdaterManager } from '@/lib/updater'
 import { Button } from '@/components/ui/button'
+import { usePlatform } from '@/components/platform-provider'
 import {
   GeneralSettings,
   NotificationSettings,
@@ -21,8 +22,14 @@ import {
 export function SettingsView() {
   const lang = useLanguage()
   const t = useTranslations(lang)
+  const { api } = usePlatform()
   const [expandedSection, setExpandedSection] = useState<string | null>('general')
   const [appVersion, setAppVersion] = useState<string>('')
+  const [isCheckingUpdate, setIsCheckingUpdate] = useState(false)
+  const [updateError, setUpdateError] = useState<string | null>(null)
+  const [updateErrorDetail, setUpdateErrorDetail] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
+  const errorTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     getAppVersion().then(setAppVersion).catch(() => setAppVersion(''))
@@ -37,8 +44,54 @@ export function SettingsView() {
       updateInstalled: t.settings.updateInstalled,
       updateConfirmTitle: t.settings.updateAvailable,
       updateConfirmBody: lang === 'zh' ? '点击确定开始更新' : 'Click OK to start updating',
+      updateChecking: lang === 'zh' ? '正在检查更新...' : 'Checking for updates...',
+      updateNetworkError: lang === 'zh' ? '网络错误，请检查网络连接' : 'Network error. Please check your connection.',
+      updateTimeoutError: lang === 'zh' ? '请求超时，请重试' : 'Request timed out. Please try again.',
     })
+
+    updater.setOnCheckStateChange((isChecking) => {
+      setIsCheckingUpdate(isChecking)
+      if (isChecking) {
+        setUpdateError(null)
+        setUpdateErrorDetail(null)
+        if (errorTimeoutRef.current) {
+          clearTimeout(errorTimeoutRef.current)
+          errorTimeoutRef.current = null
+        }
+      }
+    })
+
+    updater.setOnUpdateError((error, detail) => {
+      setUpdateError(error)
+      setUpdateErrorDetail(detail || null)
+      // 10秒后自动清除错误
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current)
+      }
+      errorTimeoutRef.current = setTimeout(() => {
+        setUpdateError(null)
+        setUpdateErrorDetail(null)
+      }, 10000)
+    })
+
+    return () => {
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current)
+      }
+    }
   }, [lang, t.settings])
+
+  const handleCheckUpdate = useCallback(async () => {
+    setUpdateError(null)
+    setUpdateErrorDetail(null)
+    setCopied(false)
+    if (errorTimeoutRef.current) {
+      clearTimeout(errorTimeoutRef.current)
+      errorTimeoutRef.current = null
+    }
+    const updater = UpdaterManager.getInstance()
+    await updater.checkForUpdates(true, true)
+  }, [])
 
   return (
     <div className="flex flex-col h-[calc(100vh-2.25rem)] overflow-y-auto ml-16">
@@ -117,16 +170,55 @@ export function SettingsView() {
                   {appVersion ? `${t.settings.versionPrefix || (lang === 'zh' ? '版本 ' : 'Version ')}${appVersion}` : ''}
                 </p>
               </div>
-              <Button
-                variant="default"
-                size="sm"
-                onClick={async () => {
-                  const updater = UpdaterManager.getInstance()
-                  await updater.checkForUpdates(true, true)
-                }}
-              >
-                {t.settings.checkUpdate}
-              </Button>
+              <div className="flex flex-col items-end gap-1.5">
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleCheckUpdate}
+                  disabled={isCheckingUpdate}
+                  className="min-w-[100px]"
+                >
+                  {isCheckingUpdate ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      {lang === 'zh' ? '检查中...' : 'Checking...'}
+                    </>
+                  ) : (
+                    t.settings.checkUpdate
+                  )}
+                </Button>
+                {updateError && (
+                  <button
+                    onClick={async () => {
+                      if (updateErrorDetail && api) {
+                        try {
+                          await api.writeToClipboard(updateErrorDetail)
+                          setCopied(true)
+                          setTimeout(() => setCopied(false), 2000)
+                        } catch (e) {
+                          console.error('Failed to copy error:', e)
+                        }
+                      }
+                    }}
+                    className={cn(
+                      'text-xs max-w-[180px] text-right flex items-center gap-1 transition-colors',
+                      updateErrorDetail
+                        ? 'text-destructive hover:text-destructive/80 cursor-pointer'
+                        : 'text-destructive cursor-default'
+                    )}
+                    title={updateErrorDetail || updateError}
+                  >
+                    <span className="truncate">{updateError}</span>
+                    {updateErrorDetail && (
+                      copied ? (
+                        <Check className="w-3 h-3 flex-shrink-0" />
+                      ) : (
+                        <Copy className="w-3 h-3 flex-shrink-0" />
+                      )
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
             <p className="text-xs text-muted-foreground">{t.settings.madeWith}</p>
             <div className="pt-2 space-y-2">
@@ -144,12 +236,12 @@ export function SettingsView() {
               <div className="flex items-center gap-2 text-xs">
                 <span className="text-muted-foreground">{t.settings.officialWebsite || '官网'}:</span>
                 <a
-                  href="https://planit.vervel.app"
+                  href="https://itstimetoosleep.github.io/PlanIt"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:underline inline-flex items-center gap-1"
                 >
-                  planit.vervel.app
+                  itstimetoosleep.github.io/PlanIt
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </div>

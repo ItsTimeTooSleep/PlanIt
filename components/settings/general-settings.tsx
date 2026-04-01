@@ -41,7 +41,8 @@ export function GeneralSettings() {
     if (shouldShowDesktopSettings && api) {
       api.getCloseBehavior().then((behavior) => {
         if (behavior !== state.settings.closeBehavior) {
-          updateSettings({ closeBehavior: behavior as CloseBehavior })
+          const savedBehavior = state.settings.closeBehavior
+          api.setCloseBehavior(savedBehavior).catch(console.error)
         }
       }).catch(console.error)
     }

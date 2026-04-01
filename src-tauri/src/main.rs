@@ -150,6 +150,7 @@ fn main() {
                 let _ = window.emit("window-visibility-changed", true);
             }
         }))
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(|app| {
             let args: Vec<String> = std::env::args().collect();
             let start_minimized = args.contains(&"--minimized".to_string());

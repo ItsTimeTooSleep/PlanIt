@@ -1,50 +1,58 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Apple, Monitor, Download, ArrowRight } from "lucide-react";
-import { APP_VERSION } from "@/lib/version";
+import { useGitHubRelease, getPlatformSizes } from "@/hooks/use-github-release";
 
-const GITHUB_RELEASES_URL = "https://github.com/itstimetoosleep/PlanIt/releases/latest";
-
-const platforms = [
-  {
-    name: "macOS",
-    icon: Apple,
-    version: APP_VERSION,
-    size: "68 MB",
-    requirement: "macOS 12.0 或更高版本",
-    downloadUrl: GITHUB_RELEASES_URL,
-    primary: false,
-  },
-  {
-    name: "Windows",
-    icon: Monitor,
-    version: APP_VERSION,
-    size: "72 MB",
-    requirement: "Windows 10/11 64位",
-    downloadUrl: GITHUB_RELEASES_URL,
-    primary: true,
-  },
-  {
-    name: "Linux",
-    icon: () => (
-      <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
-      </svg>
-    ),
-    version: "即将发行",
-    size: "",
-    requirement: "Ubuntu 20.04+ / Fedora 35+",
-    downloadUrl: GITHUB_RELEASES_URL,
-    primary: false,
-    comingSoon: true,
-  },
-];
+const GITHUB_OWNER = "itstimetoosleep";
+const GITHUB_REPO = "PlanIt";
+const GITHUB_RELEASES_URL = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/releases/latest`;
 
 export function DownloadSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const { release, loading } = useGitHubRelease(GITHUB_OWNER, GITHUB_REPO);
+
+  const platformSizes = useMemo(() => getPlatformSizes(release), [release]);
+
+  const platforms = useMemo(
+    () => [
+      {
+        name: "macOS",
+        icon: Apple,
+        version: release?.tag_name || "",
+        size: platformSizes.macos,
+        requirement: "macOS 12.0 或更高版本",
+        downloadUrl: GITHUB_RELEASES_URL,
+        primary: false,
+      },
+      {
+        name: "Windows",
+        icon: Monitor,
+        version: release?.tag_name || "",
+        size: platformSizes.windows,
+        requirement: "Windows 10/11 64位",
+        downloadUrl: GITHUB_RELEASES_URL,
+        primary: true,
+      },
+      {
+        name: "Linux",
+        icon: () => (
+          <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z" />
+          </svg>
+        ),
+        version: "",
+        size: "",
+        requirement: "Ubuntu 20.04+ / Fedora 35+",
+        downloadUrl: GITHUB_RELEASES_URL,
+        primary: false,
+        comingSoon: true,
+      },
+    ],
+    [release, platformSizes]
+  );
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -71,7 +79,7 @@ export function DownloadSection() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6">
-        <div 
+        <div
           className={`text-center mb-16 transition-all duration-700 ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
@@ -134,8 +142,13 @@ export function DownloadSection() {
                         : "text-muted-foreground"
                     }`}
                   >
-                    {platform.version}
-                    {platform.size && ` · ${platform.size}`}
+                    {(platform.version || platform.size) && (
+                      <>
+                        {platform.version}
+                        {platform.version && platform.size && " · "}
+                        {platform.size}
+                      </>
+                    )}
                   </p>
                   {platform.comingSoon ? (
                     <Button
@@ -180,7 +193,7 @@ export function DownloadSection() {
         </div>
 
         {/* Additional Info */}
-        <div 
+        <div
           className={`mt-16 transition-all duration-700 ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
@@ -193,13 +206,13 @@ export function DownloadSection() {
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
               <Button variant="outline" size="sm" asChild>
-                <a href="https://github.com/itstimetoosleep/PlanIt/releases" target="_blank" rel="noopener noreferrer">历史版本</a>
+                <a href={`https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/releases`} target="_blank" rel="noopener noreferrer">历史版本</a>
               </Button>
               <Button variant="outline" size="sm" asChild>
-                <a href="https://github.com/itstimetoosleep/PlanIt/releases" target="_blank" rel="noopener noreferrer">Beta 测试版</a>
+                <a href={`https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/releases`} target="_blank" rel="noopener noreferrer">Beta 测试版</a>
               </Button>
               <Button variant="outline" size="sm" asChild>
-                <a href="https://github.com/itstimetoosleep/PlanIt/releases" target="_blank" rel="noopener noreferrer">更新日志</a>
+                <a href={`https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/releases`} target="_blank" rel="noopener noreferrer">更新日志</a>
               </Button>
             </div>
           </div>

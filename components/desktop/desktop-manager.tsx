@@ -117,6 +117,9 @@ export function DesktopManager() {
       updateInstalled: t.settings.updateInstalled,
       updateConfirmTitle: t.settings.updateAvailable,
       updateConfirmBody: lang === 'zh' ? '点击确定开始更新' : 'Click OK to start updating',
+      updateChecking: lang === 'zh' ? '正在检查更新...' : 'Checking for updates...',
+      updateNetworkError: lang === 'zh' ? '网络错误，请检查网络连接' : 'Network error. Please check your connection.',
+      updateTimeoutError: lang === 'zh' ? '请求超时，请重试' : 'Request timed out. Please try again.',
     })
   }, [lang, t.settings])
 
@@ -138,7 +141,7 @@ export function DesktopManager() {
 
   const handleVisitWebsite = useCallback(() => {
     if (!api) return
-    api.openExternalLink('https://planit.vervel.app').catch(console.error)
+    api.openExternalLink('https://itstimetoosleep.github.io/PlanIt').catch(console.error)
   }, [api])
 
   const handleAddTask = useCallback(() => {

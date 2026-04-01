@@ -27,6 +27,9 @@ export function UpdateProvider({ children }: UpdateProviderProps) {
       updateInstalled: t.settings.updateInstalled,
       updateConfirmTitle: t.update.updateAvailable,
       updateConfirmBody: t.update.updateDesc,
+      updateChecking: t.settings.updateChecking,
+      updateNetworkError: t.settings.updateNetworkError,
+      updateTimeoutError: t.settings.updateTimeoutError,
     })
 
     updater.setOnUpdateAvailable((update) => {

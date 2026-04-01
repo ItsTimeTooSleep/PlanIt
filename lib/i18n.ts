@@ -313,6 +313,9 @@ const zh = {
     updateError: '检查更新失败',
     updateDownloading: '正在下载更新...',
     updateInstalled: '更新完成，即将重启应用',
+    updateChecking: '正在检查更新...',
+    updateNetworkError: '网络错误，请检查网络连接',
+    updateTimeoutError: '请求超时，请重试',
   },
   update: {
     updateAvailable: '发现新版本',
@@ -798,6 +801,9 @@ const en = {
     updateError: 'Failed to check for updates',
     updateDownloading: 'Downloading update...',
     updateInstalled: 'Update complete, restarting app...',
+    updateChecking: 'Checking for updates...',
+    updateNetworkError: 'Network error. Please check your connection.',
+    updateTimeoutError: 'Request timed out. Please try again.',
   },
   update: {
     updateAvailable: 'New version available',
@@ -1062,11 +1068,13 @@ export type Translations = {
     readonly workdays: string
     readonly weekly: string
     readonly monthly: string
+    readonly yearly: string
     readonly custom: string
     readonly customEvery: string
     readonly customDays: string
     readonly customWeeks: string
     readonly customMonths: string
+    readonly customYears: string
     readonly endDate: string
     readonly endDatePlaceholder: string
     readonly weekdays: string
@@ -1270,6 +1278,9 @@ export type Translations = {
     readonly updateError: string
     readonly updateDownloading: string
     readonly updateInstalled: string
+    readonly updateChecking: string
+    readonly updateNetworkError: string
+    readonly updateTimeoutError: string
   }
   readonly update: {
     readonly updateAvailable: string
