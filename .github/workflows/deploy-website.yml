@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'PlanIt-OfficialWebsite/**'
+      - '.github/workflows/deploy-website.yml'
   workflow_dispatch:
 
 permissions:
