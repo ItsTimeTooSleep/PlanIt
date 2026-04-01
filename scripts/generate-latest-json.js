@@ -6,11 +6,13 @@ const path = require('path')
  * 从构建产物中读取签名文件并生成更新配置
  * 
  * 使用方法：
- *   node scripts/generate-latest-json.js [macos-artifacts-dir]
+ *   node scripts/generate-latest-json.js [macos-artifacts-dir] [--empty-notes] [--empty-windows]
  * 
  * 参数：
  *   macos-artifacts-dir: 可选，macOS artifacts 解压后的目录路径
  *                       如果不指定，会自动从项目根目录查找 .sig 文件
+ *   --empty-notes:       留空 notes 字段
+ *   --empty-windows:     留空 windows 平台配置
  */
 
 const VERSION_FILE = path.join(__dirname, '..', 'VERSION')
@@ -83,36 +85,40 @@ function findMacOsSigsInRoot() {
     aarch64: null
   }
   
-  try {
-    if (!fs.existsSync(ROOT_DIR)) {
-      return result
+  const searchDirs = [ROOT_DIR, path.join(ROOT_DIR, 'sigs')]
+  
+  for (const dir of searchDirs) {
+    try {
+      if (!fs.existsSync(dir)) {
+        continue
+      }
+      
+      const files = fs.readdirSync(dir)
+      
+      const x64SigFile = files.find(f => 
+        f.endsWith('.sig') && 
+        (f.includes('x64') || f.includes('x86_64')) &&
+        !f.includes('aarch64') &&
+        !f.includes('arm64')
+      )
+      
+      const aarch64SigFile = files.find(f => 
+        f.endsWith('.sig') && 
+        (f.includes('aarch64') || f.includes('arm64'))
+      )
+      
+      if (x64SigFile && !result.x64) {
+        result.x64 = fs.readFileSync(path.join(dir, x64SigFile), 'utf8').trim()
+        console.log(`  找到 x86_64 签名: ${path.join(dir, x64SigFile)}`)
+      }
+      
+      if (aarch64SigFile && !result.aarch64) {
+        result.aarch64 = fs.readFileSync(path.join(dir, aarch64SigFile), 'utf8').trim()
+        console.log(`  找到 aarch64 签名: ${path.join(dir, aarch64SigFile)}`)
+      }
+    } catch (e) {
+      console.warn(`警告: 搜索 ${dir} 时出错:`, e.message)
     }
-    
-    const files = fs.readdirSync(ROOT_DIR)
-    
-    const x64SigFile = files.find(f => 
-      f.endsWith('.sig') && 
-      (f.includes('x64') || f.includes('x86_64')) &&
-      !f.includes('aarch64') &&
-      !f.includes('arm64')
-    )
-    
-    const aarch64SigFile = files.find(f => 
-      f.endsWith('.sig') && 
-      (f.includes('aarch64') || f.includes('arm64'))
-    )
-    
-    if (x64SigFile) {
-      result.x64 = fs.readFileSync(path.join(ROOT_DIR, x64SigFile), 'utf8').trim()
-      console.log(`  找到 x86_64 签名: ${x64SigFile}`)
-    }
-    
-    if (aarch64SigFile) {
-      result.aarch64 = fs.readFileSync(path.join(ROOT_DIR, aarch64SigFile), 'utf8').trim()
-      console.log(`  找到 aarch64 签名: ${aarch64SigFile}`)
-    }
-  } catch (e) {
-    console.warn('警告: 搜索根目录时出错:', e.message)
   }
   
   return result
@@ -121,23 +127,50 @@ function findMacOsSigsInRoot() {
 function main() {
   const version = readVersion()
   const template = readTemplate()
-  const macosArtifactsDir = process.argv[2]
+  
+  const args = process.argv.slice(2)
+  let macosArtifactsDir = null
+  let emptyNotes = false
+  let emptyWindows = false
+  
+  for (const arg of args) {
+    if (arg === '--empty-notes') {
+      emptyNotes = true
+    } else if (arg === '--empty-windows') {
+      emptyWindows = true
+    } else if (!arg.startsWith('--')) {
+      macosArtifactsDir = arg
+    }
+  }
 
   console.log(`正在生成 latest.json (版本: ${version})...`)
   console.log('')
 
   template.version = version
   template.pub_date = new Date().toISOString()
-
-  console.log('📦 Windows 签名:')
-  const nsisDir = path.join(BUNDLE_DIR, 'nsis')
-  const windowsSig = findSigFile(nsisDir, 'setup')
-  if (windowsSig && template.platforms['windows-x86_64']) {
-    template.platforms['windows-x86_64'].signature = windowsSig
-    template.platforms['windows-x86_64'].url = `https://github.com/itstimetoosleep/PlanIt/releases/download/v${version}/PlanIt_${version}_x64-setup.exe`
-    console.log('  ✓ Windows 签名已添加')
+  
+  if (emptyNotes) {
+    template.notes = ''
+    console.log('📝 留空 notes 字段')
+  }
+  
+  if (emptyWindows) {
+    if (template.platforms['windows-x86_64']) {
+      template.platforms['windows-x86_64'].signature = ''
+      template.platforms['windows-x86_64'].url = ''
+    }
+    console.log('🗑  留空 Windows 平台配置')
   } else {
-    console.warn('  ⚠ 未找到 Windows 签名文件')
+    console.log('\n📦 Windows 签名:')
+    const nsisDir = path.join(BUNDLE_DIR, 'nsis')
+    const windowsSig = findSigFile(nsisDir, 'setup')
+    if (windowsSig && template.platforms['windows-x86_64']) {
+      template.platforms['windows-x86_64'].signature = windowsSig
+      template.platforms['windows-x86_64'].url = `https://github.com/itstimetoosleep/PlanIt/releases/download/v${version}/PlanIt_${version}_x64-setup.exe`
+      console.log('  ✓ Windows 签名已添加')
+    } else {
+      console.warn('  ⚠ 未找到 Windows 签名文件')
+    }
   }
 
   console.log('\n🍎 macOS 签名:')
@@ -175,7 +208,9 @@ function main() {
   fs.writeFileSync(OUTPUT_FILE, JSON.stringify(template, null, 2))
   console.log(`\n✅ 已生成 ${OUTPUT_FILE}`)
   console.log('\n📝 请记得:')
-  console.log('   1. 修改 notes 字段为实际的更新说明')
+  if (!emptyNotes) {
+    console.log('   1. 修改 notes 字段为实际的更新说明')
+  }
   console.log('   2. 上传到 GitHub Release')
 }
 
