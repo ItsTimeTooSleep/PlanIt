@@ -10,6 +10,7 @@ import { PomodoroDialog } from '@/components/pomodoro/pomodoro-dialog'
 import { DynamicTitle } from '@/components/dynamic-title'
 import { DisableContextMenu } from '@/components/disable-context-menu'
 import { Toaster } from '@/components/ui/toaster'
+import { UpdateProvider } from '@/components/update-provider'
 import './globals.css'
 
 const geist = Geist({ subsets: ['latin'] })
@@ -45,17 +46,19 @@ export default function RootLayout({
         <PlatformProvider>
           <StoreProvider>
             <PomodoroDialogProvider>
-              <DynamicTitle />
-              <TitleBar />
-              <DesktopManager />
-              <div className="flex flex-col h-screen pt-9">
-                <NavBar />
-                <main className="flex-1 overflow-hidden">
-                  {children}
-                </main>
-              </div>
-              <PomodoroDialog />
-              <Toaster />
+              <UpdateProvider>
+                <DynamicTitle />
+                <TitleBar />
+                <DesktopManager />
+                <div className="flex flex-col h-screen pt-9">
+                  <NavBar />
+                  <main className="flex-1 overflow-hidden">
+                    {children}
+                  </main>
+                </div>
+                <PomodoroDialog />
+                <Toaster />
+              </UpdateProvider>
             </PomodoroDialogProvider>
           </StoreProvider>
         </PlatformProvider>

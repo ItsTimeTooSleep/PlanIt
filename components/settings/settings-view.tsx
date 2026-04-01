@@ -7,6 +7,8 @@ import { ChevronRight, ExternalLink } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { AppIcon } from '@/components/app-icon'
 import { getAppVersion } from '@/lib/version'
+import { UpdaterManager } from '@/lib/updater'
+import { Button } from '@/components/ui/button'
 import {
   GeneralSettings,
   NotificationSettings,
@@ -25,6 +27,18 @@ export function SettingsView() {
   useEffect(() => {
     getAppVersion().then(setAppVersion).catch(() => setAppVersion(''))
   }, [])
+
+  useEffect(() => {
+    const updater = UpdaterManager.getInstance({
+      updateAvailable: t.settings.updateAvailable,
+      updateLatest: t.settings.updateLatest,
+      updateError: t.settings.updateError,
+      updateDownloading: t.settings.updateDownloading,
+      updateInstalled: t.settings.updateInstalled,
+      updateConfirmTitle: t.settings.updateAvailable,
+      updateConfirmBody: lang === 'zh' ? '点击确定开始更新' : 'Click OK to start updating',
+    })
+  }, [lang, t.settings])
 
   return (
     <div className="flex flex-col h-[calc(100vh-2.25rem)] overflow-y-auto ml-16">
@@ -97,12 +111,22 @@ export function SettingsView() {
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <AppIcon size={32} variant="inverted" />
-              <div>
+              <div className="flex-1">
                 <p className="text-sm font-medium">PlanIt</p>
                 <p className="text-xs text-muted-foreground">
                   {appVersion ? `${t.settings.versionPrefix || (lang === 'zh' ? '版本 ' : 'Version ')}${appVersion}` : ''}
                 </p>
               </div>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={async () => {
+                  const updater = UpdaterManager.getInstance()
+                  await updater.checkForUpdates(true, true)
+                }}
+              >
+                {t.settings.checkUpdate}
+              </Button>
             </div>
             <p className="text-xs text-muted-foreground">{t.settings.madeWith}</p>
             <div className="pt-2 space-y-2">

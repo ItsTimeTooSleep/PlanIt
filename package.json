@@ -13,7 +13,8 @@
     "tauri:build": "tauri build",
     "sync-version": "node scripts/sync-version.js",
     "prebuild": "node scripts/sync-version.js",
-    "pretauri:build": "node scripts/sync-version.js"
+    "pretauri:build": "node scripts/sync-version.js",
+    "gen-latest-json": "node scripts/generate-latest-json.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",

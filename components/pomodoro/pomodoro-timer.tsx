@@ -596,7 +596,7 @@ export function PomodoroTimer() {
                   {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
                 </Button>
 
-                {isDesktop && (
+                {/* {isDesktop && (
                   <Button 
                     size="icon" 
                     className="w-9 h-9 rounded-full"
@@ -606,7 +606,7 @@ export function PomodoroTimer() {
                   >
                     <Shield className="w-4 h-4" />
                   </Button>
-                )}
+                )} */}
               </>
             )}
 
@@ -638,7 +638,7 @@ export function PomodoroTimer() {
                   {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
                 </Button>
 
-                {isDesktop && (
+                {/* {isDesktop && (
                   <Button 
                     size="icon" 
                     className="w-9 h-9 rounded-full"
@@ -648,7 +648,7 @@ export function PomodoroTimer() {
                   >
                     <Shield className="w-4 h-4" />
                   </Button>
-                )}
+                )} */}
               </>
             )}
           </div>

@@ -24,6 +24,10 @@ src-tauri/target/
 src-tauri/.cargo/
 src-tauri/*.exe
 
+# Tauri Signing Keys (private key should never be committed)
+.tauri/*.key
+.tauri/*.key.pub
+
 # Trae/Tools
 .trae/
 

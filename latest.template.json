@@ -1,0 +1,19 @@
+{
+  "version": "0.2.4",
+  "notes": "## 更新内容\n\n- 修复了某些 bug\n- 新增功能 XXX",
+  "pub_date": "2026-04-01T00:00:00Z",
+  "platforms": {
+    "windows-x86_64": {
+      "signature": "这里填入 .sig 文件的内容",
+      "url": "https://github.com/itstimetoosleep/PlanIt/releases/download/v0.2.4/PlanIt_0.2.4_x64-setup.exe"
+    },
+    "darwin-x86_64": {
+      "signature": "这里填入 .sig 文件的内容",
+      "url": "https://github.com/itstimetoosleep/PlanIt/releases/download/v0.2.4/PlanIt_0.2.4_x64.app.tar.gz"
+    },
+    "darwin-aarch64": {
+      "signature": "这里填入 .sig 文件的内容",
+      "url": "https://github.com/itstimetoosleep/PlanIt/releases/download/v0.2.4/PlanIt_0.2.4_aarch64.app.tar.gz"
+    }
+  }
+}

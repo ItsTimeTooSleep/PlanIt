@@ -6,8 +6,11 @@ import { SystemTrayManager } from '@/components/desktop'
 import { usePlatform, useDesktopOnly } from '@/components/platform-provider'
 import { usePomodoroDialog } from '@/lib/pomodoro-context'
 import { useStore } from '@/lib/store'
+import { useLanguage } from '@/lib/store'
+import { useTranslations } from '@/lib/i18n'
 import type { TrayMenuState } from '@/lib/platform'
 import { TaskModal } from '@/components/task-modal'
+import { UpdaterManager } from '@/lib/updater'
 
 /**
  * 桌面端管理组件
@@ -20,6 +23,8 @@ export function DesktopManager() {
   const { startPomodoro, startShortBreak, startLongBreak, stopPomodoro } = usePomodoroDialog()
   const { state } = useStore()
   const { pomodoro } = state
+  const lang = useLanguage()
+  const t = useTranslations(lang)
   
   const [focusModeActive, setFocusModeActive] = useState(false)
   const [windowVisible, setWindowVisible] = useState(true)
@@ -103,8 +108,32 @@ export function DesktopManager() {
     router.push('/settings')
   }, [router])
 
-  const handleCheckUpdate = useCallback(() => {
-    console.log('Check for updates')
+  useEffect(() => {
+    const updater = UpdaterManager.getInstance({
+      updateAvailable: t.settings.updateAvailable,
+      updateLatest: t.settings.updateLatest,
+      updateError: t.settings.updateError,
+      updateDownloading: t.settings.updateDownloading,
+      updateInstalled: t.settings.updateInstalled,
+      updateConfirmTitle: t.settings.updateAvailable,
+      updateConfirmBody: lang === 'zh' ? '点击确定开始更新' : 'Click OK to start updating',
+    })
+  }, [lang, t.settings])
+
+  const handleCheckUpdate = useCallback(async () => {
+    const updater = UpdaterManager.getInstance()
+    await updater.checkForUpdates(true, true)
+  }, [])
+
+  useEffect(() => {
+    const updater = UpdaterManager.getInstance()
+    if (updater.shouldCheckDaily()) {
+      updater.checkForUpdates(false).then(hasUpdate => {
+        if (!hasUpdate) {
+          updater.updateLastCheckDate()
+        }
+      })
+    }
   }, [])
 
   const handleVisitWebsite = useCallback(() => {

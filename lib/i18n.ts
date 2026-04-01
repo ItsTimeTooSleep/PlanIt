@@ -307,6 +307,20 @@ const zh = {
     startupPageNote: '笔记',
     startupPageStats: '统计',
     startupPageSettings: '设置',
+    checkUpdate: '检查更新',
+    updateAvailable: '发现新版本',
+    updateLatest: '已是最新版本',
+    updateError: '检查更新失败',
+    updateDownloading: '正在下载更新...',
+    updateInstalled: '更新完成，即将重启应用',
+  },
+  update: {
+    updateAvailable: '发现新版本',
+    updateDesc: '有新版本可用，是否现在更新？',
+    updateNow: '立即更新',
+    remindLater: '稍后',
+    skipThisVersion: '此版本不再提醒',
+    downloading: '下载中...',
   },
 
   batch: {
@@ -778,6 +792,20 @@ const en = {
     startupPageNote: 'Notes',
     startupPageStats: 'Stats',
     startupPageSettings: 'Settings',
+    checkUpdate: 'Check for Updates',
+    updateAvailable: 'New version available',
+    updateLatest: 'You are up to date',
+    updateError: 'Failed to check for updates',
+    updateDownloading: 'Downloading update...',
+    updateInstalled: 'Update complete, restarting app...',
+  },
+  update: {
+    updateAvailable: 'New version available',
+    updateDesc: 'A new version is available. Would you like to update now?',
+    updateNow: 'Update Now',
+    remindLater: 'Remind Me Later',
+    skipThisVersion: 'Skip this version',
+    downloading: 'Downloading...',
   },
 
   batch: {
@@ -1236,6 +1264,20 @@ export type Translations = {
     readonly startupPageNote: string
     readonly startupPageStats: string
     readonly startupPageSettings: string
+    readonly checkUpdate: string
+    readonly updateAvailable: string
+    readonly updateLatest: string
+    readonly updateError: string
+    readonly updateDownloading: string
+    readonly updateInstalled: string
+  }
+  readonly update: {
+    readonly updateAvailable: string
+    readonly updateDesc: string
+    readonly updateNow: string
+    readonly remindLater: string
+    readonly skipThisVersion: string
+    readonly downloading: string
   }
   readonly batch: {
     readonly title: string
