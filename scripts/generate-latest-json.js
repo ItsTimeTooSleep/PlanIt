@@ -12,7 +12,7 @@ const path = require('path')
  *   macos-artifacts-dir: 可选，macOS artifacts 解压后的目录路径
  *                       如果不指定，会自动从项目根目录查找 .sig 文件
  *   --empty-notes:       留空 notes 字段
- *   --empty-windows:     留空 windows 平台配置
+ *   --empty-windows:     留空 windows 平台签名 (URL 仍会预填)
  */
 
 const VERSION_FILE = path.join(__dirname, '..', 'VERSION')
@@ -157,9 +157,9 @@ function main() {
   if (emptyWindows) {
     if (template.platforms['windows-x86_64']) {
       template.platforms['windows-x86_64'].signature = ''
-      template.platforms['windows-x86_64'].url = ''
+      template.platforms['windows-x86_64'].url = `https://github.com/itstimetoosleep/PlanIt/releases/download/v${version}/PlanIt_${version}_x64-setup.exe`
     }
-    console.log('🗑  留空 Windows 平台配置')
+    console.log('🗑  留空 Windows 平台签名 (URL 已预填)')
   } else {
     console.log('\n📦 Windows 签名:')
     const nsisDir = path.join(BUNDLE_DIR, 'nsis')

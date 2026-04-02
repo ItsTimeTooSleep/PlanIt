@@ -1,18 +1,18 @@
 {
   "version": "1.0.0",
-  "notes": "## 🎉 PlanIt v1.0.0\n\n### 新功能\n- 全新的更新系统，支持自动更新\n- 更新对话框支持跳过此版本\n- 每日自动检查更新\n\n### 改进\n- 优化了更新体验\n- 支持多平台更新（Windows/macOS）\n\n### 修复\n- 修复了若干已知问题",
-  "pub_date": "2026-04-01T00:00:00Z",
+  "notes": "## 🎉 PlanIt v1.0.0\n\n### 新功能\n- 📋 任务管理（标签、优先级、截止日期）\n- 📅 日历视图（周/月视图，支持拖拽调整）\n- 🍅 番茄钟（自定义工作/休息间隔）\n- 📝 笔记系统（多彩卡片，快速记录）\n- 🧩 桌面小组件（时钟、倒计时、待办等）\n- 📊 数据统计（图表可视化效率数据）\n\n### 改进\n- 全新明暗主题切换体验\n- 全局快捷键与系统托盘支持\n- 内置自动更新功能\n\n### 修复\n- 修复了若干已知问题\n\nHappy Planning! 🚀",
+  "pub_date": "2026-04-02T05:18:59.272Z",
   "platforms": {
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTOEJkRE1XTWliSjVSV0JZbHk5UnJ1ZjFnSGhxRFYvdi9meDd0V1VwT0NVZ1hFNlVlM3Foems0bEpJcjY5YlRGQkJ5SGdFMllTM2QybjU1K2Q1aHZjRmdKQlNXR0pRRGc0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzc1MDE5ODcwCWZpbGU6UGxhbkl0XzEuMC4wX3g2NC1zZXR1cC5leGUKTDc4aUtJZXJYRXNzM3RSS0VMM2xzeGFORVhXVGpGclhBUVVFSitXVVZwNkN5anF0bkxNSXJpSDY5aVpFeXNETytONUN5S1l0bTlkSDN1MTRRenI2RFE9PQo=",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTOEJkRE1XTWliSjk4US91UDFFQlRUV1hBbG5NZ1dDYVp5ZGwvNGtkMEtzZFk2YzZhRVMvTjZ2bUowZWFlSlF2eXJwY0dKMmFlY1hGRm03TzV3Nk5qaXNNUy8yc1pwaFFzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzc1MTA3MDc2CWZpbGU6UGxhbkl0XzEuMC4wX3g2NC1zZXR1cC5leGUKdVp6T0VnajhLcUxxMUJOVTYrT09SdUNOYitQb3EwU1N5dlZrR25YZnNvYk8wczFBQVkwRzJTa0ZkUFNnMUpaamVQNTBRN2dHMXVobE5aaVhYaWp2RHc9PQo=",
       "url": "https://github.com/itstimetoosleep/PlanIt/releases/download/v1.0.0/PlanIt_1.0.0_x64-setup.exe"
     },
     "darwin-x86_64": {
-      "signature": "这里填入 macOS Intel 版本的签名",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTOEJkRE1XTWliSjlDTmZEc0VkMEhkMlFTZk8rWVpGRjhzcEl2TXJkYitpN0FUaDFPN2oxbkxKY2hlbHFYamRuVytlcUhTSjFOUU5ET1BMbjEvOW1zWDI4SGhzNmtxc3dRPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzc1MDkzODY2CWZpbGU6UGxhbkl0LmFwcC50YXIuZ3oKVWJjcmpabjVwR05VWE1lOExmaTFUY09wUlRocldUZlBDOEFpczU0R2xsbzRjMm01ZkNkTUtCNzVxY1lsYUdMeG9SbE5rTE5HRjg2TnZTdS9mVk9mQ1E9PQo=",
       "url": "https://github.com/itstimetoosleep/PlanIt/releases/download/v1.0.0/PlanIt_1.0.0_x64.app.tar.gz"
     },
     "darwin-aarch64": {
-      "signature": "这里填入 macOS Apple Silicon 版本的签名",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTOEJkRE1XTWliSjBKWXA5WVNlNndkbVJvcXN1eFVVeWY2OVJQcHg0OXA5NDBtZGFhTkNQQUdyQkg3S3ZiaXA4RWJraVdmeEpyYkhOMzBrdERBdk5KNVNiK1lhUGhOdHdVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzc1MDkzODMyCWZpbGU6UGxhbkl0LmFwcC50YXIuZ3oKdndQcW5jL2xUS0pKQ2dvdG9DQzFHV05teExWSFJEMi9IVFpSQ2R3Q3hHVnRUVHFJd0c5YWhwbzY0MGdNdy90TFoyM0V4MlBpYWhudFhnZHYwWlhlQkE9PQo=",
       "url": "https://github.com/itstimetoosleep/PlanIt/releases/download/v1.0.0/PlanIt_1.0.0_aarch64.app.tar.gz"
     }
   }

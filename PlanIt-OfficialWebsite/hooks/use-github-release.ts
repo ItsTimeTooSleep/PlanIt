@@ -104,14 +104,84 @@ export function useGitHubRelease(owner: string, repo: string) {
 }
 
 /**
+ * 平台下载链接信息
+ */
+export interface PlatformDownloadUrls {
+  windows: string;
+  macos: {
+    aarch64: string;
+    x64: string;
+  };
+  linux: string;
+}
+
+/**
+ * 平台文件大小信息
+ */
+export interface PlatformSizes {
+  windows: string;
+  macos: {
+    aarch64: string;
+    x64: string;
+  };
+  linux: string;
+}
+
+/**
+ * 获取各平台的下载链接
+ * @param release - GitHub Release 信息
+ * @returns 各平台下载链接映射
+ */
+export function getPlatformDownloadUrls(release: GitHubRelease | null): PlatformDownloadUrls {
+  const urls: PlatformDownloadUrls = {
+    windows: "",
+    macos: {
+      aarch64: "",
+      x64: "",
+    },
+    linux: "",
+  };
+
+  if (!release || !release.assets) {
+    return urls;
+  }
+
+  for (const asset of release.assets) {
+    const lower = asset.name.toLowerCase();
+    if (lower.includes("win") || lower.endsWith(".exe") || lower.endsWith(".msi")) {
+      if (!urls.windows) {
+        urls.windows = asset.browser_download_url;
+      }
+    } else if (lower.includes("darwin") || lower.includes("mac") || lower.endsWith(".dmg")) {
+      if (lower.includes("aarch64") || lower.includes("arm64")) {
+        urls.macos.aarch64 = asset.browser_download_url;
+      } else if (lower.includes("x64") || lower.includes("x86_64")) {
+        urls.macos.x64 = asset.browser_download_url;
+      } else if (!urls.macos.aarch64 && !urls.macos.x64) {
+        urls.macos.aarch64 = asset.browser_download_url;
+      }
+    } else if (lower.includes("linux") || lower.endsWith(".appimage") || lower.endsWith(".deb") || lower.endsWith(".rpm")) {
+      if (!urls.linux) {
+        urls.linux = asset.browser_download_url;
+      }
+    }
+  }
+
+  return urls;
+}
+
+/**
  * 获取各平台的文件大小
  * @param release - GitHub Release 信息
  * @returns 各平台大小映射
  */
-export function getPlatformSizes(release: GitHubRelease | null): Record<PlatformType, string> {
-  const sizes: Record<PlatformType, string> = {
-    macos: "",
+export function getPlatformSizes(release: GitHubRelease | null): PlatformSizes {
+  const sizes: PlatformSizes = {
     windows: "",
+    macos: {
+      aarch64: "",
+      x64: "",
+    },
     linux: "",
   };
 
@@ -120,9 +190,23 @@ export function getPlatformSizes(release: GitHubRelease | null): Record<Platform
   }
 
   for (const asset of release.assets) {
-    const platform = getPlatformFromFilename(asset.name);
-    if (platform && !sizes[platform]) {
-      sizes[platform] = formatFileSize(asset.size);
+    const lower = asset.name.toLowerCase();
+    if (lower.includes("win") || lower.endsWith(".exe") || lower.endsWith(".msi")) {
+      if (!sizes.windows) {
+        sizes.windows = formatFileSize(asset.size);
+      }
+    } else if (lower.includes("darwin") || lower.includes("mac") || lower.endsWith(".dmg")) {
+      if (lower.includes("aarch64") || lower.includes("arm64")) {
+        sizes.macos.aarch64 = formatFileSize(asset.size);
+      } else if (lower.includes("x64") || lower.includes("x86_64")) {
+        sizes.macos.x64 = formatFileSize(asset.size);
+      } else if (!sizes.macos.aarch64 && !sizes.macos.x64) {
+        sizes.macos.aarch64 = formatFileSize(asset.size);
+      }
+    } else if (lower.includes("linux") || lower.endsWith(".appimage") || lower.endsWith(".deb") || lower.endsWith(".rpm")) {
+      if (!sizes.linux) {
+        sizes.linux = formatFileSize(asset.size);
+      }
     }
   }
 

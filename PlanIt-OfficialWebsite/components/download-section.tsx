@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Apple, Monitor, Download, ArrowRight } from "lucide-react";
-import { useGitHubRelease, getPlatformSizes } from "@/hooks/use-github-release";
+import { useGitHubRelease, getPlatformSizes, getPlatformDownloadUrls } from "@/hooks/use-github-release";
 
 const GITHUB_OWNER = "itstimetoosleep";
 const GITHUB_REPO = "PlanIt";
@@ -15,6 +15,7 @@ export function DownloadSection() {
   const { release, loading } = useGitHubRelease(GITHUB_OWNER, GITHUB_REPO);
 
   const platformSizes = useMemo(() => getPlatformSizes(release), [release]);
+  const platformDownloadUrls = useMemo(() => getPlatformDownloadUrls(release), [release]);
 
   const platforms = useMemo(
     () => [
@@ -22,9 +23,11 @@ export function DownloadSection() {
         name: "macOS",
         icon: Apple,
         version: release?.tag_name || "",
-        size: platformSizes.macos,
+        size: platformSizes.macos.aarch64,
+        sizeX64: platformSizes.macos.x64,
         requirement: "macOS 12.0 或更高版本",
-        downloadUrl: GITHUB_RELEASES_URL,
+        downloadUrl: platformDownloadUrls.macos.aarch64 || GITHUB_RELEASES_URL,
+        downloadUrlX64: platformDownloadUrls.macos.x64,
         primary: false,
       },
       {
@@ -33,7 +36,7 @@ export function DownloadSection() {
         version: release?.tag_name || "",
         size: platformSizes.windows,
         requirement: "Windows 10/11 64位",
-        downloadUrl: GITHUB_RELEASES_URL,
+        downloadUrl: platformDownloadUrls.windows || GITHUB_RELEASES_URL,
         primary: true,
       },
       {
@@ -51,7 +54,7 @@ export function DownloadSection() {
         comingSoon: true,
       },
     ],
-    [release, platformSizes]
+    [release, platformSizes, platformDownloadUrls]
   );
 
   useEffect(() => {
@@ -186,6 +189,20 @@ export function DownloadSection() {
                   >
                     {platform.requirement}
                   </p>
+                  {platform.name === "macOS" && platform.downloadUrlX64 && !platform.comingSoon && (
+                    <a
+                      href={platform.downloadUrlX64}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs mt-1 underline underline-offset-4 hover:no-underline transition-colors"
+                    >
+                      <span className={`${
+                        platform.primary ? "text-primary-foreground/60 hover:text-primary-foreground" : "text-muted-foreground/60 hover:text-muted-foreground"
+                      }`}>
+                        x64 (Intel)？点我下载
+                      </span>
+                    </a>
+                  )}
                 </div>
               </div>
             </div>

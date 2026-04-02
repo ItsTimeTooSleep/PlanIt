@@ -18,6 +18,7 @@ node_modules/
 
 # Next.js static export
 out/
+dist/
 
 # Tauri
 src-tauri/target/
