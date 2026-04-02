@@ -140,7 +140,7 @@ jobs:
           name: build-artifacts-x86_64-apple-darwin
           path: artifacts/x86_64
 
-      - name: Generate latest.json
+      - name: Rename files and generate latest.json
         run: |
           echo "=== artifacts/aarch64 ==="
           ls -la artifacts/aarch64/ || true
@@ -148,7 +148,26 @@ jobs:
           echo "=== artifacts/x86_64 ==="
           ls -la artifacts/x86_64/ || true
           ls -la artifacts/x86_64/macos/ 2>/dev/null || true
+          
           mkdir -p sigs
+          
+          for tarfile in artifacts/aarch64/macos/*.tar.gz; do
+            if [ -f "$tarfile" ]; then
+              filename=$(basename "$tarfile")
+              newname=$(echo "$filename" | sed 's/PlanIt/PlanIt_aarch64/')
+              mv "$tarfile" "artifacts/aarch64/macos/$newname"
+              echo "Renamed $filename to $newname"
+            fi
+          done
+          for tarfile in artifacts/x86_64/macos/*.tar.gz; do
+            if [ -f "$tarfile" ]; then
+              filename=$(basename "$tarfile")
+              newname=$(echo "$filename" | sed 's/PlanIt/PlanIt_x64/')
+              mv "$tarfile" "artifacts/x86_64/macos/$newname"
+              echo "Renamed $filename to $newname"
+            fi
+          done
+          
           for sigfile in artifacts/aarch64/macos/*.sig; do
             if [ -f "$sigfile" ]; then
               filename=$(basename "$sigfile")
@@ -165,7 +184,12 @@ jobs:
               echo "Copied $filename to $newname"
             fi
           done
+          
+          echo "=== Final file list ==="
+          ls -la artifacts/aarch64/macos/
+          ls -la artifacts/x86_64/macos/
           ls -la sigs/
+          
           node scripts/generate-latest-json.js --empty-notes --empty-windows
 
       - name: Create Release with all assets
