@@ -142,9 +142,29 @@ jobs:
 
       - name: Generate latest.json
         run: |
+          echo "=== artifacts/aarch64 ==="
+          ls -la artifacts/aarch64/ || true
+          ls -la artifacts/aarch64/macos/ 2>/dev/null || true
+          echo "=== artifacts/x86_64 ==="
+          ls -la artifacts/x86_64/ || true
+          ls -la artifacts/x86_64/macos/ 2>/dev/null || true
           mkdir -p sigs
-          cp artifacts/aarch64/macos/*.sig sigs/ 2>/dev/null || true
-          cp artifacts/x86_64/macos/*.sig sigs/ 2>/dev/null || true
+          for sigfile in artifacts/aarch64/macos/*.sig; do
+            if [ -f "$sigfile" ]; then
+              filename=$(basename "$sigfile")
+              newname=$(echo "$filename" | sed 's/PlanIt/PlanIt_aarch64/')
+              cp "$sigfile" "sigs/$newname"
+              echo "Copied $filename to $newname"
+            fi
+          done
+          for sigfile in artifacts/x86_64/macos/*.sig; do
+            if [ -f "$sigfile" ]; then
+              filename=$(basename "$sigfile")
+              newname=$(echo "$filename" | sed 's/PlanIt/PlanIt_x64/')
+              cp "$sigfile" "sigs/$newname"
+              echo "Copied $filename to $newname"
+            fi
+          done
           ls -la sigs/
           node scripts/generate-latest-json.js --empty-notes --empty-windows
 
@@ -157,10 +177,8 @@ jobs:
           draft: true
           prerelease: false
           files: |
-            artifacts/aarch64/macos/*.app
             artifacts/aarch64/dmg/*.dmg
             artifacts/aarch64/macos/*.tar.gz
-            artifacts/x86_64/macos/*.app
             artifacts/x86_64/dmg/*.dmg
             artifacts/x86_64/macos/*.tar.gz
             latest.json
