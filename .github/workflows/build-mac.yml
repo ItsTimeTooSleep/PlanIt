@@ -142,6 +142,7 @@ jobs:
 
       - name: Rename files and generate latest.json
         run: |
+          VERSION=$(cat VERSION)
           echo "=== artifacts/aarch64 ==="
           ls -la artifacts/aarch64/ || true
           ls -la artifacts/aarch64/macos/ 2>/dev/null || true
@@ -154,7 +155,7 @@ jobs:
           for tarfile in artifacts/aarch64/macos/*.tar.gz; do
             if [ -f "$tarfile" ]; then
               filename=$(basename "$tarfile")
-              newname=$(echo "$filename" | sed 's/PlanIt/PlanIt_aarch64/')
+              newname=$(echo "$filename" | sed "s/PlanIt/PlanIt_${VERSION}_aarch64/")
               mv "$tarfile" "artifacts/aarch64/macos/$newname"
               echo "Renamed $filename to $newname"
             fi
@@ -162,7 +163,7 @@ jobs:
           for tarfile in artifacts/x86_64/macos/*.tar.gz; do
             if [ -f "$tarfile" ]; then
               filename=$(basename "$tarfile")
-              newname=$(echo "$filename" | sed 's/PlanIt/PlanIt_x64/')
+              newname=$(echo "$filename" | sed "s/PlanIt/PlanIt_${VERSION}_x64/")
               mv "$tarfile" "artifacts/x86_64/macos/$newname"
               echo "Renamed $filename to $newname"
             fi
@@ -171,7 +172,7 @@ jobs:
           for sigfile in artifacts/aarch64/macos/*.sig; do
             if [ -f "$sigfile" ]; then
               filename=$(basename "$sigfile")
-              newname=$(echo "$filename" | sed 's/PlanIt/PlanIt_aarch64/')
+              newname=$(echo "$filename" | sed "s/PlanIt/PlanIt_${VERSION}_aarch64/")
               cp "$sigfile" "sigs/$newname"
               echo "Copied $filename to $newname"
             fi
@@ -179,7 +180,7 @@ jobs:
           for sigfile in artifacts/x86_64/macos/*.sig; do
             if [ -f "$sigfile" ]; then
               filename=$(basename "$sigfile")
-              newname=$(echo "$filename" | sed 's/PlanIt/PlanIt_x64/')
+              newname=$(echo "$filename" | sed "s/PlanIt/PlanIt_${VERSION}_x64/")
               cp "$sigfile" "sigs/$newname"
               echo "Copied $filename to $newname"
             fi
