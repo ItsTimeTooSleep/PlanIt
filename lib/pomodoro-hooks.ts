@@ -1,8 +1,7 @@
 'use client'
 
-import { useCallback, useEffect, useState, useRef } from 'react'
-import { useStore, useLanguage } from '@/lib/store'
-import { useTranslations } from '@/lib/i18n'
+import { useCallback, useEffect, useState } from 'react'
+import { useStore } from '@/lib/store'
 import type { PomodoroPhase, Task, PomodoroState } from '@/lib/types'
 import { timeToMinutes } from '@/lib/task-utils'
 
@@ -89,7 +88,6 @@ function clearGlobalTimer() {
 }
 
 export function usePomodoro() {
-  const lang = useLanguage()
   const { state, updatePomodoro } = useStore()
   const { pomodoro, tasks } = state
   const [skipBreaks, setSkipBreaks] = useState(false)
@@ -283,7 +281,7 @@ export function usePomodoro() {
             const elapsedSeconds = Math.floor((now - timerStartTimestamp) / 1000)
             const newRemaining = timerRemainingAtStart - elapsedSeconds
             
-            activeUpdatePomodoro(prevPomodoro => {
+            activeUpdatePomodoro(_prevPomodoro => {
               if (newRemaining <= 0) {
                 clearGlobalTimer()
                 timerStartTimestamp = null
@@ -319,7 +317,7 @@ export function usePomodoro() {
         const newRemaining = timerRemainingAtStart - elapsedSeconds
         
         if (activeUpdatePomodoro) {
-          activeUpdatePomodoro(prevPomodoro => {
+          activeUpdatePomodoro(_prevPomodoro => {
             if (newRemaining <= 0) {
               clearGlobalTimer()
               timerStartTimestamp = null

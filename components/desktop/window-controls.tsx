@@ -30,8 +30,11 @@ export function WindowControls({
   variant = 'default',
 }: WindowControlsProps) {
   const shouldRender = useDesktopOnly()
-  const { api, isReady } = usePlatform()
+  const { api, isReady, platform } = usePlatform()
   const [isMaximized, setIsMaximized] = useState(false)
+  const [hoveredButton, setHoveredButton] = useState<string | null>(null)
+
+  const isMac = platform === 'macos'
 
   useEffect(() => {
     if (!api?.capabilities.supportsWindowControls) return
@@ -64,6 +67,82 @@ export function WindowControls({
   const buttonSize = variant === 'compact' ? 'w-10 h-8' : 'w-12 h-9'
   const iconSize = variant === 'compact' ? 'h-3 w-3' : 'h-3.5 w-3.5'
   const closeIconSize = variant === 'compact' ? 'h-3.5 w-3.5' : 'h-4 w-4'
+
+  const trafficLightSize = variant === 'compact' ? 'w-3 h-3' : 'w-3.5 h-3.5'
+  const trafficLightIconSize = variant === 'compact' ? 'w-1.5 h-1.5' : 'w-2 h-2'
+
+  if (isMac) {
+    return (
+      <div className={cn('flex items-center h-full gap-2', className)}>
+        {showClose && (
+          <button
+            className={cn(
+              trafficLightSize,
+              'rounded-full transition-all duration-150 flex items-center justify-center',
+              'bg-red-500 hover:bg-red-600 active:bg-red-700',
+              'group'
+            )}
+            onClick={handleClose}
+            onMouseEnter={() => setHoveredButton('close')}
+            onMouseLeave={() => setHoveredButton(null)}
+            aria-label="关闭"
+          >
+            {hoveredButton === 'close' && (
+              <svg className={cn(trafficLightIconSize, 'text-red-900')} viewBox="0 0 12 12" fill="currentColor">
+                <path d="M5.5 5.5L2.5 2.5L1.5 3.5L4.5 6.5L1.5 9.5L2.5 10.5L5.5 7.5L8.5 10.5L9.5 9.5L6.5 6.5L9.5 3.5L8.5 2.5L5.5 5.5Z" />
+              </svg>
+            )}
+          </button>
+        )}
+        {showMinimize && (
+          <button
+            className={cn(
+              trafficLightSize,
+              'rounded-full transition-all duration-150 flex items-center justify-center',
+              'bg-yellow-500 hover:bg-yellow-600 active:bg-yellow-700',
+              'group'
+            )}
+            onClick={handleMinimize}
+            onMouseEnter={() => setHoveredButton('minimize')}
+            onMouseLeave={() => setHoveredButton(null)}
+            aria-label="最小化"
+          >
+            {hoveredButton === 'minimize' && (
+              <svg className={cn(trafficLightIconSize, 'text-yellow-900')} viewBox="0 0 12 12" fill="currentColor">
+                <rect x="1.5" y="5.5" width="9" height="1" rx="0.5" />
+              </svg>
+            )}
+          </button>
+        )}
+        {showMaximize && (
+          <button
+            className={cn(
+              trafficLightSize,
+              'rounded-full transition-all duration-150 flex items-center justify-center',
+              'bg-green-500 hover:bg-green-600 active:bg-green-700',
+              'group'
+            )}
+            onClick={handleMaximize}
+            onMouseEnter={() => setHoveredButton('maximize')}
+            onMouseLeave={() => setHoveredButton(null)}
+            aria-label={isMaximized ? '还原' : '最大化'}
+          >
+            {hoveredButton === 'maximize' && (
+              isMaximized ? (
+                <svg className={cn(trafficLightIconSize, 'text-green-900')} viewBox="0 0 12 12" fill="currentColor">
+                  <path d="M8 1.5V4.5H5M4 10.5V7.5H7M9 1.5H5.5C4.94772 1.5 4.5 1.94772 4.5 2.5V6M3 10.5H6.5C7.05228 10.5 7.5 10.0523 7.5 9.5V6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              ) : (
+                <svg className={cn(trafficLightIconSize, 'text-green-900')} viewBox="0 0 12 12" fill="none" stroke="currentColor">
+                  <rect x="2.5" y="2.5" width="7" height="7" rx="0.5" strokeWidth="1.2" />
+                </svg>
+              )
+            )}
+          </button>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className={cn('flex items-center h-full', className)}>
@@ -104,7 +183,7 @@ export function WindowControls({
             )} />
           ) : (
             <Square className={cn(
-              'h-3 w-3 text-muted-foreground transition-all duration-150',
+              'h-3 w-3 text-muted-foreground transition-colors duration-150',
               'group-hover:text-foreground group-hover:scale-110'
             )} />
           )}

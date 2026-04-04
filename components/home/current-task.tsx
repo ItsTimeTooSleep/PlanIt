@@ -96,9 +96,9 @@ export function CurrentTask({ className, onOpenPomodoro }: CurrentTaskProps) {
                 style={!isPomodoroActive ? { backgroundColor: color, color: 'var(--primary-foreground)' } : {}}
               >
                 {isPomodoroRunning 
-                  ? (lang === 'zh' ? '正在专注' : 'Focusing')
+                  ? t.currentTask.focusing
                   : isPomodoroPaused 
-                    ? (lang === 'zh' ? '已暂停' : 'Paused')
+                    ? t.currentTask.paused
                     : t.pomodoro.focusNow
                 }
               </span>
@@ -141,17 +141,17 @@ export function CurrentTask({ className, onOpenPomodoro }: CurrentTaskProps) {
               {isPomodoroRunning ? (
                 <>
                   <Pause className="w-4 h-4 mr-1" />
-                  {lang === 'zh' ? '专注中' : 'Focusing'}
+                  {t.pomodoro.pause}
                 </>
               ) : isPomodoroPaused ? (
                 <>
                   <Play className="w-4 h-4 mr-1" />
-                  {lang === 'zh' ? '继续专注' : 'Resume'}
+                  {t.pomodoro.resume}
                 </>
               ) : (
                 <>
                   <Play className="w-4 h-4 mr-1" />
-                  {lang === 'zh' ? '开始专注' : 'Focus'}
+                  {t.currentTask.focus}
                 </>
               )}
             </Button>

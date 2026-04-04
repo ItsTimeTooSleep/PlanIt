@@ -25,6 +25,7 @@ import { WidgetCanvas } from '@/components/widget-panel/widget-canvas'
 import { WidgetLayerManager } from '@/components/widget-panel/widget-layer-manager'
 import { WidgetStoreProvider, useWidgetStore } from '@/components/widget-store-provider'
 import { useLanguage } from '@/lib/store'
+import { useTranslations } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 import type { WidgetType } from '@/lib/widget-types'
 import { DEFAULT_CANVAS_SIZE } from '@/lib/widget-layout-manager'
@@ -41,6 +42,7 @@ interface LayoutMenuItemProps {
 }
 
 function LayoutMenuItem({ layout, isActive, onSelect, onRename, onDuplicate, onDelete, canDelete, lang }: LayoutMenuItemProps) {
+  const t = useTranslations(lang as any)
   const [isRenaming, setIsRenaming] = useState(false)
   const [renameValue, setRenameValue] = useState(layout.name)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -113,7 +115,7 @@ function LayoutMenuItem({ layout, isActive, onSelect, onRename, onDuplicate, onD
             setIsRenaming(true)
           }}>
             <Edit2 className="w-4 h-4 mr-2" />
-            {lang === 'zh' ? '重命名' : 'Rename'}
+            {t.customLayout.rename}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={(e) => {
             e.stopPropagation()
@@ -121,7 +123,7 @@ function LayoutMenuItem({ layout, isActive, onSelect, onRename, onDuplicate, onD
             onDuplicate(layout.id)
           }}>
             <Copy className="w-4 h-4 mr-2" />
-            {lang === 'zh' ? '复制' : 'Copy'}
+            {t.customLayout.copy}
           </DropdownMenuItem>
           {canDelete && (
             <>
@@ -135,7 +137,7 @@ function LayoutMenuItem({ layout, isActive, onSelect, onRename, onDuplicate, onD
                 className="text-destructive"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
-                {lang === 'zh' ? '删除' : 'Delete'}
+                {t.customLayout.delete}
               </DropdownMenuItem>
             </>
           )}
@@ -147,6 +149,7 @@ function LayoutMenuItem({ layout, isActive, onSelect, onRename, onDuplicate, onD
 
 function CustomLayoutContent() {
   const lang = useLanguage()
+  const t = useTranslations(lang)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [importDialogOpen, setImportDialogOpen] = useState(false)
   const [importJson, setImportJson] = useState('')
@@ -286,11 +289,11 @@ function CustomLayoutContent() {
   }, [importJson, importLayout])
 
   const handleOpenNewLayoutDialog = useCallback(() => {
-    setNewLayoutName(lang === 'zh' ? '新布局' : 'New Layout')
+    setNewLayoutName(t.customLayout.newLayout)
     setNewLayoutWidth(DEFAULT_CANVAS_SIZE.width.toString())
     setNewLayoutHeight(DEFAULT_CANVAS_SIZE.height.toString())
     setNewLayoutDialogOpen(true)
-  }, [lang])
+  }, [t])
 
   const handleSetMaxCanvasSize = useCallback(() => {
     if (typeof window !== 'undefined') {
@@ -304,12 +307,12 @@ function CustomLayoutContent() {
   const handleCreateNewLayout = useCallback(() => {
     const width = parseInt(newLayoutWidth, 10)
     const height = parseInt(newLayoutHeight, 10)
-    const name = newLayoutName.trim() || (lang === 'zh' ? '新布局' : 'New Layout')
+    const name = newLayoutName.trim() || t.customLayout.newLayout
     if (width >= 400 && height >= 300) {
       createLayout(name, { width, height })
       setNewLayoutDialogOpen(false)
     }
-  }, [newLayoutName, newLayoutWidth, newLayoutHeight, createLayout, lang])
+  }, [newLayoutName, newLayoutWidth, newLayoutHeight, createLayout, t])
 
   return (
     <div className="flex h-[calc(100vh-2.25rem)] bg-background ml-16 relative overflow-hidden">
@@ -325,7 +328,7 @@ function CustomLayoutContent() {
           sidebarOpen ? 'opacity-100' : 'opacity-0'
         )}>
           <h2 className="text-sm font-semibold whitespace-nowrap">
-            {lang === 'zh' ? '组件面板' : 'Widgets'}
+            {t.customLayout.widgets}
           </h2>
           <Button
             variant="ghost"
@@ -360,7 +363,7 @@ function CustomLayoutContent() {
                 sidebarOpen ? 'opacity-0 pointer-events-none scale-75 w-0 p-0 border-0 overflow-hidden' : 'opacity-100 scale-100 w-9'
               )}
               onClick={() => setSidebarOpen(true)}
-              title={lang === 'zh' ? '打开组件面板' : 'Open Widget Panel'}
+              title={t.customLayout.openWidgetPanel}
             >
               <PanelLeft className="w-4 h-4" />
             </Button>
@@ -385,16 +388,16 @@ function CustomLayoutContent() {
               <h1
                 className="text-lg font-semibold cursor-pointer hover:text-primary transition-colors"
                 onClick={handleStartEditTitle}
-                title={lang === 'zh' ? '点击编辑标题' : 'Click to edit title'}
+                title={t.customLayout.clickToEditTitle}
               >
-                {activeLayout?.name || (lang === 'zh' ? '自定义布局' : 'Custom Layout')}
+                {activeLayout?.name || t.customLayout.customLayout}
               </h1>
             )}
             
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
-                  {lang === 'zh' ? '切换布局' : 'Switch Layout'}
+                  {t.customLayout.switchLayout}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-48">
@@ -416,7 +419,7 @@ function CustomLayoutContent() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleOpenNewLayoutDialog}>
                   <Plus className="w-4 h-4 mr-2" />
-                  {lang === 'zh' ? '新建布局' : 'New Layout'}
+                  {t.customLayout.newLayout}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -428,17 +431,17 @@ function CustomLayoutContent() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
-                  {lang === 'zh' ? '更多' : 'More'}
+                  {t.customLayout.more}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={handleExport}>
                   <Download className="w-4 h-4 mr-2" />
-                  {lang === 'zh' ? '导出布局' : 'Export Layout'}
+                  {t.customLayout.exportLayout}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setImportDialogOpen(true)}>
                   <Upload className="w-4 h-4 mr-2" />
-                  {lang === 'zh' ? '导入布局' : 'Import Layout'}
+                  {t.customLayout.importLayout}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -451,20 +454,20 @@ function CustomLayoutContent() {
       <Dialog open={newLayoutDialogOpen} onOpenChange={setNewLayoutDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{lang === 'zh' ? '新建布局' : 'New Layout'}</DialogTitle>
+            <DialogTitle>{t.customLayout.newLayout}</DialogTitle>
           </DialogHeader>
           <div className="py-4 space-y-4">
             <div className="space-y-2">
-              <Label>{lang === 'zh' ? '布局名称' : 'Layout Name'}</Label>
+              <Label>{t.customLayout.layoutName}</Label>
               <Input
                 value={newLayoutName}
                 onChange={(e) => setNewLayoutName(e.target.value)}
-                placeholder={lang === 'zh' ? '输入布局名称' : 'Enter layout name'}
+                placeholder={t.customLayout.enterLayoutName}
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>{lang === 'zh' ? '宽度 (px)' : 'Width (px)'}</Label>
+                <Label>{t.customLayout.width}</Label>
                 <Input
                   type="number"
                   value={newLayoutWidth}
@@ -474,7 +477,7 @@ function CustomLayoutContent() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>{lang === 'zh' ? '高度 (px)' : 'Height (px)'}</Label>
+                <Label>{t.customLayout.height}</Label>
                 <Input
                   type="number"
                   value={newLayoutHeight}
@@ -486,27 +489,25 @@ function CustomLayoutContent() {
             </div>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={handleSetMaxCanvasSize}>
-                {lang === 'zh' ? '最大' : 'Max'}
+                {t.customLayout.max}
               </Button>
               <Button variant="outline" size="sm" onClick={() => {
                 setNewLayoutWidth('1200')
                 setNewLayoutHeight('800')
               }}>
-                {lang === 'zh' ? '默认' : 'Default'}
+                {t.customLayout.default}
               </Button>
             </div>
             <p className="text-xs text-muted-foreground">
-              {lang === 'zh' 
-                ? '最小: 400×300，最大: 3840×2160。布局创建后尺寸不可修改。' 
-                : 'Min: 400×300, Max: 3840×2160. Canvas size cannot be modified after creation.'}
+              {t.customLayout.sizeNote}
             </p>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setNewLayoutDialogOpen(false)}>
-              {lang === 'zh' ? '取消' : 'Cancel'}
+              {t.customLayout.cancel}
             </Button>
             <Button onClick={handleCreateNewLayout}>
-              {lang === 'zh' ? '创建' : 'Create'}
+              {t.customLayout.create}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -515,22 +516,22 @@ function CustomLayoutContent() {
       <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{lang === 'zh' ? '导入布局' : 'Import Layout'}</DialogTitle>
+            <DialogTitle>{t.customLayout.importLayout}</DialogTitle>
           </DialogHeader>
           <div className="py-4">
             <textarea
               value={importJson}
               onChange={(e) => setImportJson(e.target.value)}
-              placeholder={lang === 'zh' ? '粘贴布局JSON' : 'Paste layout JSON'}
+              placeholder={t.customLayout.pasteLayoutJson}
               className="w-full h-48 p-2 text-sm border border-border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setImportDialogOpen(false)}>
-              {lang === 'zh' ? '取消' : 'Cancel'}
+              {t.customLayout.cancel}
             </Button>
             <Button onClick={handleImport} disabled={!importJson.trim()}>
-              {lang === 'zh' ? '导入' : 'Import'}
+              {t.customLayout.import}
             </Button>
           </DialogFooter>
         </DialogContent>

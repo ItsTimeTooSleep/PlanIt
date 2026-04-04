@@ -35,25 +35,58 @@ interface TaskItemProps {
   tags: Tag[]
   onEdit: (task: Task) => void
   className?: string
+  statusFilter?: string
+  shouldExit?: boolean
 }
 
-export function TaskItem({ task, tags, onEdit, className }: TaskItemProps) {
+export function TaskItem({ task, tags, onEdit, className, statusFilter = 'all', shouldExit = false }: TaskItemProps) {
   const lang = useLanguage()
   const t = useTranslations(lang)
   const { state, updateTask, deleteTasks } = useStore()
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [isHighlighted, setIsHighlighted] = useState(false)
+  const [isExiting, setIsExiting] = useState(false)
   const itemRef = useRef<HTMLDivElement>(null)
+  const previousStatusRef = useRef<string | null>(null)
+  const isMountedRef = useRef(false)
 
   const locale = lang === 'zh' ? zhCN : enUS
 
+  useEffect(() => {
+    console.log(`[TaskItem ${task.id}] DEBUG - statusFilter: "${statusFilter}", task.status: "${task.status}", previous: "${previousStatusRef.current}"`)
+    
+    if (!isMountedRef.current) {
+      previousStatusRef.current = task.status
+      isMountedRef.current = true
+      console.log(`[TaskItem ${task.id}] Initial mount`)
+      return
+    }
+
+    if (task.status !== previousStatusRef.current) {
+      console.log(`[TaskItem ${task.id}] Status changed! statusFilter !== 'all'? ${statusFilter !== 'all'}`)
+      if (statusFilter !== 'all') {
+        console.log(`[TaskItem ${task.id}] Triggering highlight!`)
+        setIsHighlighted(true)
+        setTimeout(() => setIsHighlighted(false), 500)
+      }
+    }
+    previousStatusRef.current = task.status
+  }, [task.status, task.id, statusFilter])
+
+  useEffect(() => {
+    if (shouldExit && !isExiting) {
+      setIsExiting(true)
+    }
+  }, [shouldExit, isExiting])
+
   const formatDate = useCallback((dateStr?: string) => {
-    if (!dateStr) return lang === 'zh' ? '未规划' : 'Unscheduled'
+    if (!dateStr) return t.task.unscheduled
     const date = parseISO(dateStr)
-    if (isToday(date)) return lang === 'zh' ? '今天' : 'Today'
-    if (isTomorrow(date)) return lang === 'zh' ? '明天' : 'Tomorrow'
+    if (isToday(date)) return t.task.today
+    if (isTomorrow(date)) return t.task.tomorrow
     if (isYesterday(date)) return lang === 'zh' ? '昨天' : 'Yesterday'
     return format(date, lang === 'zh' ? 'M月d日 EEEE' : 'MMM d, EEEE', { locale })
-  }, [lang, locale])
+  }, [t, lang, locale])
 
   const getTaskTags = useCallback(() => {
     return task.tagIds
@@ -80,10 +113,6 @@ export function TaskItem({ task, tags, onEdit, className }: TaskItemProps) {
     setShowDeleteDialog(false)
   }, [task, state.tasks, deleteTasks])
 
-  /**
-   * 处理键盘事件，支持 Backspace 键删除
-   * @param e - 键盘事件对象
-   */
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Backspace' || e.key === 'Delete') {
       e.preventDefault()
@@ -103,11 +132,31 @@ export function TaskItem({ task, tags, onEdit, className }: TaskItemProps) {
         tabIndex={0}
         onKeyDown={handleKeyDown}
         className={cn(
-          'group flex items-start gap-3 p-4 rounded-xl border bg-card hover:bg-accent/50 transition-colors focus:outline-none focus:ring-2 focus:ring-ring',
-          isCompleted && 'opacity-60',
+          'group flex items-start gap-3 p-4 rounded-xl border bg-card hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-ring',
+          'origin-top',
+          isHighlighted && 'bg-green-50 dark:bg-green-900/20',
+          !isExiting && isCompleted && 'opacity-60',
           isSkipped && 'opacity-40',
           className
         )}
+        style={
+          isExiting
+            ? { 
+                maxHeight: '0px', 
+                marginTop: '0px',
+                marginBottom: '0px',
+                paddingTop: '0px',
+                paddingBottom: '0px',
+                opacity: 0,
+                transform: 'scale(0.95) translateX(-8px)',
+                overflow: 'hidden',
+                transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+              }
+            : {
+                maxHeight: '500px',
+                transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
+              }
+        }
       >
         <div className="flex-shrink-0 pt-1">
           <Checkbox

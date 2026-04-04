@@ -6,9 +6,11 @@ import type { Task, Tag, DateNote } from '@/lib/types'
 import { timeToMinutes, minutesToTime, sortTasksByTime } from '@/lib/task-utils'
 import { calculateTaskLayoutsGrouped, type TaskLayoutInfo } from '@/lib/task-layout'
 import { useStore, useLanguage } from '@/lib/store'
+import { useTranslations } from '@/lib/i18n'
 import { cn } from '@/lib/utils'
 import { Edit3, StickyNote } from 'lucide-react'
 import { DEFAULT_TAG_COLOR } from '@/lib/colors'
+import { playSound } from '@/lib/sound'
 
 const TIME_COL_W = 44    // px for time label column
 
@@ -72,7 +74,8 @@ export function WeekView({
   onDeleteTask,
 }: WeekViewProps) {
   const lang = useLanguage()
-  const { updateTask } = useStore()
+  const t = useTranslations(lang)
+  const { updateTask, state } = useStore()
   const scrollRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
   const dayLabels = lang === 'zh' ? SHORT_DAYS_ZH : SHORT_DAYS_EN
@@ -425,6 +428,11 @@ export function WeekView({
     const { startMin, endMin, dateStr } = ghost
     setGhost(null)
 
+    // 播放拖拽音效
+    if (state.settings.sound.enabled && state.settings.sound.playOnTaskDrag) {
+      playSound('taskDrag')
+    }
+
     if (drag.mode === 'create') {
       if (endMin - startMin < timeSnap) return
       onCreateTask(dateStr, minutesToTime(startMin), minutesToTime(endMin))
@@ -441,7 +449,7 @@ export function WeekView({
         endTime: minutesToTime(endMin),
       })
     }
-  }, [ghost, onCreateTask, updateTask, tasksInBox, onToggleSelect, onSelectMultiple, timeSnap])
+  }, [ghost, onCreateTask, updateTask, tasksInBox, onToggleSelect, onSelectMultiple, timeSnap, state.settings.sound])
 
   const onBoxSelectPointerMove = useCallback((e: PointerEvent) => {
     const boxSelect = boxSelectRef.current

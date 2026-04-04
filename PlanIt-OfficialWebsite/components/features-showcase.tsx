@@ -241,6 +241,9 @@ export function FeaturesShowcase() {
                           <img
                             src={feature.screenshot}
                             alt={feature.title}
+                            loading="lazy"
+                            width="500"
+                            height="375"
                             className="w-full h-full object-contain"
                           />
                         </div>

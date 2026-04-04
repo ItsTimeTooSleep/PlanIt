@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState, useEffect, useRef } from 'react'
 import type { Task, Tag } from '@/lib/types'
 import { useLanguage, useStore } from '@/lib/store'
 import { useTranslations } from '@/lib/i18n'
@@ -17,6 +17,10 @@ import { Button } from '@/components/ui/button'
 
 type GroupedTasks = Record<string, Task[]>
 
+interface TaskWithAnimation extends Task {
+  shouldExit?: boolean
+}
+
 export function TodoView() {
   const lang = useLanguage()
   const t = useTranslations(lang)
@@ -30,16 +34,91 @@ export function TodoView() {
   const [viewMode, setViewMode] = useState<ViewMode>('byDueDate')
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false)
   const [editingTask, setEditingTask] = useState<Task | null>(null)
+  const [exitingTaskIds, setExitingTaskIds] = useState<Set<string>>(new Set())
+  const previousTasksRef = useRef<Record<string, Task>>({})
 
   const locale = lang === 'zh' ? zhCN : enUS
   const today = startOfToday()
+
+  const taskMatchesFilter = useCallback((task: Task): boolean => {
+    const dateToUse = viewMode === 'byDate' ? task.date : task.dueDate
+    
+    let matchesTime = true
+    if (dateToUse) {
+      const taskDate = parseISO(dateToUse)
+      if (timeFilter === 'today') {
+        matchesTime = isWithinInterval(taskDate, { start: startOfToday(), end: endOfToday() })
+      } else if (timeFilter === 'week') {
+        matchesTime = isWithinInterval(taskDate, { start: startOfWeek(today, { weekStartsOn: 1 }), end: endOfWeek(today, { weekStartsOn: 1 }) })
+      } else if (timeFilter === 'month') {
+        matchesTime = isWithinInterval(taskDate, { start: startOfMonth(today), end: endOfMonth(today) })
+      } else if (timeFilter === 'overdue') {
+        matchesTime = isBefore(taskDate, today)
+      } else if (timeFilter === 'upcoming') {
+        matchesTime = isAfter(taskDate, endOfToday())
+      }
+    } else {
+      matchesTime = timeFilter === 'all'
+    }
+
+    let matchesStatus = true
+    if (statusFilter !== 'all') {
+      matchesStatus = task.status === statusFilter
+    }
+
+    let matchesTag = true
+    if (tagFilter !== null) {
+      matchesTag = task.tagIds.includes(tagFilter)
+    }
+
+    return matchesTime && matchesStatus && matchesTag
+  }, [timeFilter, statusFilter, tagFilter, viewMode, today])
+
+  useEffect(() => {
+    const currentTasks: Record<string, Task> = {}
+    state.tasks.forEach(task => {
+      currentTasks[task.id] = task
+    })
+
+    const newExitingIds = new Set<string>()
+    
+    state.tasks.forEach(task => {
+      const previousTask = previousTasksRef.current[task.id]
+      if (previousTask) {
+        const didMatchBefore = taskMatchesFilter({ ...previousTask })
+        const doesMatchNow = taskMatchesFilter(task)
+        
+        if (didMatchBefore && !doesMatchNow) {
+          newExitingIds.add(task.id)
+        }
+      }
+    })
+
+    if (newExitingIds.size > 0) {
+      setExitingTaskIds(prev => {
+        const merged = new Set([...prev, ...newExitingIds])
+        setTimeout(() => {
+          setExitingTaskIds(current => {
+            const updated = new Set(current)
+            newExitingIds.forEach(id => updated.delete(id))
+            return updated
+          })
+        }, 800)
+        return merged
+      })
+    }
+
+    previousTasksRef.current = currentTasks
+  }, [state.tasks, taskMatchesFilter])
 
   const filteredAndSortedTasks = useMemo(() => {
     let tasks = [...state.tasks]
 
     tasks = tasks.filter(task => {
       const dateToUse = viewMode === 'byDate' ? task.date : task.dueDate
-      if (!dateToUse) return viewMode === 'byDate' ? task.dueDate !== undefined : task.date !== undefined
+      if (!dateToUse) {
+        return timeFilter === 'all'
+      }
       
       const taskDate = parseISO(dateToUse)
       
@@ -50,19 +129,20 @@ export function TodoView() {
       } else if (timeFilter === 'month') {
         return isWithinInterval(taskDate, { start: startOfMonth(today), end: endOfMonth(today) })
       } else if (timeFilter === 'overdue') {
-        return isBefore(taskDate, today) && task.status === 'pending'
+        return isBefore(taskDate, today)
       } else if (timeFilter === 'upcoming') {
         return isAfter(taskDate, endOfToday())
       }
       return true
     })
 
-    if (statusFilter !== 'all') {
-      tasks = tasks.filter(task => task.status === statusFilter)
-    }
+    tasks = tasks.filter(task => {
+      const matches = taskMatchesFilter(task)
+      return matches || exitingTaskIds.has(task.id)
+    })
 
     if (tagFilter !== null) {
-      tasks = tasks.filter(task => task.tagIds.includes(tagFilter))
+      tasks = tasks.filter(task => task.tagIds.includes(tagFilter) || exitingTaskIds.has(task.id))
     }
 
     tasks.sort((a, b) => {
@@ -94,7 +174,7 @@ export function TodoView() {
     })
 
     return tasks
-  }, [state.tasks, timeFilter, statusFilter, tagFilter, sortBy, today, viewMode])
+  }, [state.tasks, timeFilter, statusFilter, tagFilter, sortBy, today, viewMode, taskMatchesFilter, exitingTaskIds])
 
   const groupedTasks = useMemo(() => {
     const grouped: GroupedTasks = {}
@@ -130,7 +210,9 @@ export function TodoView() {
 
     tasks = tasks.filter(task => {
       const dateToUse = viewMode === 'byDate' ? task.date : task.dueDate
-      if (!dateToUse) return true
+      if (!dateToUse) {
+        return timeFilter === 'all'
+      }
       
       const taskDate = parseISO(dateToUse)
       
@@ -141,7 +223,7 @@ export function TodoView() {
       } else if (timeFilter === 'month') {
         return isWithinInterval(taskDate, { start: startOfMonth(today), end: endOfMonth(today) })
       } else if (timeFilter === 'overdue') {
-        return isBefore(taskDate, today) && task.status === 'pending'
+        return isBefore(taskDate, today)
       } else if (timeFilter === 'upcoming') {
         return isAfter(taskDate, endOfToday())
       }
@@ -162,19 +244,19 @@ export function TodoView() {
   const getGroupLabel = useCallback((key: string) => {
     if (groupBy === 'date') {
       if (key === 'unscheduled') {
-        return lang === 'zh' ? '未规划' : 'Unscheduled'
+        return t.task.unscheduled
       }
       const date = parseISO(key)
       return format(date, lang === 'zh' ? 'yyyy年M月d日 EEEE' : 'EEEE, MMMM d, yyyy', { locale })
     } else if (groupBy === 'status') {
       return t.status[key as keyof typeof t.status]
     } else if (groupBy === 'tag') {
-      if (key === 'untagged') return lang === 'zh' ? '未分类' : 'Untagged'
+      if (key === 'untagged') return t.task.untagged
       const tag = state.tags.find(t => t.id === key)
       return tag?.name || key
     }
     return ''
-  }, [groupBy, lang, locale, t.status, state.tags])
+  }, [groupBy, lang, locale, t, state.tags])
 
   const handleAddTask = useCallback(() => {
     setEditingTask(null)
@@ -239,6 +321,8 @@ export function TodoView() {
                         task={task}
                         tags={state.tags}
                         onEdit={handleEditTask}
+                        statusFilter={statusFilter}
+                        shouldExit={exitingTaskIds.has(task.id)}
                       />
                     ))}
                   </div>
@@ -258,6 +342,8 @@ export function TodoView() {
                         task={task}
                         tags={state.tags}
                         onEdit={handleEditTask}
+                        statusFilter={statusFilter}
+                        shouldExit={exitingTaskIds.has(task.id)}
                       />
                     ))}
                   </div>
@@ -277,6 +363,8 @@ export function TodoView() {
                       task={task}
                       tags={state.tags}
                       onEdit={handleEditTask}
+                      statusFilter={statusFilter}
+                      shouldExit={exitingTaskIds.has(task.id)}
                     />
                   ))}
                 </div>

@@ -12,6 +12,8 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useWidgetStore } from '@/components/widget-store-provider'
 import { WIDGET_METADATA } from '@/lib/widget-registry'
+import { useLanguage } from '@/lib/store'
+import { useTranslations } from '@/lib/i18n'
 import type { WidgetInstance } from '@/lib/widget-types'
 import { cn } from '@/lib/utils'
 
@@ -22,6 +24,7 @@ interface WidgetLayerManagerProps {
 interface DraggableWidgetItemProps {
   widget: WidgetInstance
   index: number
+  lang: string
   onDragStart: (index: number) => void
   onDragOver: (index: number) => void
   onDragEnd: () => void
@@ -31,6 +34,7 @@ interface DraggableWidgetItemProps {
 function DraggableWidgetItem({
   widget,
   index,
+  lang,
   onDragStart,
   onDragOver,
   onDragEnd,
@@ -54,7 +58,7 @@ function DraggableWidgetItem({
     >
       <GripVertical className="w-4 h-4 text-muted-foreground" />
       <div className="flex-1">
-        <div className="text-sm font-medium">{meta.nameZh || meta.name}</div>
+        <div className="text-sm font-medium">{lang === 'zh' ? meta.nameZh : meta.name}</div>
         <div className="text-xs text-muted-foreground">Z-index: {widget.zIndex}</div>
       </div>
     </div>
@@ -62,6 +66,8 @@ function DraggableWidgetItem({
 }
 
 export function WidgetLayerManager({ className }: WidgetLayerManagerProps) {
+  const lang = useLanguage()
+  const t = useTranslations(lang)
   const [open, setOpen] = useState(false)
   const { getWidgets, reorderWidgets } = useWidgetStore()
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
@@ -108,13 +114,13 @@ export function WidgetLayerManager({ className }: WidgetLayerManagerProps) {
         className={className}
       >
         <Layers className="w-4 h-4 mr-1" />
-        层级
+        {t.customLayout.layers}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>组件层级管理</DialogTitle>
+            <DialogTitle>{t.customLayout.layerManager}</DialogTitle>
           </DialogHeader>
           <ScrollArea className="max-h-80">
             <div className="space-y-2">
@@ -126,6 +132,7 @@ export function WidgetLayerManager({ className }: WidgetLayerManagerProps) {
                     key={widget.id}
                     widget={widget}
                     index={index}
+                    lang={lang}
                     onDragStart={handleDragStart}
                     onDragOver={handleDragOver}
                     onDragEnd={handleDragEnd}
@@ -135,17 +142,17 @@ export function WidgetLayerManager({ className }: WidgetLayerManagerProps) {
               })}
               {widgetOrder.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
-                  暂无组件
+                  {t.customLayout.noWidgets}
                 </div>
               )}
             </div>
           </ScrollArea>
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setOpen(false)}>
-              取消
+              {t.customLayout.cancel}
             </Button>
             <Button onClick={handleSave}>
-              保存
+              {t.customLayout.save}
             </Button>
           </div>
         </DialogContent>

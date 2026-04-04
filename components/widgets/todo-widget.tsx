@@ -154,12 +154,12 @@ export function TodoWidget({ id: _id, config, className, onCollapsedChange, onTa
   }, [state.tasks, today])
 
   const formatDate = useCallback((dateStr?: string) => {
-    if (!dateStr) return lang === 'zh' ? '未规划' : 'Unscheduled'
+    if (!dateStr) return t.task.unscheduled
     const date = parseISO(dateStr)
-    if (isToday(date)) return lang === 'zh' ? '今天' : 'Today'
-    if (isTomorrow(date)) return lang === 'zh' ? '明天' : 'Tomorrow'
+    if (isToday(date)) return t.task.today
+    if (isTomorrow(date)) return t.task.tomorrow
     return format(date, lang === 'zh' ? 'M/d' : 'MMM d', { locale })
-  }, [lang, locale])
+  }, [t, lang, locale])
 
   const getTaskTags = useCallback((task: Task) => {
     if (!showTags) return []
@@ -301,7 +301,7 @@ export function TodoWidget({ id: _id, config, className, onCollapsedChange, onTa
                                 )}
                                 {task.isAllDay && (
                                   <span className={cn('text-muted-foreground', taskTimeSize)}>
-                                    {lang === 'zh' ? '全天' : 'All day'}
+                                    {t.task.allDay}
                                   </span>
                                 )}
                                 {showTaskTags && getTaskTags(task).slice(0, 1).map(tag => (
@@ -335,7 +335,7 @@ export function TodoWidget({ id: _id, config, className, onCollapsedChange, onTa
                   >
                     <div className={cn('text-muted-foreground group-hover:text-foreground transition-colors flex items-center gap-1.5', taskTimeSize)}>
                       <Clock className="w-3 h-3" />
-                      <span>{lang === 'zh' ? '查看未来任务' : 'View future tasks'}</span>
+                      <span>{t.task.viewFutureTasks}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Badge variant="secondary" className={cn('px-1', sizeMode === 'compact' ? 'h-3 text-[8px]' : 'h-4 text-[10px]')}>

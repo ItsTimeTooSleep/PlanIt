@@ -16,6 +16,7 @@ export default [
       "public/**",
       "out/**",
       "scripts/**",
+      "PlanIt-OfficialWebsite/**",
     ],
   },
   js.configs.recommended,

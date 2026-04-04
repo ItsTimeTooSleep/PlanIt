@@ -139,7 +139,7 @@ export function TimerWidget({ id: _id, config, className }: BaseWidgetProps) {
         clearInterval(intervalRef.current)
       }
     }
-  }, [isRunning, mode])
+  }, [isRunning, mode, time])
 
   useEffect(() => {
     const handleVisibilityChange = () => {

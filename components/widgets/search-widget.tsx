@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
-import { Search, X, Clock, Trash2, Mic, Image } from 'lucide-react'
+import { Search, X, Clock, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
-import type { BaseWidgetProps, SearchConfig, SearchEngine, SearchEngineConfig } from '@/lib/widget-types'
+import type { BaseWidgetProps, SearchConfig, SearchEngine } from '@/lib/widget-types'
 import { SEARCH_ENGINES } from '@/lib/widget-types'
 
 type SizeMode = 'compact' | 'normal' | 'large' | 'wide'
@@ -57,7 +57,7 @@ export function SearchWidget({ id, config, className }: BaseWidgetProps) {
       const { width, height } = el.getBoundingClientRect()
       setContainerSize({ width, height })
       
-      const isShort = height < 60
+
       
       if (height < 60) {
         setSizeMode('compact')

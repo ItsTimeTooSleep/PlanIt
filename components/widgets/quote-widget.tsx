@@ -45,7 +45,7 @@ export function QuoteWidget({ id, config, className }: BaseWidgetProps) {
   
   const quoteConfig = config as Partial<QuoteConfig>
   const [category, setCategory] = useState<QuoteCategory>((quoteConfig.category as QuoteCategory) || 'all')
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const [currentIndex, setCurrentIndex] = useState(() => Math.floor(Math.random() * (QUOTES.all.length)))
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [copied, setCopied] = useState(false)
 
@@ -112,6 +112,7 @@ export function QuoteWidget({ id, config, className }: BaseWidgetProps) {
   }, [currentQuote])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentIndex(Math.floor(Math.random() * availableQuotes.length))
   }, [category, availableQuotes.length])
 
@@ -187,7 +188,7 @@ export function QuoteWidget({ id, config, className }: BaseWidgetProps) {
           )}
         >
           <p className={cn('leading-relaxed text-foreground mb-3 italic', textFontSize)}>
-            "{currentQuote.text}"
+            &ldquo;{currentQuote.text}&rdquo;
           </p>
           <p className={cn('text-muted-foreground', authorFontSize)}>— {currentQuote.author}</p>
         </div>

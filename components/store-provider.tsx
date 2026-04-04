@@ -64,6 +64,7 @@ const DEFAULT_STATE: AppState = {
       playOnTaskStart: true,
       playOnTaskEnd: true,
       playOnTaskComplete: true,
+      playOnTaskDrag: true,
     }
   },
   pomodoro: DEFAULT_POMODORO,

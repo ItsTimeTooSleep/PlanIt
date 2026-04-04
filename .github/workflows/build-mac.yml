@@ -193,12 +193,46 @@ jobs:
           
           node scripts/generate-latest-json.js --empty-notes --empty-windows
 
-      - name: Create Release with all assets
+      - name: Check if release exists and get existing body
+        id: check-release
+        run: |
+          TAG_NAME="${{ steps.version.outputs.tag_name }}"
+          if gh release view "$TAG_NAME" --json body,id --jq '.id' > /dev/null 2>&1; then
+            echo "release_exists=true" >> $GITHUB_OUTPUT
+            gh release view "$TAG_NAME" --json body --jq '.body' > release_body.txt
+            echo "release_body_path=release_body.txt" >> $GITHUB_OUTPUT
+          else
+            echo "release_exists=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare release body
+        id: prepare-body
+        run: |
+          if [ "${{ steps.check-release.outputs.release_exists }}" = "true" ] && [ -f "${{ steps.check-release.outputs.release_body_path }}" ]; then
+            echo "Using existing release body"
+          else
+            echo "See the assets to download this version." > release_body.txt
+          fi
+
+      - name: Delete existing release assets (if release exists)
+        if: steps.check-release.outputs.release_exists == 'true'
+        run: |
+          TAG_NAME="${{ steps.version.outputs.tag_name }}"
+          for asset in $(gh release view "$TAG_NAME" --json assets --jq '.assets[].name'); do
+            echo "Deleting asset: $asset"
+            gh release delete-asset "$TAG_NAME" "$asset" -y
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create or update release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag_name }}
           name: 'PlanIt ${{ steps.version.outputs.tag_name }}'
-          body: 'See the assets to download this version.'
+          body_path: release_body.txt
           draft: true
           prerelease: false
           files: |

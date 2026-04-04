@@ -486,6 +486,63 @@ const zh = {
     quit: '退出',
     tooltip: 'PlanIt - 专注效率',
   },
+
+  timeline: {
+    newDay: '新的一天开始',
+    dayEnd: '一天结束',
+    clickToAddTask: '点击任意时间段创建任务',
+  },
+
+  progress: {
+    todayProgress: '今日进度',
+    completed: '已完成',
+    noTasksToday: '暂无任务',
+  },
+
+  currentTask: {
+    focusing: '正在专注',
+    paused: '已暂停',
+    inProgress: '进行中',
+    upcoming: '即将开始',
+    focus: '开始专注',
+    noCurrentTask: '暂无进行中的任务',
+  },
+
+  customLayout: {
+    widgets: '组件面板',
+    openWidgetPanel: '打开组件面板',
+    switchLayout: '切换布局',
+    more: '更多',
+    exportLayout: '导出布局',
+    importLayout: '导入布局',
+    newLayout: '新建布局',
+    layoutName: '布局名称',
+    enterLayoutName: '输入布局名称',
+    width: '宽度 (px)',
+    height: '高度 (px)',
+    max: '最大',
+    default: '默认',
+    sizeNote: '最小: 400×300，最大: 3840×2160。布局创建后尺寸不可修改。',
+    cancel: '取消',
+    create: '创建',
+    pasteLayoutJson: '粘贴布局JSON',
+    import: '导入',
+    rename: '重命名',
+    copy: '复制',
+    delete: '删除',
+    customLayout: '自定义布局',
+    clickToEditTitle: '点击编辑标题',
+    layers: '层级',
+    layerManager: '组件层级管理',
+    noWidgets: '暂无组件',
+    save: '保存',
+    emptyCanvas: '画布为空',
+    dragWidgetHere: '从左侧面板拖拽组件到此处',
+    releaseToAdd: '释放以添加组件',
+    restoreDefault: '恢复默认',
+    searchWidgets: '搜索组件...',
+    noWidgetsFound: '未找到匹配的组件',
+  },
 } as const
 
 const en = {
@@ -974,6 +1031,63 @@ const en = {
     quit: 'Quit',
     tooltip: 'PlanIt - Focus & Productivity',
   },
+
+  timeline: {
+    newDay: 'New Day',
+    dayEnd: 'Day End',
+    clickToAddTask: 'Click any time slot to add a task',
+  },
+
+  progress: {
+    todayProgress: 'Today\'s Progress',
+    completed: 'completed',
+    noTasksToday: 'No tasks today',
+  },
+
+  currentTask: {
+    focusing: 'Focusing',
+    paused: 'Paused',
+    inProgress: 'In Progress',
+    upcoming: 'Upcoming',
+    focus: 'Focus',
+    noCurrentTask: 'No current task',
+  },
+
+  customLayout: {
+    widgets: 'Widgets',
+    openWidgetPanel: 'Open Widget Panel',
+    switchLayout: 'Switch Layout',
+    more: 'More',
+    exportLayout: 'Export Layout',
+    importLayout: 'Import Layout',
+    newLayout: 'New Layout',
+    layoutName: 'Layout Name',
+    enterLayoutName: 'Enter layout name',
+    width: 'Width (px)',
+    height: 'Height (px)',
+    max: 'Max',
+    default: 'Default',
+    sizeNote: 'Min: 400×300, Max: 3840×2160. Canvas size cannot be modified after creation.',
+    cancel: 'Cancel',
+    create: 'Create',
+    pasteLayoutJson: 'Paste layout JSON',
+    import: 'Import',
+    rename: 'Rename',
+    copy: 'Copy',
+    delete: 'Delete',
+    customLayout: 'Custom Layout',
+    clickToEditTitle: 'Click to edit title',
+    layers: 'Layers',
+    layerManager: 'Widget Layer Manager',
+    noWidgets: 'No widgets',
+    save: 'Save',
+    emptyCanvas: 'Canvas is empty',
+    dragWidgetHere: 'Drag widgets from the left panel here',
+    releaseToAdd: 'Release to add widget',
+    restoreDefault: 'Restore Default',
+    searchWidgets: 'Search widgets...',
+    noWidgetsFound: 'No matching widgets found',
+  },
 } as const
 
 export type Translations = {
@@ -1445,6 +1559,59 @@ export type Translations = {
     readonly contactUs: string
     readonly quit: string
     readonly tooltip: string
+  }
+  readonly timeline: {
+    readonly newDay: string
+    readonly dayEnd: string
+    readonly clickToAddTask: string
+  }
+  readonly progress: {
+    readonly todayProgress: string
+    readonly completed: string
+    readonly noTasksToday: string
+  }
+  readonly currentTask: {
+    readonly focusing: string
+    readonly paused: string
+    readonly inProgress: string
+    readonly upcoming: string
+    readonly focus: string
+    readonly noCurrentTask: string
+  }
+  readonly customLayout: {
+    readonly widgets: string
+    readonly openWidgetPanel: string
+    readonly switchLayout: string
+    readonly more: string
+    readonly exportLayout: string
+    readonly importLayout: string
+    readonly newLayout: string
+    readonly layoutName: string
+    readonly enterLayoutName: string
+    readonly width: string
+    readonly height: string
+    readonly max: string
+    readonly default: string
+    readonly sizeNote: string
+    readonly cancel: string
+    readonly create: string
+    readonly pasteLayoutJson: string
+    readonly import: string
+    readonly rename: string
+    readonly copy: string
+    readonly delete: string
+    readonly customLayout: string
+    readonly clickToEditTitle: string
+    readonly layers: string
+    readonly layerManager: string
+    readonly noWidgets: string
+    readonly save: string
+    readonly emptyCanvas: string
+    readonly dragWidgetHere: string
+    readonly releaseToAdd: string
+    readonly restoreDefault: string
+    readonly searchWidgets: string
+    readonly noWidgetsFound: string
   }
 }
 

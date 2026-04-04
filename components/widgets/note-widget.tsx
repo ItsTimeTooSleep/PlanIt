@@ -5,6 +5,7 @@ import { Lightbulb, Send, Sparkles, Save, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useStore, useLanguage } from '@/lib/store'
+import { useTranslations } from '@/lib/i18n'
 import { toast } from 'sonner'
 import type { Note } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -41,6 +42,7 @@ export function NoteWidget({ id, config, className }: BaseWidgetProps) {
   const [justSaved, setJustSaved] = useState(false)
   const { addNote, getNotesByDate } = useStore()
   const lang = useLanguage()
+  const t = useTranslations(lang)
 
   const showHeader = (config?.showHeader as boolean) ?? true
   const placeholder = (config?.placeholder as string) || ''
@@ -81,7 +83,7 @@ export function NoteWidget({ id, config, className }: BaseWidgetProps) {
 
   const handleSubmit = useCallback(() => {
     if (!hasContent) {
-      toast.error(lang === 'zh' ? '请输入内容' : 'Please enter content')
+      toast.error(t.note.pleaseEnterContent)
       return
     }
 
@@ -154,7 +156,7 @@ export function NoteWidget({ id, config, className }: BaseWidgetProps) {
             )}
           </div>
           <span className={cn('font-medium text-warning', titleFontSize)}>
-            {lang === 'zh' ? '快速记录' : 'Quick Note'}
+            {t.note.quickNote}
           </span>
         </div>
       )}
@@ -165,7 +167,7 @@ export function NoteWidget({ id, config, className }: BaseWidgetProps) {
             'flex-1 flex items-center justify-center text-green-500 font-medium animate-fade-in',
             textFontSize
           )}>
-            {lang === 'zh' ? '已成功保存' : 'Saved successfully'}
+            {t.note.savedSuccessfully}
           </div>
         ) : (
           <>
@@ -175,7 +177,7 @@ export function NoteWidget({ id, config, className }: BaseWidgetProps) {
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
               onKeyDown={handleKeyDown}
-              placeholder={placeholder || (lang === 'zh' ? '记录你的瞬间想法...' : 'Capture your fleeting thoughts...')}
+              placeholder={placeholder || t.note.placeholder}
               className={cn(
                 'flex-1 resize-none bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-1 placeholder:text-muted-foreground/60',
                 textFontSize,
@@ -204,7 +206,7 @@ export function NoteWidget({ id, config, className }: BaseWidgetProps) {
                 className="rounded-lg bg-warning text-warning-foreground shadow-md h-7 px-3 text-xs"
               >
                 <Send className="w-3 h-3 mr-1.5" />
-                {lang === 'zh' ? '保存' : 'Save'}
+                {t.note.save}
               </Button>
             </div>
           </>
@@ -212,7 +214,7 @@ export function NoteWidget({ id, config, className }: BaseWidgetProps) {
 
         {!hasContent && isFocused && !justSaved && (
           <div className="text-[10px] text-muted-foreground/50 text-right mt-1">
-            {lang === 'zh' ? '⌘ + Enter' : 'Ctrl/⌘ + ↵'}
+            {t.note.keyboardShortcut}
           </div>
         )}
       </div>

@@ -78,7 +78,7 @@ function HomeViewContent() {
           width: isFabHovered ? '140px' : '56px',
           height: '56px',
           borderRadius: isFabHovered ? '28px' : '50%',
-          background: 'linear-gradient(135deg, oklch(0.55 0.20 260) 0%, oklch(0.45 0.18 280) 100%)',
+          background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
           boxShadow: isFabHovered 
             ? '0 8px 32px rgba(88, 28, 135, 0.4), 0 4px 16px rgba(0,0,0,0.2)' 
             : '0 6px 24px rgba(88, 28, 135, 0.3), 0 2px 8px rgba(0,0,0,0.15)',

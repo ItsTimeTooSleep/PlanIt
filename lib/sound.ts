@@ -21,21 +21,24 @@ function getAudioContext(): AudioContext {
 function playTaskStartSound() {
   try {
     const ctx = getAudioContext()
-    const oscillator = ctx.createOscillator()
-    const gainNode = ctx.createGain()
+    const frequencies = [523, 659, 784]
     
-    oscillator.type = 'sine'
-    oscillator.frequency.setValueAtTime(880, ctx.currentTime)
-    oscillator.frequency.setValueAtTime(1100, ctx.currentTime + 0.1)
-    
-    gainNode.gain.setValueAtTime(0.3, ctx.currentTime)
-    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3)
-    
-    oscillator.connect(gainNode)
-    gainNode.connect(ctx.destination)
-    
-    oscillator.start(ctx.currentTime)
-    oscillator.stop(ctx.currentTime + 0.3)
+    frequencies.forEach((freq, index) => {
+      const oscillator = ctx.createOscillator()
+      const gainNode = ctx.createGain()
+      
+      oscillator.type = 'sine'
+      oscillator.frequency.setValueAtTime(freq, ctx.currentTime + index * 0.15)
+      
+      gainNode.gain.setValueAtTime(0.4, ctx.currentTime + index * 0.15)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + index * 0.15 + 0.4)
+      
+      oscillator.connect(gainNode)
+      gainNode.connect(ctx.destination)
+      
+      oscillator.start(ctx.currentTime + index * 0.15)
+      oscillator.stop(ctx.currentTime + index * 0.15 + 0.4)
+    })
     
     console.log(`${LOG_PREFIX} Task start sound played`)
   } catch (error) {
@@ -49,21 +52,24 @@ function playTaskStartSound() {
 function playTaskEndSound() {
   try {
     const ctx = getAudioContext()
-    const oscillator = ctx.createOscillator()
-    const gainNode = ctx.createGain()
+    const frequencies = [784, 659, 523]
     
-    oscillator.type = 'sine'
-    oscillator.frequency.setValueAtTime(660, ctx.currentTime)
-    oscillator.frequency.setValueAtTime(440, ctx.currentTime + 0.15)
-    
-    gainNode.gain.setValueAtTime(0.3, ctx.currentTime)
-    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3)
-    
-    oscillator.connect(gainNode)
-    gainNode.connect(ctx.destination)
-    
-    oscillator.start(ctx.currentTime)
-    oscillator.stop(ctx.currentTime + 0.3)
+    frequencies.forEach((freq, index) => {
+      const oscillator = ctx.createOscillator()
+      const gainNode = ctx.createGain()
+      
+      oscillator.type = 'sine'
+      oscillator.frequency.setValueAtTime(freq, ctx.currentTime + index * 0.15)
+      
+      gainNode.gain.setValueAtTime(0.4, ctx.currentTime + index * 0.15)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + index * 0.15 + 0.4)
+      
+      oscillator.connect(gainNode)
+      gainNode.connect(ctx.destination)
+      
+      oscillator.start(ctx.currentTime + index * 0.15)
+      oscillator.stop(ctx.currentTime + index * 0.15 + 0.4)
+    })
     
     console.log(`${LOG_PREFIX} Task end sound played`)
   } catch (error) {
@@ -103,9 +109,37 @@ function playTaskCompleteSound() {
 }
 
 /**
+ * 生成任务拖拽音效（使用之前的短声音）
+ */
+function playTaskDragSound() {
+  try {
+    const ctx = getAudioContext()
+    const oscillator = ctx.createOscillator()
+    const gainNode = ctx.createGain()
+    
+    oscillator.type = 'sine'
+    oscillator.frequency.setValueAtTime(880, ctx.currentTime)
+    oscillator.frequency.setValueAtTime(1100, ctx.currentTime + 0.1)
+    
+    gainNode.gain.setValueAtTime(0.3, ctx.currentTime)
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3)
+    
+    oscillator.connect(gainNode)
+    gainNode.connect(ctx.destination)
+    
+    oscillator.start(ctx.currentTime)
+    oscillator.stop(ctx.currentTime + 0.3)
+    
+    console.log(`${LOG_PREFIX} Task drag sound played`)
+  } catch (error) {
+    console.error(`${LOG_PREFIX} Failed to play task drag sound:`, error)
+  }
+}
+
+/**
  * 音效类型
  */
-export type SoundType = 'taskStart' | 'taskEnd' | 'taskComplete'
+export type SoundType = 'taskStart' | 'taskEnd' | 'taskComplete' | 'taskDrag'
 
 /**
  * 播放音效
@@ -128,6 +162,9 @@ export function playSound(type: SoundType) {
       break
     case 'taskComplete':
       playTaskCompleteSound()
+      break
+    case 'taskDrag':
+      playTaskDragSound()
       break
   }
 }

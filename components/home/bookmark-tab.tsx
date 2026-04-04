@@ -47,7 +47,7 @@ export function BookmarkTab({ className }: BookmarkTabProps) {
           width: isHovered ? '100px' : '28px',
           height: '52px',
           borderRadius: isHovered ? '10px 0 0 10px' : '6px 0 0 6px',
-          backgroundColor: 'oklch(0.52 0.18 260)',
+          backgroundColor: '#6366f1',
           color: 'white',
           boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
         }}

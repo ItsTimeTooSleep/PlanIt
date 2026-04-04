@@ -1,23 +1,23 @@
 'use client'
 
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
-import { Play, Plus, Trash2, ChevronDown, ChevronUp, Settings2, RotateCcw } from 'lucide-react'
+import { Play, Plus, Trash2, ChevronUp, Settings2, RotateCcw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import type { BaseWidgetProps, SpinWheelConfig } from '@/lib/widget-types'
 
 const WHEEL_COLORS = [
-  'oklch(0.70 0.18 260)',
-  'oklch(0.72 0.19 142)',
-  'oklch(0.75 0.18 75)',
-  'oklch(0.70 0.18 330)',
-  'oklch(0.65 0.22 290)',
-  'oklch(0.63 0.24 25)',
-  'oklch(0.70 0.14 195)',
-  'oklch(0.70 0.18 50)',
-  'oklch(0.68 0.16 160)',
-  'oklch(0.72 0.17 320)',
+  '#6366f1',
+  '#22c55e',
+  '#f59e0b',
+  '#ec4899',
+  '#a855f7',
+  '#ef4444',
+  '#06b6d4',
+  '#eab308',
+  '#14b8a6',
+  '#d946ef',
 ]
 
 type SizeMode = 'compact' | 'normal' | 'large' | 'xlarge'
@@ -267,7 +267,7 @@ export function SpinWheelWidget({ id, config, className }: BaseWidgetProps) {
                 </g>
               )
             })}
-            <circle cx="50" cy="50" r="8" fill="white" stroke="oklch(0.55 0.02 240)" strokeWidth="1" />
+            <circle cx="50" cy="50" r="8" fill="white" stroke="#94a3b8" strokeWidth="1" />
           </svg>
         </div>
 

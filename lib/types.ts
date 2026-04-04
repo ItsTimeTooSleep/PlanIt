@@ -97,6 +97,7 @@ export interface SoundSettings {
   playOnTaskStart: boolean
   playOnTaskEnd: boolean
   playOnTaskComplete: boolean
+  playOnTaskDrag: boolean
 }
 
 export interface AppSettings {

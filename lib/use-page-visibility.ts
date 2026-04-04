@@ -10,15 +10,19 @@ import { useState, useEffect, useCallback, useRef } from 'react'
  */
 export function usePageVisibility() {
   const [isVisible, setIsVisible] = useState(true)
+  const [lastHiddenTime, setLastHiddenTime] = useState<number | null>(null)
   const lastHiddenTimeRef = useRef<number | null>(null)
-  const lastVisibleTimeRef = useRef<number>(Date.now())
+  const lastVisibleTimeRef = useRef<number>(0)
 
   useEffect(() => {
+    lastVisibleTimeRef.current = Date.now()
+    
     const handleVisibilityChange = () => {
       const now = Date.now()
       
       if (document.hidden) {
         lastHiddenTimeRef.current = now
+        setLastHiddenTime(now)
         setIsVisible(false)
       } else {
         setIsVisible(true)
@@ -45,7 +49,7 @@ export function usePageVisibility() {
   return {
     isVisible,
     getHiddenDuration,
-    lastHiddenTime: lastHiddenTimeRef.current,
+    lastHiddenTime,
   }
 }
 

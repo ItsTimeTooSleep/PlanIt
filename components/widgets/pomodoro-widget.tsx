@@ -5,6 +5,7 @@ import { Play, Pause, RotateCcw, SkipForward, Coffee, Brain, Timer, Plus, Minus,
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useLanguage } from '@/lib/store'
+import { useTranslations } from '@/lib/i18n'
 import { POMODORO_COLORS } from '@/lib/colors'
 import type { BaseWidgetProps } from '@/lib/widget-types'
 
@@ -73,6 +74,7 @@ export function PomodoroWidget({ id, config, className }: BaseWidgetProps) {
   const [containerSize, setContainerSize] = useState<ContainerSize>({ width: 300, height: 300 })
   
   const lang = useLanguage()
+  const t = useTranslations(lang)
   
   const [pomodoro, setPomodoro] = useState<LocalPomodoroState>({
     status: 'idle',
@@ -266,12 +268,12 @@ export function PomodoroWidget({ id, config, className }: BaseWidgetProps) {
 
   const getPhaseLabel = useCallback(() => {
     const labels = {
-      work: lang === 'zh' ? '专注' : 'Work',
-      shortBreak: lang === 'zh' ? '短休息' : 'Short Break',
-      longBreak: lang === 'zh' ? '长休息' : 'Long Break',
+      work: t.pomodoro.phase.work,
+      shortBreak: t.pomodoro.phase.shortBreak,
+      longBreak: t.pomodoro.phase.longBreak,
     }
     return labels[pomodoro.phase]
-  }, [pomodoro.phase, lang])
+  }, [pomodoro.phase, t])
 
   const getPhaseIcon = useCallback(() => {
     switch (pomodoro.phase) {
@@ -356,7 +358,7 @@ export function PomodoroWidget({ id, config, className }: BaseWidgetProps) {
         <div className="flex items-center gap-2">
           <PhaseIcon className={cn(sizeMode === 'compact' ? 'w-3 h-3' : 'w-4 h-4')} style={{ color: getPhaseColor() }} />
           <span className={cn('font-medium', sizeMode === 'compact' ? 'text-xs' : 'text-sm')}>
-            {lang === 'zh' ? '番茄钟' : 'Pomodoro'}
+            {t.pomodoro.title}
           </span>
         </div>
         <span
@@ -384,10 +386,10 @@ export function PomodoroWidget({ id, config, className }: BaseWidgetProps) {
                 
                 <div className="text-center">
                   <p className="text-sm font-medium">
-                    {lang === 'zh' ? '专注完成！' : 'Complete!'}
+                    {t.pomodoro.complete}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {completedMinutes}{lang === 'zh' ? '分钟' : 'min'}
+                    {completedMinutes}{t.pomodoro.minutes}
                   </p>
                 </div>
 
@@ -418,7 +420,7 @@ export function PomodoroWidget({ id, config, className }: BaseWidgetProps) {
                         startTimer()
                       }}
                     >
-                      {lang === 'zh' ? '休息' : 'Break'}
+                      {t.pomodoro.break}
                     </Button>
                   )}
                   
@@ -428,8 +430,8 @@ export function PomodoroWidget({ id, config, className }: BaseWidgetProps) {
                     onClick={switchToNextPhase}
                   >
                     {hasBreak 
-                      ? (lang === 'zh' ? '跳过' : 'Skip')
-                      : (lang === 'zh' ? '继续' : 'Continue')
+                      ? t.pomodoro.skip
+                      : t.pomodoro.continue
                     }
                   </Button>
                 </div>
@@ -502,14 +504,14 @@ export function PomodoroWidget({ id, config, className }: BaseWidgetProps) {
           {pomodoro.status === 'idle' && (
             <Button size={buttonSize} onClick={startTimer}>
               <Play className={cn(showButtonText && 'mr-1', sizeMode === 'compact' ? 'w-3 h-3' : 'w-4 h-4')} />
-              {showButtonText && (lang === 'zh' ? '开始' : 'Start')}
+              {showButtonText && t.pomodoro.start}
             </Button>
           )}
 
           {pomodoro.status === 'running' && (
             <Button size={buttonSize} variant="secondary" onClick={pauseTimer}>
               <Pause className={cn(showButtonText && 'mr-1', sizeMode === 'compact' ? 'w-3 h-3' : 'w-4 h-4')} />
-              {showButtonText && (lang === 'zh' ? '暂停' : 'Pause')}
+              {showButtonText && t.pomodoro.pause}
             </Button>
           )}
 
@@ -517,7 +519,7 @@ export function PomodoroWidget({ id, config, className }: BaseWidgetProps) {
             <>
               <Button size={buttonSize} onClick={startTimer}>
                 <Play className={cn(showButtonText && 'mr-1', sizeMode === 'compact' ? 'w-3 h-3' : 'w-4 h-4')} />
-                {showButtonText && (lang === 'zh' ? '继续' : 'Resume')}
+                {showButtonText && t.pomodoro.resume}
               </Button>
               <Button size={buttonSize} variant="ghost" onClick={handleReset}>
                 <RotateCcw className={sizeMode === 'compact' ? 'w-3 h-3' : 'w-4 h-4'} />
@@ -528,7 +530,7 @@ export function PomodoroWidget({ id, config, className }: BaseWidgetProps) {
           {showSkipButton && (
             <Button size={buttonSize} variant="outline" onClick={handleSkip}>
               <SkipForward className={cn(showButtonText && 'mr-1', sizeMode === 'compact' ? 'w-3 h-3' : 'w-4 h-4')} />
-              {showButtonText && (lang === 'zh' ? '跳过' : 'Skip')}
+              {showButtonText && t.pomodoro.skip}
             </Button>
           )}
         </div>
@@ -536,7 +538,7 @@ export function PomodoroWidget({ id, config, className }: BaseWidgetProps) {
         {showSessionInfo && (
           <div className="mt-3 text-xs text-muted-foreground flex items-center gap-1">
             <Timer className="w-3 h-3" />
-            {lang === 'zh' ? '已完成' : 'Completed'}: {pomodoro.completedSessions}
+            {t.pomodoro.completed}: {pomodoro.completedSessions}
           </div>
         )}
           </>

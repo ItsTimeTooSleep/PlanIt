@@ -4,6 +4,7 @@ import { useMemo, useRef, useEffect, useState } from 'react'
 import { Flame, Clock, Play, Pause, Target, Timer } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useStore, useLanguage } from '@/lib/store'
+import { useTranslations } from '@/lib/i18n'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
 import type { BaseWidgetProps } from '@/lib/widget-types'
@@ -35,6 +36,7 @@ export function CurrentTaskWidget({ id, config, className }: BaseWidgetProps) {
   const [now, setNow] = useState(new Date())
   
   const lang = useLanguage()
+  const t = useTranslations(lang)
   const { state } = useStore()
   const { pomodoro, startTimer, pauseTimer } = usePomodoro()
 
@@ -255,12 +257,12 @@ export function CurrentTaskWidget({ id, config, className }: BaseWidgetProps) {
                   style={!isPomodoroActive ? { backgroundColor: tagColor, color: 'white' } : {}}
                 >
                   {isPomodoroRunning 
-                    ? (lang === 'zh' ? '正在专注' : 'Focusing')
+                    ? t.currentTask.focusing
                     : isPomodoroPaused 
-                      ? (lang === 'zh' ? '已暂停' : 'Paused')
+                      ? t.currentTask.paused
                       : currentTask.isActive 
-                        ? (lang === 'zh' ? '进行中' : 'In Progress')
-                        : (lang === 'zh' ? '即将开始' : 'Upcoming')
+                        ? t.currentTask.inProgress
+                        : t.currentTask.upcoming
                   }
                 </span>
                 {taskTag && !isNarrow && sizeMode !== 'compact' && (
@@ -319,12 +321,12 @@ export function CurrentTaskWidget({ id, config, className }: BaseWidgetProps) {
                 {isPomodoroRunning ? (
                   <>
                     <Pause className={cn('mr-1', sizeMode === 'compact' ? 'w-3 h-3' : 'w-4 h-4')} />
-                    {lang === 'zh' ? '暂停' : 'Pause'}
+                    {t.pomodoro.pause}
                   </>
                 ) : (
                   <>
                     <Play className={cn('mr-1', sizeMode === 'compact' ? 'w-3 h-3' : 'w-4 h-4')} />
-                    {lang === 'zh' ? '开始专注' : 'Focus'}
+                    {t.currentTask.focus}
                   </>
                 )}
               </Button>
@@ -345,12 +347,12 @@ export function CurrentTaskWidget({ id, config, className }: BaseWidgetProps) {
                 {isPomodoroRunning ? (
                   <>
                     <Pause className="mr-1 w-3 h-3" />
-                    {lang === 'zh' ? '暂停' : 'Pause'}
+                    {t.pomodoro.pause}
                   </>
                 ) : (
                   <>
                     <Play className="mr-1 w-3 h-3" />
-                    {lang === 'zh' ? '开始专注' : 'Focus'}
+                    {t.currentTask.focus}
                   </>
                 )}
               </Button>
@@ -376,7 +378,7 @@ export function CurrentTaskWidget({ id, config, className }: BaseWidgetProps) {
         <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
           <Target className={cn('mb-2 opacity-30', sizeMode === 'compact' ? 'w-6 h-6' : isLarge ? 'w-10 h-10' : 'w-8 h-8')} />
           <p className={cn(sizeMode === 'compact' ? 'text-xs' : isLarge ? 'text-base' : 'text-sm')}>
-            {lang === 'zh' ? '暂无进行中的任务' : 'No current task'}
+            {t.currentTask.noCurrentTask}
           </p>
         </div>
       )}

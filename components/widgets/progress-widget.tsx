@@ -3,6 +3,7 @@
 import { useMemo, useRef, useEffect, useState, useCallback } from 'react'
 import { Progress } from '@/components/ui/progress'
 import { useStore, useLanguage } from '@/lib/store'
+import { useTranslations } from '@/lib/i18n'
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
 import type { BaseWidgetProps } from '@/lib/widget-types'
@@ -75,6 +76,7 @@ export function ProgressWidget({ id, config, className }: BaseWidgetProps) {
   const [containerSize, setContainerSize] = useState<ContainerSize>({ width: 280, height: 100 })
   
   const lang = useLanguage()
+  const t = useTranslations(lang)
   const { state } = useStore()
 
   const showPercentage = (config?.showPercentage as boolean) ?? true
@@ -162,7 +164,7 @@ export function ProgressWidget({ id, config, className }: BaseWidgetProps) {
             <Target className={cn('text-primary', sizeMode === 'compact' ? 'w-3 h-3' : 'w-4 h-4')} />
           )}
           <span className={cn('font-medium', titleFontSize)}>
-            {lang === 'zh' ? '今日进度' : 'Today\'s Progress'}
+            {t.progress.todayProgress}
           </span>
         </div>
         {showCount && (
@@ -190,7 +192,7 @@ export function ProgressWidget({ id, config, className }: BaseWidgetProps) {
           </span>
         )}
         <span className={cn('text-muted-foreground', countFontSize)}>
-          {lang === 'zh' ? '已完成' : 'completed'}
+          {t.progress.completed}
         </span>
       </div>
 
@@ -216,7 +218,7 @@ export function ProgressWidget({ id, config, className }: BaseWidgetProps) {
 
       {totalCount === 0 && (
         <p className={cn('text-muted-foreground text-center mt-2', countFontSize)}>
-          {lang === 'zh' ? '暂无任务' : 'No tasks today'}
+          {t.progress.noTasksToday}
         </p>
       )}
     </div>

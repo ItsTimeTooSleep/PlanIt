@@ -5,9 +5,38 @@
  * @file lib/updater.ts
  */
 
-import { check } from '@tauri-apps/plugin-updater'
-import { relaunch } from '@tauri-apps/plugin-process'
 import { toast } from 'sonner'
+import { isDesktop } from '@/lib/platform'
+
+/**
+ * 安全地获取 Tauri 更新插件
+ * @returns 更新插件或 null
+ */
+async function getTauriUpdater(): Promise<{ check: () => Promise<unknown> } | null> {
+  if (!isDesktop()) return null
+  try {
+    const mod = await import('@tauri-apps/plugin-updater')
+    return { check: mod.check }
+  } catch {
+    console.warn('[Updater] Tauri updater plugin not available')
+    return null
+  }
+}
+
+/**
+ * 安全地获取 Tauri 进程插件
+ * @returns 进程插件或 null
+ */
+async function getTauriProcess(): Promise<{ relaunch: () => Promise<void> } | null> {
+  if (!isDesktop()) return null
+  try {
+    const mod = await import('@tauri-apps/plugin-process')
+    return { relaunch: mod.relaunch }
+  } catch {
+    console.warn('[Updater] Tauri process plugin not available')
+    return null
+  }
+}
 
 type UpdateMessages = {
   updateAvailable: string
@@ -260,7 +289,17 @@ export class UpdaterManager {
    * @returns {Promise<boolean>} 是否有可用更新
    */
   public async checkForUpdates(showToastIfLatest: boolean = true, forceCheck: boolean = false): Promise<boolean> {
+    if (!isDesktop()) {
+      console.warn('[UpdaterManager] Update functionality not available on web platform')
+      return false
+    }
+
     if (this.isChecking) {
+      return false
+    }
+
+    const tauriUpdater = await getTauriUpdater()
+    if (!tauriUpdater) {
       return false
     }
 
@@ -270,18 +309,20 @@ export class UpdaterManager {
     const checkingToastId = toast.loading(this.messages.updateChecking)
 
     try {
-      const update = await check()
+      const update = await tauriUpdater.check()
       toast.dismiss(checkingToastId)
 
       if (update) {
+        // 安全地类型断言
+        const updateData = update as { version: string; body?: string; date?: string }
         this.currentUpdate = {
-          version: update.version,
-          body: update.body,
-          date: update.date,
+          version: updateData.version,
+          body: updateData.body,
+          date: updateData.date,
         }
 
-        if (!forceCheck && this.isVersionSkipped(update.version)) {
-          console.log(`[UpdaterManager] Version ${update.version} has been skipped`)
+        if (!forceCheck && this.isVersionSkipped(updateData.version)) {
+          console.log(`[UpdaterManager] Version ${updateData.version} has been skipped`)
           return false
         }
 
@@ -344,7 +385,18 @@ export class UpdaterManager {
    * 安装更新
    */
   public async installUpdate(): Promise<void> {
+    if (!isDesktop()) {
+      console.warn('[UpdaterManager] Update functionality not available on web platform')
+      return
+    }
+
     if (!this.currentUpdate || this.isDownloading) {
+      return
+    }
+
+    const tauriUpdater = await getTauriUpdater()
+    const tauriProcess = await getTauriProcess()
+    if (!tauriUpdater || !tauriProcess) {
       return
     }
 
@@ -352,14 +404,16 @@ export class UpdaterManager {
       this.isDownloading = true
       toast.loading(this.messages.updateDownloading)
 
-      const update = await check()
+      const update = await tauriUpdater.check()
       if (update) {
-        await update.downloadAndInstall()
+        // 安全地调用 downloadAndInstall
+        const updateObj = update as { downloadAndInstall: () => Promise<void> }
+        await updateObj.downloadAndInstall()
         toast.dismiss()
         toast.success(this.messages.updateInstalled)
 
         await new Promise(resolve => setTimeout(resolve, 1500))
-        await relaunch()
+        await tauriProcess.relaunch()
       }
     } catch (error) {
       console.error('[UpdaterManager] Failed to install update:', error)

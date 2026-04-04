@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
+import { useLanguage } from '@/lib/store'
+import { useTranslations } from '@/lib/i18n'
 import type { WidgetType, Position, Size, BaseWidgetProps } from '@/lib/widget-types'
 import { WIDGET_METADATA } from '@/lib/widget-registry'
 import { WidgetWrapper } from './widget-wrapper'
@@ -62,6 +64,8 @@ interface WidgetCanvasProps {
  * @returns 组件画布
  */
 export function WidgetCanvas({ className, showGrid = true, editMode = false }: WidgetCanvasProps) {
+  const lang = useLanguage()
+  const t = useTranslations(lang)
   const canvasRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [selectedWidgetId, setSelectedWidgetId] = useState<string | null>(null)
@@ -326,8 +330,8 @@ export function WidgetCanvas({ className, showGrid = true, editMode = false }: W
         <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
           <LayoutGrid className="w-8 h-8" />
         </div>
-        <p className="text-sm font-medium mb-1">画布为空</p>
-        <p className="text-xs">从左侧面板拖拽组件到此处</p>
+        <p className="text-sm font-medium mb-1">{t.customLayout.emptyCanvas}</p>
+        <p className="text-xs">{t.customLayout.dragWidgetHere}</p>
       </div>
     )
   }
@@ -338,7 +342,7 @@ export function WidgetCanvas({ className, showGrid = true, editMode = false }: W
     return (
       <div className="absolute inset-0 pointer-events-none flex items-center justify-center bg-primary/5">
         <div className="px-4 py-2 bg-primary/10 border-2 border-dashed border-primary rounded-lg text-primary text-sm">
-          释放以添加组件
+          {t.customLayout.releaseToAdd}
         </div>
       </div>
     )
@@ -370,7 +374,7 @@ export function WidgetCanvas({ className, showGrid = true, editMode = false }: W
           <ZoomIn className="w-4 h-4" />
         </Button>
         <div className="w-px h-4 bg-border mx-1" />
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleZoomReset} title="恢复默认">
+        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleZoomReset} title={t.customLayout.restoreDefault}>
           <RotateCcw className="w-4 h-4" />
         </Button>
         <div className="w-px h-4 bg-border mx-1" />

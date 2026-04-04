@@ -24,22 +24,22 @@ interface AnimatedBlob {
 
 const PHASE_COLOR_VARIANTS: Record<string, string[]> = {
   work: [
-    'oklch(0.63 0.24 25)',
-    'oklch(0.60 0.22 20)',
-    'oklch(0.66 0.25 30)',
-    'oklch(0.58 0.20 15)',
+    '#ef4444',
+    '#dc2626',
+    '#f87171',
+    '#b91c1c',
   ],
   shortBreak: [
-    'oklch(0.72 0.19 142)',
-    'oklch(0.70 0.17 145)',
-    'oklch(0.75 0.20 140)',
-    'oklch(0.68 0.18 150)',
+    '#22c55e',
+    '#16a34a',
+    '#4ade80',
+    '#15803d',
   ],
   longBreak: [
-    'oklch(0.62 0.18 260)',
-    'oklch(0.60 0.16 265)',
-    'oklch(0.65 0.20 255)',
-    'oklch(0.58 0.17 270)',
+    '#6366f1',
+    '#4f46e5',
+    '#818cf8',
+    '#4338ca',
   ],
 }
 
@@ -435,7 +435,7 @@ export function PomodoroTimer() {
               
               <div className="text-center">
                 <h2 className="text-2xl font-bold mb-2">
-                  {lang === 'zh' ? '专注完成！' : 'Focus Complete!'}
+                  {t.pomodoro.complete}
                 </h2>
                 <p className="text-muted-foreground">
                   {lang === 'zh' 
@@ -461,14 +461,14 @@ export function PomodoroTimer() {
                     <>
                       <Coffee className="w-4 h-4 text-emerald-500" />
                       <span className="text-sm">
-                        {lang === 'zh' ? '短休息' : 'Short Break'}: {pomodoro.settings.shortBreakDuration}min
+                        {t.pomodoro.phase.shortBreak}: {pomodoro.settings.shortBreakDuration}min
                       </span>
                     </>
                   ) : (
                     <>
                       <Battery className="w-4 h-4 text-blue-500" />
                       <span className="text-sm">
-                        {lang === 'zh' ? '长休息' : 'Long Break'}: {pomodoro.settings.longBreakDuration}min
+                        {t.pomodoro.phase.longBreak}: {pomodoro.settings.longBreakDuration}min
                       </span>
                     </>
                   )}
@@ -488,7 +488,7 @@ export function PomodoroTimer() {
                     {nextPhase === 'shortBreak' ? (
                       <>
                         <Coffee className="w-4 h-4 mr-2" />
-                        {lang === 'zh' ? '开始休息' : 'Start Break'}
+                        {t.pomodoro.break}
                       </>
                     ) : (
                       <>
@@ -508,7 +508,7 @@ export function PomodoroTimer() {
                   {hasBreak ? (
                     <>
                       <SkipForward className="w-4 h-4 mr-2" />
-                      {lang === 'zh' ? '跳过休息' : 'Skip Break'}
+                      {t.pomodoro.skip}
                     </>
                   ) : (
                     <>

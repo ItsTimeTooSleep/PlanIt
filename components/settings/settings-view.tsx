@@ -10,7 +10,7 @@ import { getAppVersion } from '@/lib/version'
 import { OFFICIAL_WEBSITE } from '@/lib/config'
 import { UpdaterManager } from '@/lib/updater'
 import { Button } from '@/components/ui/button'
-import { usePlatform } from '@/components/platform-provider'
+import { usePlatform, useDesktopOnly } from '@/components/platform-provider'
 import {
   GeneralSettings,
   NotificationSettings,
@@ -24,6 +24,7 @@ export function SettingsView() {
   const lang = useLanguage()
   const t = useTranslations(lang)
   const { api } = usePlatform()
+  const isDesktop = useDesktopOnly()
   const [expandedSection, setExpandedSection] = useState<string | null>('general')
   const [appVersion, setAppVersion] = useState<string>('')
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false)
@@ -37,6 +38,8 @@ export function SettingsView() {
   }, [])
 
   useEffect(() => {
+    if (!isDesktop) return
+
     const updater = UpdaterManager.getInstance({
       updateAvailable: t.settings.updateAvailable,
       updateLatest: t.settings.updateLatest,
@@ -80,9 +83,10 @@ export function SettingsView() {
         clearTimeout(errorTimeoutRef.current)
       }
     }
-  }, [lang, t.settings])
+  }, [lang, t.settings, isDesktop])
 
   const handleCheckUpdate = useCallback(async () => {
+    if (!isDesktop) return
     setUpdateError(null)
     setUpdateErrorDetail(null)
     setCopied(false)
@@ -92,7 +96,7 @@ export function SettingsView() {
     }
     const updater = UpdaterManager.getInstance()
     await updater.checkForUpdates(true, true)
-  }, [])
+  }, [isDesktop])
 
   return (
     <div className="flex flex-col h-[calc(100vh-2.25rem)] overflow-y-auto ml-16">
@@ -171,55 +175,57 @@ export function SettingsView() {
                   {appVersion ? `${t.settings.versionPrefix || (lang === 'zh' ? '版本 ' : 'Version ')}${appVersion}` : ''}
                 </p>
               </div>
-              <div className="flex flex-col items-end gap-1.5">
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={handleCheckUpdate}
-                  disabled={isCheckingUpdate}
-                  className="min-w-[100px]"
-                >
-                  {isCheckingUpdate ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      {lang === 'zh' ? '检查中...' : 'Checking...'}
-                    </>
-                  ) : (
-                    t.settings.checkUpdate
-                  )}
-                </Button>
-                {updateError && (
-                  <button
-                    onClick={async () => {
-                      if (updateErrorDetail && api) {
-                        try {
-                          await api.writeToClipboard(updateErrorDetail)
-                          setCopied(true)
-                          setTimeout(() => setCopied(false), 2000)
-                        } catch (e) {
-                          console.error('Failed to copy error:', e)
-                        }
-                      }
-                    }}
-                    className={cn(
-                      'text-xs max-w-[180px] text-right flex items-center gap-1 transition-colors',
-                      updateErrorDetail
-                        ? 'text-destructive hover:text-destructive/80 cursor-pointer'
-                        : 'text-destructive cursor-default'
-                    )}
-                    title={updateErrorDetail || updateError}
+              {isDesktop && (
+                <div className="flex flex-col items-end gap-1.5">
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={handleCheckUpdate}
+                    disabled={isCheckingUpdate}
+                    className="min-w-[100px]"
                   >
-                    <span className="truncate">{updateError}</span>
-                    {updateErrorDetail && (
-                      copied ? (
-                        <Check className="w-3 h-3 flex-shrink-0" />
-                      ) : (
-                        <Copy className="w-3 h-3 flex-shrink-0" />
-                      )
+                    {isCheckingUpdate ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        {lang === 'zh' ? '检查中...' : 'Checking...'}
+                      </>
+                    ) : (
+                      t.settings.checkUpdate
                     )}
-                  </button>
-                )}
-              </div>
+                  </Button>
+                  {updateError && (
+                    <button
+                      onClick={async () => {
+                        if (updateErrorDetail && api) {
+                          try {
+                            await api.writeToClipboard(updateErrorDetail)
+                            setCopied(true)
+                            setTimeout(() => setCopied(false), 2000)
+                          } catch (e) {
+                            console.error('Failed to copy error:', e)
+                          }
+                        }
+                      }}
+                      className={cn(
+                        'text-xs max-w-[180px] text-right flex items-center gap-1 transition-colors',
+                        updateErrorDetail
+                          ? 'text-destructive hover:text-destructive/80 cursor-pointer'
+                          : 'text-destructive cursor-default'
+                      )}
+                      title={updateErrorDetail || updateError}
+                    >
+                      <span className="truncate">{updateError}</span>
+                      {updateErrorDetail && (
+                        copied ? (
+                          <Check className="w-3 h-3 flex-shrink-0" />
+                        ) : (
+                          <Copy className="w-3 h-3 flex-shrink-0" />
+                        )
+                      )}
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
             <p className="text-xs text-muted-foreground">{t.settings.madeWith}</p>
             <div className="pt-2 space-y-2">

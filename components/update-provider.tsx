@@ -5,12 +5,14 @@ import { UpdateDialog } from '@/components/update-dialog'
 import { UpdaterManager } from '@/lib/updater'
 import { useLanguage } from '@/lib/store'
 import { useTranslations } from '@/lib/i18n'
+import { useDesktopOnly } from '@/components/platform-provider'
 
 interface UpdateProviderProps {
   children: React.ReactNode
 }
 
 export function UpdateProvider({ children }: UpdateProviderProps) {
+  const isDesktop = useDesktopOnly()
   const lang = useLanguage()
   const t = useTranslations(lang)
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false)
@@ -19,6 +21,8 @@ export function UpdateProvider({ children }: UpdateProviderProps) {
   const [isDownloading, setIsDownloading] = useState(false)
 
   useEffect(() => {
+    if (!isDesktop) return
+
     const updater = UpdaterManager.getInstance({
       updateAvailable: t.settings.updateAvailable,
       updateLatest: t.settings.updateLatest,
@@ -45,15 +49,17 @@ export function UpdateProvider({ children }: UpdateProviderProps) {
     return () => {
       clearInterval(checkDownloading)
     }
-  }, [lang, t.settings, t.update])
+  }, [lang, t.settings, t.update, isDesktop])
 
   const handleUpdateNow = async () => {
+    if (!isDesktop) return
     const updater = UpdaterManager.getInstance()
     setIsDownloading(true)
     await updater.installUpdate()
   }
 
   const handleRemindLater = (skipThisVersion: boolean) => {
+    if (!isDesktop) return
     const updater = UpdaterManager.getInstance()
     if (skipThisVersion && currentVersion) {
       updater.skipVersion(currentVersion)
@@ -64,15 +70,17 @@ export function UpdateProvider({ children }: UpdateProviderProps) {
   return (
     <>
       {children}
-      <UpdateDialog
-        open={updateDialogOpen}
-        onOpenChange={setUpdateDialogOpen}
-        version={currentVersion}
-        body={currentBody}
-        onUpdateNow={handleUpdateNow}
-        onRemindLater={handleRemindLater}
-        isDownloading={isDownloading}
-      />
+      {isDesktop && (
+        <UpdateDialog
+          open={updateDialogOpen}
+          onOpenChange={setUpdateDialogOpen}
+          version={currentVersion}
+          body={currentBody}
+          onUpdateNow={handleUpdateNow}
+          onRemindLater={handleRemindLater}
+          isDownloading={isDownloading}
+        />
+      )}
     </>
   )
 }

@@ -127,6 +127,7 @@ export interface PlatformAPI {
   setWindowState: (state: Partial<WindowState>) => Promise<void>
   minimizeWindow: () => Promise<void>
   maximizeWindow: () => Promise<void>
+  toggleFullscreen: () => Promise<void>
   closeWindow: () => Promise<void>
   hideWindow: () => Promise<void>
   
@@ -247,11 +248,15 @@ const webAPI: PlatformAPI = {
   maximizeWindow: async () => {
     console.warn('[Platform] Window controls are not supported on web platform')
   },
-  
+
+  toggleFullscreen: async () => {
+    console.warn('[Platform] Window controls are not supported on web platform')
+  },
+
   closeWindow: async () => {
     console.warn('[Platform] Window controls are not supported on web platform')
   },
-  
+
   hideWindow: async () => {
     console.warn('[Platform] Window controls are not supported on web platform')
   },
@@ -568,11 +573,17 @@ async function createTauriAPI(platform: PlatformType): Promise<PlatformAPI> {
         await win.maximize()
       }
     },
-    
+
+    toggleFullscreen: async () => {
+      const win = getCurrentWindow()
+      const isFullscreen = await win.isFullscreen()
+      await win.setFullscreen(!isFullscreen)
+    },
+
     closeWindow: async () => {
       await getCurrentWindow().close()
     },
-    
+
     hideWindow: async () => {
       const win = getCurrentWindow()
       await win.hide()
@@ -622,6 +633,7 @@ interface TauriGlobalAPI {
       outerPosition: () => Promise<{ x: number; y: number }>
       outerSize: () => Promise<{ width: number; height: number }>
       isMaximized: () => Promise<boolean>
+      isFullscreen: () => Promise<boolean>
       maximize: () => Promise<void>
       unmaximize: () => Promise<void>
       minimize: () => Promise<void>
@@ -665,6 +677,7 @@ async function loadTauriModules(): Promise<{
     outerPosition: () => Promise<{ x: number; y: number }>
     outerSize: () => Promise<{ width: number; height: number }>
     isMaximized: () => Promise<boolean>
+    isFullscreen: () => Promise<boolean>
     maximize: () => Promise<void>
     unmaximize: () => Promise<void>
     minimize: () => Promise<void>

@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
+import { useLanguage } from '@/lib/store'
+import { useTranslations } from '@/lib/i18n'
 import type { WidgetType, WidgetCategory, WidgetMetadata } from '@/lib/widget-types'
 import { WIDGET_METADATA, WIDGET_CATEGORIES, CATEGORY_ORDER, getWidgetsByCategory } from '@/lib/widget-registry'
 
@@ -42,6 +44,8 @@ interface WidgetSelectorProps {
  * @returns 组件选择面板
  */
 export function WidgetSelector({ onDragStart, onWidgetSelect, className }: WidgetSelectorProps) {
+  const lang = useLanguage()
+  const t = useTranslations(lang)
   const [searchQuery, setSearchQuery] = useState('')
   const [activeCategory, setActiveCategory] = useState<WidgetCategory>('productivity')
 
@@ -76,7 +80,7 @@ export function WidgetSelector({ onDragStart, onWidgetSelect, className }: Widge
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="搜索组件..."
+            placeholder={t.customLayout.searchWidgets}
             className="pl-9 h-9 text-sm"
           />
         </div>
@@ -89,13 +93,14 @@ export function WidgetSelector({ onDragStart, onWidgetSelect, className }: Widge
               <WidgetCard
                 key={widget.type}
                 widget={widget}
+                lang={lang}
                 onDragStart={handleDragStart}
                 onClick={handleWidgetClick}
               />
             ))}
             {filteredWidgets.length === 0 && (
               <div className="col-span-2 py-8 text-center text-sm text-muted-foreground">
-                未找到匹配的组件
+                {t.customLayout.noWidgetsFound}
               </div>
             )}
           </div>
@@ -105,7 +110,7 @@ export function WidgetSelector({ onDragStart, onWidgetSelect, className }: Widge
           <TabsList className="grid grid-cols-4 mx-3 mt-2">
             {CATEGORY_ORDER.map((category) => (
               <TabsTrigger key={category} value={category} className="text-xs">
-                {WIDGET_CATEGORIES[category].nameZh}
+                {lang === 'zh' ? WIDGET_CATEGORIES[category].nameZh : WIDGET_CATEGORIES[category].name}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -118,6 +123,7 @@ export function WidgetSelector({ onDragStart, onWidgetSelect, className }: Widge
                     <WidgetCard
                       key={widget.type}
                       widget={widget}
+                      lang={lang}
                       onDragStart={handleDragStart}
                       onClick={handleWidgetClick}
                     />
@@ -134,11 +140,12 @@ export function WidgetSelector({ onDragStart, onWidgetSelect, className }: Widge
 
 interface WidgetCardProps {
   widget: WidgetMetadata
+  lang: string
   onDragStart: (type: WidgetType) => void
   onClick: (type: WidgetType) => void
 }
 
-function WidgetCard({ widget, onDragStart, onClick }: WidgetCardProps) {
+function WidgetCard({ widget, lang, onDragStart, onClick }: WidgetCardProps) {
   const Icon = WIDGET_ICONS[widget.type]
 
   const handleDragStart = (e: React.DragEvent) => {
@@ -164,9 +171,9 @@ function WidgetCard({ widget, onDragStart, onClick }: WidgetCardProps) {
         <Icon className="w-5 h-5 text-primary" />
       </div>
 
-      <span className="text-xs font-medium text-center">{widget.nameZh}</span>
+      <span className="text-xs font-medium text-center">{lang === 'zh' ? widget.nameZh : widget.name}</span>
       <span className="text-[10px] text-muted-foreground text-center mt-0.5 line-clamp-1">
-        {widget.descriptionZh}
+        {lang === 'zh' ? widget.descriptionZh : widget.description}
       </span>
     </div>
   )

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useCallback, useRef, useEffect } from 'react'
-import { Settings, Type, AlignLeft, AlignCenter, AlignRight, Bold } from 'lucide-react'
+import { useState, useCallback, useRef } from 'react'
+import { Settings, AlignLeft, AlignCenter, AlignRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'

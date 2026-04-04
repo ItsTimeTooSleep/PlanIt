@@ -7,6 +7,7 @@ import { Plus, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useStore, useLanguage } from '@/lib/store'
+import { useTranslations } from '@/lib/i18n'
 import type { BaseWidgetProps } from '@/lib/widget-types'
 import type { Task, Tag } from '@/lib/types'
 import { sortTasksByTime, timeToMinutes, minutesToTime } from '@/lib/task-utils'
@@ -64,6 +65,7 @@ export function TimelineWidget({
   const [sizeMode, setSizeMode] = useState<SizeMode>('normal')
 
   const storeLang = useLanguage()
+  const t = useTranslations(storeLang)
   const { state } = useStore()
   
   const lang = (config?.lang as 'zh' | 'en') || storeLang
@@ -225,7 +227,7 @@ export function TimelineWidget({
                 <div className="flex items-center gap-2 text-muted-foreground/60">
                   <div className="w-12 h-px bg-muted-foreground/40" />
                   <span className="text-lg">🌅</span>
-                  <span className={cn('font-medium', hourLabelFontSize)}>{lang === 'zh' ? '新的一天开始' : 'New Day'}</span>
+                  <span className={cn('font-medium', hourLabelFontSize)}>{t.timeline.newDay}</span>
                   <div className="w-12 h-px bg-muted-foreground/40" />
                 </div>
               </div>
@@ -329,7 +331,7 @@ export function TimelineWidget({
                 <div className="flex items-center gap-2 text-muted-foreground/60">
                   <div className="w-12 h-px bg-muted-foreground/40" />
                   <span className="text-lg">🌙</span>
-                  <span className={cn('font-medium', hourLabelFontSize)}>{lang === 'zh' ? '一天结束' : 'Day End'}</span>
+                  <span className={cn('font-medium', hourLabelFontSize)}>{t.timeline.dayEnd}</span>
                   <div className="w-12 h-px bg-muted-foreground/40" />
                 </div>
               </div>
@@ -338,7 +340,7 @@ export function TimelineWidget({
             {timedTasks.length === 0 && (
               <div className="absolute pointer-events-none" style={{ top: nowTop + 52, left: TIMELINE_LEFT + 16 }}>
                 <p className={cn('text-muted-foreground', hourLabelFontSize)}>
-                  {lang === 'zh' ? '点击任意时间段创建任务' : 'Click any time slot to add a task'}
+                  {t.timeline.clickToAddTask}
                 </p>
               </div>
             )}

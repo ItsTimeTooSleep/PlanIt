@@ -123,6 +123,15 @@ export function GeneralSettings() {
               })}
             />
           </SettingRow>
+
+          <SettingRow label={t.settings.playOnTaskDrag}>
+            <Switch
+              checked={state.settings.sound.playOnTaskDrag}
+              onCheckedChange={(checked) => updateSettings({ 
+                sound: { ...state.settings.sound, playOnTaskDrag: checked } 
+              })}
+            />
+          </SettingRow>
         </SettingSubGroup>
       </SettingGroup>
 
