@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { TodoView } from '@/components/todo/todo-view'
+import { TodoView } from "@/components/todo/todo-view";
 
 export default function TodoPage() {
-  return <TodoView />
+	return <TodoView />;
 }

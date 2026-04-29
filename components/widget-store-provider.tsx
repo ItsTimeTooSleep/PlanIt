@@ -1,7 +1,11 @@
-'use client'
+"use client";
 
-import { createContext, useContext, ReactNode } from 'react'
-import { WidgetStoreContextValue, WidgetStoreContext, useWidgetStoreState } from '@/lib/widget-store'
+import { type ReactNode, useContext } from "react";
+import {
+	useWidgetStoreState,
+	WidgetStoreContext,
+	type WidgetStoreContextValue,
+} from "@/lib/widget-store";
 
 /**
  * 组件状态提供者
@@ -10,17 +14,18 @@ import { WidgetStoreContextValue, WidgetStoreContext, useWidgetStoreState } from
  * @returns 组件状态提供者
  */
 export function WidgetStoreProvider({ children }: { children: ReactNode }) {
-  const store = useWidgetStoreState()
+	const store = useWidgetStoreState();
 
-  return (
-    <WidgetStoreContext.Provider value={store}>
-      {children}
-    </WidgetStoreContext.Provider>
-  )
+	return (
+		<WidgetStoreContext.Provider value={store}>
+			{children}
+		</WidgetStoreContext.Provider>
+	);
 }
 
 export function useWidgetStore(): WidgetStoreContextValue {
-  const ctx = useContext(WidgetStoreContext)
-  if (!ctx) throw new Error('useWidgetStore must be used within WidgetStoreProvider')
-  return ctx
+	const ctx = useContext(WidgetStoreContext);
+	if (!ctx)
+		throw new Error("useWidgetStore must be used within WidgetStoreProvider");
+	return ctx;
 }

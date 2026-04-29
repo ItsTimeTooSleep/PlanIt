@@ -1,46 +1,52 @@
-'use client'
+"use client";
 
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
 import {
-  PlatformAPI,
-  PlatformCapabilities,
-  getPlatformAPI,
-  resetPlatformCache,
-  PlatformType,
-} from '@/lib/platform'
+	createContext,
+	type ReactNode,
+	useContext,
+	useEffect,
+	useState,
+} from "react";
+import {
+	getPlatformAPI,
+	type PlatformAPI,
+	type PlatformCapabilities,
+	type PlatformType,
+	resetPlatformCache,
+} from "@/lib/platform";
 
 interface PlatformContextValue {
-  api: PlatformAPI | null
-  capabilities: PlatformCapabilities
-  platform: PlatformType
-  isLoading: boolean
-  isReady: boolean
+	api: PlatformAPI | null;
+	capabilities: PlatformCapabilities;
+	platform: PlatformType;
+	isLoading: boolean;
+	isReady: boolean;
 }
 
 const defaultCapabilities: PlatformCapabilities = {
-  isDesktop: false,
-  isWeb: true,
-  platform: 'web',
-  supportsSystemTray: false,
-  supportsAutoLaunch: false,
-  supportsGlobalShortcuts: false,
-  supportsLocalFileAccess: false,
-  supportsWindowControls: false,
-  supportsNativeNotifications: false,
-  supportsClipboardHistory: false,
-  supportsFocusMode: false,
-}
+	isDesktop: false,
+	isWeb: true,
+	platform: "web",
+	supportsSystemTray: false,
+	supportsAutoLaunch: false,
+	supportsGlobalShortcuts: false,
+	supportsLocalFileAccess: false,
+	supportsWindowControls: false,
+	supportsNativeNotifications: false,
+	supportsClipboardHistory: false,
+	supportsFocusMode: false,
+};
 
 const PlatformContext = createContext<PlatformContextValue>({
-  api: null,
-  capabilities: defaultCapabilities,
-  platform: 'web',
-  isLoading: true,
-  isReady: false,
-})
+	api: null,
+	capabilities: defaultCapabilities,
+	platform: "web",
+	isLoading: true,
+	isReady: false,
+});
 
 interface PlatformProviderProps {
-  children: ReactNode
+	children: ReactNode;
 }
 
 /**
@@ -49,53 +55,57 @@ interface PlatformProviderProps {
  * @param props.children - 子组件
  */
 export function PlatformProvider({ children }: PlatformProviderProps) {
-  const [api, setAPI] = useState<PlatformAPI | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [capabilities, setCapabilities] = useState<PlatformCapabilities>(defaultCapabilities)
-  const [platform, setPlatform] = useState<PlatformType>('web')
+	const [api, setAPI] = useState<PlatformAPI | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
+	const [capabilities, setCapabilities] =
+		useState<PlatformCapabilities>(defaultCapabilities);
+	const [platform, setPlatform] = useState<PlatformType>("web");
 
-  useEffect(() => {
-    let mounted = true
+	useEffect(() => {
+		let mounted = true;
 
-    async function initPlatform() {
-      try {
-        resetPlatformCache()
-        const platformAPI = await getPlatformAPI()
-        
-        if (mounted) {
-          setAPI(platformAPI)
-          setCapabilities(platformAPI.capabilities)
-          setPlatform(platformAPI.capabilities.platform)
-        }
-      } catch (error) {
-        console.error('[PlatformProvider] Failed to initialize platform:', error)
-      } finally {
-        if (mounted) {
-          setIsLoading(false)
-        }
-      }
-    }
+		async function initPlatform() {
+			try {
+				resetPlatformCache();
+				const platformAPI = await getPlatformAPI();
 
-    initPlatform()
+				if (mounted) {
+					setAPI(platformAPI);
+					setCapabilities(platformAPI.capabilities);
+					setPlatform(platformAPI.capabilities.platform);
+				}
+			} catch (error) {
+				console.error(
+					"[PlatformProvider] Failed to initialize platform:",
+					error,
+				);
+			} finally {
+				if (mounted) {
+					setIsLoading(false);
+				}
+			}
+		}
 
-    return () => {
-      mounted = false
-    }
-  }, [])
+		initPlatform();
 
-  const value: PlatformContextValue = {
-    api,
-    capabilities,
-    platform,
-    isLoading,
-    isReady: !isLoading && api !== null,
-  }
+		return () => {
+			mounted = false;
+		};
+	}, []);
 
-  return (
-    <PlatformContext.Provider value={value}>
-      {children}
-    </PlatformContext.Provider>
-  )
+	const value: PlatformContextValue = {
+		api,
+		capabilities,
+		platform,
+		isLoading,
+		isReady: !isLoading && api !== null,
+	};
+
+	return (
+		<PlatformContext.Provider value={value}>
+			{children}
+		</PlatformContext.Provider>
+	);
 }
 
 /**
@@ -104,11 +114,11 @@ export function PlatformProvider({ children }: PlatformProviderProps) {
  * @throws 如果在 PlatformProvider 外部使用
  */
 export function usePlatform(): PlatformContextValue {
-  const context = useContext(PlatformContext)
-  if (!context) {
-    throw new Error('usePlatform must be used within a PlatformProvider')
-  }
-  return context
+	const context = useContext(PlatformContext);
+	if (!context) {
+		throw new Error("usePlatform must be used within a PlatformProvider");
+	}
+	return context;
 }
 
 /**
@@ -116,8 +126,8 @@ export function usePlatform(): PlatformContextValue {
  * @returns 平台 API 实例，如果未初始化完成则返回 null
  */
 export function usePlatformAPI(): PlatformAPI | null {
-  const { api } = usePlatform()
-  return api
+	const { api } = usePlatform();
+	return api;
 }
 
 /**
@@ -125,8 +135,8 @@ export function usePlatformAPI(): PlatformAPI | null {
  * @returns 平台能力描述
  */
 export function usePlatformCapabilities(): PlatformCapabilities {
-  const { capabilities } = usePlatform()
-  return capabilities
+	const { capabilities } = usePlatform();
+	return capabilities;
 }
 
 /**
@@ -134,8 +144,8 @@ export function usePlatformCapabilities(): PlatformCapabilities {
  * @returns 是否为桌面环境
  */
 export function useIsDesktop(): boolean {
-  const { capabilities } = usePlatform()
-  return capabilities.isDesktop
+	const { capabilities } = usePlatform();
+	return capabilities.isDesktop;
 }
 
 /**
@@ -143,8 +153,8 @@ export function useIsDesktop(): boolean {
  * @returns 是否为 Web 环境
  */
 export function useIsWeb(): boolean {
-  const { capabilities } = usePlatform()
-  return capabilities.isWeb
+	const { capabilities } = usePlatform();
+	return capabilities.isWeb;
 }
 
 /**
@@ -152,8 +162,8 @@ export function useIsWeb(): boolean {
  * @returns 是否应该渲染
  */
 export function useDesktopOnly(): boolean {
-  const { capabilities, isReady } = usePlatform()
-  return isReady && capabilities.isDesktop
+	const { capabilities, isReady } = usePlatform();
+	return isReady && capabilities.isDesktop;
 }
 
 /**
@@ -161,8 +171,8 @@ export function useDesktopOnly(): boolean {
  * @returns 是否应该渲染
  */
 export function useWebOnly(): boolean {
-  const { capabilities, isReady } = usePlatform()
-  return isReady && capabilities.isWeb
+	const { capabilities, isReady } = usePlatform();
+	return isReady && capabilities.isWeb;
 }
 
 /**
@@ -171,10 +181,10 @@ export function useWebOnly(): boolean {
  * @returns 是否支持该功能
  */
 export function useCapability<K extends keyof PlatformCapabilities>(
-  capability: K
+	capability: K,
 ): PlatformCapabilities[K] {
-  const { capabilities } = usePlatform()
-  return capabilities[capability]
+	const { capabilities } = usePlatform();
+	return capabilities[capability];
 }
 
 /**
@@ -184,33 +194,33 @@ export function useCapability<K extends keyof PlatformCapabilities>(
  * @param props.fallback - 默认渲染内容
  */
 export function PlatformSwitch({
-  desktop,
-  web,
-  fallback,
+	desktop,
+	web,
+	fallback,
 }: {
-  desktop?: ReactNode
-  web?: ReactNode
-  fallback?: ReactNode
+	desktop?: ReactNode;
+	web?: ReactNode;
+	fallback?: ReactNode;
 }): ReactNode {
-  const { capabilities, isReady, isLoading } = usePlatform()
+	const { capabilities, isReady, isLoading } = usePlatform();
 
-  if (isLoading) {
-    return fallback ?? null
-  }
+	if (isLoading) {
+		return fallback ?? null;
+	}
 
-  if (!isReady) {
-    return fallback ?? null
-  }
+	if (!isReady) {
+		return fallback ?? null;
+	}
 
-  if (capabilities.isDesktop && desktop) {
-    return desktop
-  }
+	if (capabilities.isDesktop && desktop) {
+		return desktop;
+	}
 
-  if (capabilities.isWeb && web) {
-    return web
-  }
+	if (capabilities.isWeb && web) {
+		return web;
+	}
 
-  return fallback ?? null
+	return fallback ?? null;
 }
 
 /**
@@ -218,8 +228,8 @@ export function PlatformSwitch({
  * @param props.children - 子组件
  */
 export function DesktopOnly({ children }: { children: ReactNode }): ReactNode {
-  const shouldRender = useDesktopOnly()
-  return shouldRender ? children : null
+	const shouldRender = useDesktopOnly();
+	return shouldRender ? children : null;
 }
 
 /**
@@ -227,6 +237,6 @@ export function DesktopOnly({ children }: { children: ReactNode }): ReactNode {
  * @param props.children - 子组件
  */
 export function WebOnly({ children }: { children: ReactNode }): ReactNode {
-  const shouldRender = useWebOnly()
-  return shouldRender ? children : null
+	const shouldRender = useWebOnly();
+	return shouldRender ? children : null;
 }

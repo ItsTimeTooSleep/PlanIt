@@ -1,5 +1,5 @@
-import type { Task } from './types'
-import { timeToMinutes } from './task-utils'
+import { timeToMinutes } from "./task-utils";
+import type { Task } from "./types";
 
 /**
  * 任务布局信息接口
@@ -12,13 +12,13 @@ import { timeToMinutes } from './task-utils'
  * @property totalColumns - 该组总列数
  */
 export interface TaskLayoutInfo {
-  task: Task
-  top: number
-  height: number
-  left: number
-  width: number
-  columnIndex: number
-  totalColumns: number
+	task: Task;
+	top: number;
+	height: number;
+	left: number;
+	width: number;
+	columnIndex: number;
+	totalColumns: number;
 }
 
 /**
@@ -29,8 +29,13 @@ export interface TaskLayoutInfo {
  * @param end2 - 第二个任务结束时间（分钟）
  * @returns 是否重叠
  */
-export function tasksOverlap(start1: number, end1: number, start2: number, end2: number): boolean {
-  return start1 < end2 && start2 < end1
+export function tasksOverlap(
+	start1: number,
+	end1: number,
+	start2: number,
+	end2: number,
+): boolean {
+	return start1 < end2 && start2 < end1;
 }
 
 /**
@@ -42,73 +47,78 @@ export function tasksOverlap(start1: number, end1: number, start2: number, end2:
  * @returns 每个任务的布局信息数组
  */
 export function calculateTaskLayouts(
-  tasks: Task[],
-  hourHeight: number,
-  dayStartMinutes: number = 0
+	tasks: Task[],
+	hourHeight: number,
+	dayStartMinutes: number = 0,
 ): TaskLayoutInfo[] {
-  if (tasks.length === 0) return []
+	if (tasks.length === 0) return [];
 
-  const tasksWithTime = tasks
-    .filter(t => t.startTime && t.endTime)
-    .map(task => {
-      const startMin = timeToMinutes(task.startTime!)
-      const endMin = timeToMinutes(task.endTime!)
-      const adjustedEndMin = endMin <= startMin ? endMin + 24 * 60 : endMin
-      return {
-        task,
-        startMin,
-        endMin: adjustedEndMin,
-      }
-    })
-    .sort((a, b) => a.startMin - b.startMin)
+	const tasksWithTime = tasks
+		.filter((t) => t.startTime && t.endTime)
+		.map((task) => {
+			const startMin = timeToMinutes(task.startTime!);
+			const endMin = timeToMinutes(task.endTime!);
+			const adjustedEndMin = endMin <= startMin ? endMin + 24 * 60 : endMin;
+			return {
+				task,
+				startMin,
+				endMin: adjustedEndMin,
+			};
+		})
+		.sort((a, b) => a.startMin - b.startMin);
 
-  if (tasksWithTime.length === 0) return []
+	if (tasksWithTime.length === 0) return [];
 
-  const columnEnds: number[] = []
-  const assignments: { task: Task; startMin: number; endMin: number; column: number }[] = []
+	const columnEnds: number[] = [];
+	const assignments: {
+		task: Task;
+		startMin: number;
+		endMin: number;
+		column: number;
+	}[] = [];
 
-  for (const item of tasksWithTime) {
-    let assignedColumn = -1
-    for (let col = 0; col < columnEnds.length; col++) {
-      if (columnEnds[col] <= item.startMin) {
-        assignedColumn = col
-        break
-      }
-    }
-    if (assignedColumn === -1) {
-      assignedColumn = columnEnds.length
-      columnEnds.push(item.endMin)
-    } else {
-      columnEnds[assignedColumn] = item.endMin
-    }
-    assignments.push({
-      task: item.task,
-      startMin: item.startMin,
-      endMin: item.endMin,
-      column: assignedColumn,
-    })
-  }
+	for (const item of tasksWithTime) {
+		let assignedColumn = -1;
+		for (let col = 0; col < columnEnds.length; col++) {
+			if (columnEnds[col] <= item.startMin) {
+				assignedColumn = col;
+				break;
+			}
+		}
+		if (assignedColumn === -1) {
+			assignedColumn = columnEnds.length;
+			columnEnds.push(item.endMin);
+		} else {
+			columnEnds[assignedColumn] = item.endMin;
+		}
+		assignments.push({
+			task: item.task,
+			startMin: item.startMin,
+			endMin: item.endMin,
+			column: assignedColumn,
+		});
+	}
 
-  const totalColumns = columnEnds.length
-  const columnWidth = 100 / totalColumns
-  const gap = 2
+	const totalColumns = columnEnds.length;
+	const columnWidth = 100 / totalColumns;
+	const gap = 2;
 
-  return assignments.map(item => {
-    const top = ((item.startMin - dayStartMinutes) / 60) * hourHeight
-    const height = ((item.endMin - item.startMin) / 60) * hourHeight
-    const left = item.column * columnWidth
-    const width = columnWidth - gap
+	return assignments.map((item) => {
+		const top = ((item.startMin - dayStartMinutes) / 60) * hourHeight;
+		const height = ((item.endMin - item.startMin) / 60) * hourHeight;
+		const left = item.column * columnWidth;
+		const width = columnWidth - gap;
 
-    return {
-      task: item.task,
-      top,
-      height,
-      left: Math.max(0, left),
-      width: Math.max(0, width),
-      columnIndex: item.column,
-      totalColumns,
-    }
-  })
+		return {
+			task: item.task,
+			top,
+			height,
+			left: Math.max(0, left),
+			width: Math.max(0, width),
+			columnIndex: item.column,
+			totalColumns,
+		};
+	});
 }
 
 /**
@@ -121,99 +131,110 @@ export function calculateTaskLayouts(
  * @returns 每个任务的布局信息数组
  */
 export function calculateTaskLayoutsGrouped(
-  tasks: Task[],
-  hourHeight: number,
-  dayStartMinutes: number = 0
+	tasks: Task[],
+	hourHeight: number,
+	dayStartMinutes: number = 0,
 ): TaskLayoutInfo[] {
-  if (tasks.length === 0) return []
+	if (tasks.length === 0) return [];
 
-  const tasksWithTime = tasks
-    .filter(t => t.startTime && t.endTime)
-    .map(task => {
-      const startMin = timeToMinutes(task.startTime!)
-      const endMin = timeToMinutes(task.endTime!)
-      const adjustedEndMin = endMin <= startMin ? endMin + 24 * 60 : endMin
-      return {
-        task,
-        startMin,
-        endMin: adjustedEndMin,
-      }
-    })
-    .sort((a, b) => a.startMin - b.startMin)
+	const tasksWithTime = tasks
+		.filter((t) => t.startTime && t.endTime)
+		.map((task) => {
+			const startMin = timeToMinutes(task.startTime!);
+			const endMin = timeToMinutes(task.endTime!);
+			const adjustedEndMin = endMin <= startMin ? endMin + 24 * 60 : endMin;
+			return {
+				task,
+				startMin,
+				endMin: adjustedEndMin,
+			};
+		})
+		.sort((a, b) => a.startMin - b.startMin);
 
-  if (tasksWithTime.length === 0) return []
+	if (tasksWithTime.length === 0) return [];
 
-  const groups: { startMin: number; endMin: number; items: typeof tasksWithTime }[] = []
+	const groups: {
+		startMin: number;
+		endMin: number;
+		items: typeof tasksWithTime;
+	}[] = [];
 
-  for (const item of tasksWithTime) {
-    let foundGroup = false
-    for (const group of groups) {
-      if (tasksOverlap(group.startMin, group.endMin, item.startMin, item.endMin)) {
-        group.items.push(item)
-        group.startMin = Math.min(group.startMin, item.startMin)
-        group.endMin = Math.max(group.endMin, item.endMin)
-        foundGroup = true
-        break
-      }
-    }
-    if (!foundGroup) {
-      groups.push({
-        startMin: item.startMin,
-        endMin: item.endMin,
-        items: [item],
-      })
-    }
-  }
+	for (const item of tasksWithTime) {
+		let foundGroup = false;
+		for (const group of groups) {
+			if (
+				tasksOverlap(group.startMin, group.endMin, item.startMin, item.endMin)
+			) {
+				group.items.push(item);
+				group.startMin = Math.min(group.startMin, item.startMin);
+				group.endMin = Math.max(group.endMin, item.endMin);
+				foundGroup = true;
+				break;
+			}
+		}
+		if (!foundGroup) {
+			groups.push({
+				startMin: item.startMin,
+				endMin: item.endMin,
+				items: [item],
+			});
+		}
+	}
 
-  const results: TaskLayoutInfo[] = []
+	const results: TaskLayoutInfo[] = [];
 
-  for (const group of groups) {
-    const columnEnds: number[] = []
-    const assignments: { task: Task; startMin: number; endMin: number; column: number }[] = []
+	for (const group of groups) {
+		const columnEnds: number[] = [];
+		const assignments: {
+			task: Task;
+			startMin: number;
+			endMin: number;
+			column: number;
+		}[] = [];
 
-    for (const item of group.items) {
-      let assignedColumn = -1
-      for (let col = 0; col < columnEnds.length; col++) {
-        if (columnEnds[col] <= item.startMin) {
-          assignedColumn = col
-          break
-        }
-      }
-      if (assignedColumn === -1) {
-        assignedColumn = columnEnds.length
-        columnEnds.push(item.endMin)
-      } else {
-        columnEnds[assignedColumn] = item.endMin
-      }
-      assignments.push({
-        task: item.task,
-        startMin: item.startMin,
-        endMin: item.endMin,
-        column: assignedColumn,
-      })
-    }
+		for (const item of group.items) {
+			let assignedColumn = -1;
+			for (let col = 0; col < columnEnds.length; col++) {
+				if (columnEnds[col] <= item.startMin) {
+					assignedColumn = col;
+					break;
+				}
+			}
+			if (assignedColumn === -1) {
+				assignedColumn = columnEnds.length;
+				columnEnds.push(item.endMin);
+			} else {
+				columnEnds[assignedColumn] = item.endMin;
+			}
+			assignments.push({
+				task: item.task,
+				startMin: item.startMin,
+				endMin: item.endMin,
+				column: assignedColumn,
+			});
+		}
 
-    const totalColumns = columnEnds.length
-    const columnWidth = 100 / totalColumns
-    const gap = 2
+		const totalColumns = columnEnds.length;
+		const columnWidth = 100 / totalColumns;
+		const gap = 2;
 
-    for (const item of assignments) {
-      const top = ((item.startMin - dayStartMinutes) / 60) * hourHeight
-      const height = ((item.endMin - item.startMin) / 60) * hourHeight
-      const left = item.column * columnWidth
-      const width = columnWidth - gap
+		for (const item of assignments) {
+			const top = ((item.startMin - dayStartMinutes) / 60) * hourHeight;
+			const height = ((item.endMin - item.startMin) / 60) * hourHeight;
+			const left = item.column * columnWidth;
+			const width = columnWidth - gap;
 
-      results.push({
-        task: item.task,
-        top,
-        height,
-        left: Math.max(0, left),
-        width: Math.max(0, width),
-        columnIndex: item.column,
-        totalColumns,
-      })
-    }
-  }
+			results.push({
+				task: item.task,
+				top,
+				height,
+				left: Math.max(0, left),
+				width: Math.max(0, width),
+				columnIndex: item.column,
+				totalColumns,
+			});
+		}
+	}
 
-  return results
+	return results;
 }

@@ -11,16 +11,16 @@ import { invoke } from "@tauri-apps/api/core";
  * 平台信息接口
  */
 export interface PlatformInfo {
-  /** 操作系统 */
-  os: string;
-  /** 系统架构 */
-  arch: string;
-  /** 操作系统版本 */
-  version: string;
-  /** 应用名称 */
-  app_name: string;
-  /** 应用版本号 */
-  app_version: string;
+	/** 操作系统 */
+	os: string;
+	/** 系统架构 */
+	arch: string;
+	/** 操作系统版本 */
+	version: string;
+	/** 应用名称 */
+	app_name: string;
+	/** 应用版本号 */
+	app_version: string;
 }
 
 /**
@@ -30,7 +30,7 @@ export interface PlatformInfo {
  * @throws {Error} 当调用 Tauri 命令失败时抛出异常
  */
 export async function getPlatformInfo(): Promise<PlatformInfo> {
-  return await invoke<PlatformInfo>("get_platform_info");
+	return await invoke<PlatformInfo>("get_platform_info");
 }
 
 /**
@@ -40,8 +40,8 @@ export async function getPlatformInfo(): Promise<PlatformInfo> {
  * @throws {Error} 当调用 Tauri 命令失败时抛出异常
  */
 export async function getAppVersion(): Promise<string> {
-  const info = await getPlatformInfo();
-  return info.app_version;
+	const info = await getPlatformInfo();
+	return info.app_version;
 }
 
 /**
@@ -52,6 +52,6 @@ export async function getAppVersion(): Promise<string> {
  * @throws {Error} 当调用 Tauri 命令失败时抛出异常
  */
 export async function getAppFullInfo(): Promise<string> {
-  const info = await getPlatformInfo();
-  return `PlanIt v${info.app_version} (${info.os} ${info.arch})`;
+	const info = await getPlatformInfo();
+	return `PlanIt v${info.app_version} (${info.os} ${info.arch})`;
 }

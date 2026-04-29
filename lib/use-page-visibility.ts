@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from "react";
 
 /**
  * 页面可见性 Hook
@@ -9,48 +9,48 @@ import { useState, useEffect, useCallback, useRef } from 'react'
  * @returns lastHiddenTime - 上次隐藏的时间戳（用于计算后台运行时长）
  */
 export function usePageVisibility() {
-  const [isVisible, setIsVisible] = useState(true)
-  const [lastHiddenTime, setLastHiddenTime] = useState<number | null>(null)
-  const lastHiddenTimeRef = useRef<number | null>(null)
-  const lastVisibleTimeRef = useRef<number>(0)
+	const [isVisible, setIsVisible] = useState(true);
+	const [lastHiddenTime, setLastHiddenTime] = useState<number | null>(null);
+	const lastHiddenTimeRef = useRef<number | null>(null);
+	const lastVisibleTimeRef = useRef<number>(0);
 
-  useEffect(() => {
-    lastVisibleTimeRef.current = Date.now()
-    
-    const handleVisibilityChange = () => {
-      const now = Date.now()
-      
-      if (document.hidden) {
-        lastHiddenTimeRef.current = now
-        setLastHiddenTime(now)
-        setIsVisible(false)
-      } else {
-        setIsVisible(true)
-        lastVisibleTimeRef.current = now
-      }
-    }
+	useEffect(() => {
+		lastVisibleTimeRef.current = Date.now();
 
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-    }
-  }, [])
+		const handleVisibilityChange = () => {
+			const now = Date.now();
 
-  /**
-   * 获取页面在后台运行的时长（毫秒）
-   * @returns 后台运行时长，如果页面一直可见则返回0
-   */
-  const getHiddenDuration = useCallback((): number => {
-    if (lastHiddenTimeRef.current === null) return 0
-    return lastVisibleTimeRef.current - lastHiddenTimeRef.current
-  }, [])
+			if (document.hidden) {
+				lastHiddenTimeRef.current = now;
+				setLastHiddenTime(now);
+				setIsVisible(false);
+			} else {
+				setIsVisible(true);
+				lastVisibleTimeRef.current = now;
+			}
+		};
 
-  return {
-    isVisible,
-    getHiddenDuration,
-    lastHiddenTime,
-  }
+		document.addEventListener("visibilitychange", handleVisibilityChange);
+
+		return () => {
+			document.removeEventListener("visibilitychange", handleVisibilityChange);
+		};
+	}, []);
+
+	/**
+	 * 获取页面在后台运行的时长（毫秒）
+	 * @returns 后台运行时长，如果页面一直可见则返回0
+	 */
+	const getHiddenDuration = useCallback((): number => {
+		if (lastHiddenTimeRef.current === null) return 0;
+		return lastVisibleTimeRef.current - lastHiddenTimeRef.current;
+	}, []);
+
+	return {
+		isVisible,
+		getHiddenDuration,
+		lastHiddenTime,
+	};
 }
 
 /**
@@ -61,44 +61,46 @@ export function usePageVisibility() {
  * @param intervalMs - 间隔时间（毫秒），默认1000
  */
 export function useAccurateTimer(
-  isRunning: boolean,
-  onTick: (elapsedSeconds: number) => void,
-  intervalMs: number = 1000
+	isRunning: boolean,
+	onTick: (elapsedSeconds: number) => void,
+	intervalMs: number = 1000,
 ) {
-  const startTimeRef = useRef<number | null>(null)
-  const lastTickTimeRef = useRef<number | null>(null)
-  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+	const startTimeRef = useRef<number | null>(null);
+	const lastTickTimeRef = useRef<number | null>(null);
+	const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    if (isRunning) {
-      startTimeRef.current = Date.now()
-      lastTickTimeRef.current = Date.now()
-      
-      intervalRef.current = setInterval(() => {
-        const now = Date.now()
-        const elapsed = Math.floor((now - (lastTickTimeRef.current ?? now)) / 1000)
-        
-        if (elapsed >= 1) {
-          lastTickTimeRef.current = now
-          onTick(elapsed)
-        }
-      }, intervalMs)
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-        intervalRef.current = null
-      }
-      startTimeRef.current = null
-      lastTickTimeRef.current = null
-    }
+	useEffect(() => {
+		if (isRunning) {
+			startTimeRef.current = Date.now();
+			lastTickTimeRef.current = Date.now();
 
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-        intervalRef.current = null
-      }
-    }
-  }, [isRunning, onTick, intervalMs])
+			intervalRef.current = setInterval(() => {
+				const now = Date.now();
+				const elapsed = Math.floor(
+					(now - (lastTickTimeRef.current ?? now)) / 1000,
+				);
+
+				if (elapsed >= 1) {
+					lastTickTimeRef.current = now;
+					onTick(elapsed);
+				}
+			}, intervalMs);
+		} else {
+			if (intervalRef.current) {
+				clearInterval(intervalRef.current);
+				intervalRef.current = null;
+			}
+			startTimeRef.current = null;
+			lastTickTimeRef.current = null;
+		}
+
+		return () => {
+			if (intervalRef.current) {
+				clearInterval(intervalRef.current);
+				intervalRef.current = null;
+			}
+		};
+	}, [isRunning, onTick, intervalMs]);
 }
 
 /**
@@ -106,23 +108,23 @@ export function useAccurateTimer(
  * @param callback - 页面重新可见时的回调函数
  */
 export function useOnVisible(callback: () => void) {
-  const callbackRef = useRef(callback)
-  
-  useEffect(() => {
-    callbackRef.current = callback
-  }, [callback])
+	const callbackRef = useRef(callback);
 
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        callbackRef.current()
-      }
-    }
+	useEffect(() => {
+		callbackRef.current = callback;
+	}, [callback]);
 
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-    }
-  }, [])
+	useEffect(() => {
+		const handleVisibilityChange = () => {
+			if (!document.hidden) {
+				callbackRef.current();
+			}
+		};
+
+		document.addEventListener("visibilitychange", handleVisibilityChange);
+
+		return () => {
+			document.removeEventListener("visibilitychange", handleVisibilityChange);
+		};
+	}, []);
 }

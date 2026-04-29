@@ -1,23 +1,23 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react'
-import { usePlatform, useDesktopOnly } from '@/components/platform-provider'
-import { useLanguage } from '@/lib/store'
-import { useTranslations } from '@/lib/i18n'
+import { useEffect } from "react";
+import { useDesktopOnly, usePlatform } from "@/components/platform-provider";
+import { useTranslations } from "@/lib/i18n";
+import { useLanguage } from "@/lib/store";
 
 interface SystemTrayManagerProps {
-  onShowWindow?: () => void
-  onHideWindow?: () => void
-  onAddTask?: () => void
-  onStartPomodoro?: () => void
-  onStopPomodoro?: () => void
-  onShortBreak?: () => void
-  onLongBreak?: () => void
-  onEnterFocusMode?: () => void
-  onExitFocusMode?: () => void
-  onOpenSettings?: () => void
-  onCheckUpdate?: () => void
-  onVisitWebsite?: () => void
+	onShowWindow?: () => void;
+	onHideWindow?: () => void;
+	onAddTask?: () => void;
+	onStartPomodoro?: () => void;
+	onStopPomodoro?: () => void;
+	onShortBreak?: () => void;
+	onLongBreak?: () => void;
+	onEnterFocusMode?: () => void;
+	onExitFocusMode?: () => void;
+	onOpenSettings?: () => void;
+	onCheckUpdate?: () => void;
+	onVisitWebsite?: () => void;
 }
 
 /**
@@ -37,103 +37,120 @@ interface SystemTrayManagerProps {
  * @param props.onVisitWebsite - 访问官网回调
  */
 export function SystemTrayManager({
-  onShowWindow,
-  onHideWindow,
-  onAddTask,
-  onStartPomodoro,
-  onStopPomodoro,
-  onShortBreak,
-  onLongBreak,
-  onEnterFocusMode,
-  onExitFocusMode,
-  onOpenSettings,
-  onCheckUpdate,
-  onVisitWebsite,
+	onShowWindow,
+	onHideWindow,
+	onAddTask,
+	onStartPomodoro,
+	onStopPomodoro,
+	onShortBreak,
+	onLongBreak,
+	onEnterFocusMode,
+	onExitFocusMode,
+	onOpenSettings,
+	onCheckUpdate,
+	onVisitWebsite,
 }: SystemTrayManagerProps) {
-  const shouldRender = useDesktopOnly()
-  const { api, isReady } = usePlatform()
-  const lang = useLanguage()
-  const t = useTranslations(lang)
+	const shouldRender = useDesktopOnly();
+	const { api, isReady } = usePlatform();
+	const lang = useLanguage();
+	const t = useTranslations(lang);
 
-  useEffect(() => {
-    if (!api?.capabilities.supportsSystemTray || !isReady) return
+	useEffect(() => {
+		if (!api?.capabilities.supportsSystemTray || !isReady) return;
 
-    const unsubscribe = api.onTrayEvent((eventId) => {
-      switch (eventId) {
-        case 'show':
-          onShowWindow?.()
-          break
-        case 'hide':
-          onHideWindow?.()
-          break
-        case 'add-task':
-          onAddTask?.()
-          break
-        case 'start-focus':
-          onStartPomodoro?.()
-          break
-        case 'stop-focus':
-          onStopPomodoro?.()
-          break
-        case 'short-break':
-          onShortBreak?.()
-          break
-        case 'long-break':
-          onLongBreak?.()
-          break
-        case 'enter-focus-mode':
-          onEnterFocusMode?.()
-          break
-        case 'exit-focus-mode':
-          onExitFocusMode?.()
-          break
-        case 'settings':
-          onOpenSettings?.()
-          break
-        case 'check-update':
-          onCheckUpdate?.()
-          break
-        case 'visit-website':
-          onVisitWebsite?.()
-          break
-        case 'quit':
-          api.closeWindow().catch(console.error)
-          break
-      }
-    })
+		const unsubscribe = api.onTrayEvent((eventId) => {
+			switch (eventId) {
+				case "show":
+					onShowWindow?.();
+					break;
+				case "hide":
+					onHideWindow?.();
+					break;
+				case "add-task":
+					onAddTask?.();
+					break;
+				case "start-focus":
+					onStartPomodoro?.();
+					break;
+				case "stop-focus":
+					onStopPomodoro?.();
+					break;
+				case "short-break":
+					onShortBreak?.();
+					break;
+				case "long-break":
+					onLongBreak?.();
+					break;
+				case "enter-focus-mode":
+					onEnterFocusMode?.();
+					break;
+				case "exit-focus-mode":
+					onExitFocusMode?.();
+					break;
+				case "settings":
+					onOpenSettings?.();
+					break;
+				case "check-update":
+					onCheckUpdate?.();
+					break;
+				case "visit-website":
+					onVisitWebsite?.();
+					break;
+				case "quit":
+					api.closeWindow().catch(console.error);
+					break;
+			}
+		});
 
-    return () => {
-      unsubscribe()
-    }
-  }, [api, isReady, onShowWindow, onHideWindow, onAddTask, onStartPomodoro, onStopPomodoro, onShortBreak, onLongBreak, onEnterFocusMode, onExitFocusMode, onOpenSettings, onCheckUpdate, onVisitWebsite])
+		return () => {
+			unsubscribe();
+		};
+	}, [
+		api,
+		isReady,
+		onShowWindow,
+		onHideWindow,
+		onAddTask,
+		onStartPomodoro,
+		onStopPomodoro,
+		onShortBreak,
+		onLongBreak,
+		onEnterFocusMode,
+		onExitFocusMode,
+		onOpenSettings,
+		onCheckUpdate,
+		onVisitWebsite,
+	]);
 
-  useEffect(() => {
-    if (!api?.capabilities.supportsSystemTray || !isReady) return
+	useEffect(() => {
+		if (!api?.capabilities.supportsSystemTray || !isReady) return;
 
-    api.updateTrayMenuLabels({
-      show: t.tray.show,
-      hide: t.tray.hide,
-      add_task: t.tray.addTask,
-      pomodoro: t.tray.pomodoro,
-      start_focus: t.tray.startFocus,
-      stop_focus: t.tray.stopFocus,
-      short_break: t.tray.shortBreak,
-      long_break: t.tray.longBreak,
-      focus_mode: t.tray.focusMode,
-      enter_focus_mode: t.tray.enterFocusMode,
-      exit_focus_mode: t.tray.exitFocusMode,
-      settings: t.tray.settings,
-      check_update: t.tray.checkUpdate,
-      visit_website: t.tray.visitWebsite,
-      contact_us: t.tray.contactUs,
-      quit: t.tray.quit,
-      tooltip: t.tray.tooltip,
-    }).catch(console.error)
-  }, [api, isReady, t.tray])
+		api
+			.updateTrayMenuLabels({
+				show: t.tray.show,
+				hide: t.tray.hide,
+				add_task: t.tray.addTask,
+				pomodoro: t.tray.pomodoro,
+				start_focus: t.tray.startFocus,
+				stop_focus: t.tray.stopFocus,
+				short_break: t.tray.shortBreak,
+				long_break: t.tray.longBreak,
+				focus_mode: t.tray.focusMode,
+				enter_focus_mode: t.tray.enterFocusMode,
+				exit_focus_mode: t.tray.exitFocusMode,
+				settings: t.tray.settings,
+				check_update: t.tray.checkUpdate,
+				visit_website: t.tray.visitWebsite,
+				contact_us: t.tray.contactUs,
+				quit: t.tray.quit,
+				tooltip: t.tray.tooltip,
+			})
+			.catch(console.error);
+	}, [api, isReady, t.tray]);
 
-  if (!shouldRender) {
-    return null
-  }
+	if (!shouldRender) {
+		return null;
+	}
 
-  return null
+	return null;
 }

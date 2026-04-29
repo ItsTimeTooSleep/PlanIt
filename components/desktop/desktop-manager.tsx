@@ -1,178 +1,176 @@
-'use client'
+"use client";
 
-import { useCallback, useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { SystemTrayManager } from '@/components/desktop'
-import { usePlatform, useDesktopOnly } from '@/components/platform-provider'
-import { usePomodoroDialog } from '@/lib/pomodoro-context'
-import { useStore } from '@/lib/store'
-import { useLanguage } from '@/lib/store'
-import { useTranslations } from '@/lib/i18n'
-import type { TrayMenuState } from '@/lib/platform'
-import { TaskModal } from '@/components/task-modal'
-import { UpdaterManager } from '@/lib/updater'
-import { OFFICIAL_WEBSITE } from '@/lib/config'
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { SystemTrayManager } from "@/components/desktop";
+import { useDesktopOnly, usePlatform } from "@/components/platform-provider";
+import { TaskModal } from "@/components/task-modal";
+import { OFFICIAL_WEBSITE } from "@/lib/config";
+import { useTranslations } from "@/lib/i18n";
+import type { TrayMenuState } from "@/lib/platform";
+import { usePomodoroDialog } from "@/lib/pomodoro-context";
+import { useLanguage, useStore } from "@/lib/store";
+import { UpdaterManager } from "@/lib/updater";
 
 /**
  * 桌面端管理组件
  * 处理系统托盘事件和桌面端特有功能
  */
 export function DesktopManager() {
-  const shouldRender = useDesktopOnly()
-  const router = useRouter()
-  const { api } = usePlatform()
-  const { startPomodoro, startShortBreak, startLongBreak, stopPomodoro } = usePomodoroDialog()
-  const { state } = useStore()
-  const { pomodoro } = state
-  const lang = useLanguage()
-  const t = useTranslations(lang)
-  
-  const [focusModeActive, setFocusModeActive] = useState(false)
-  const [windowVisible, setWindowVisible] = useState(true)
-  const [taskModalOpen, setTaskModalOpen] = useState(false)
+	const shouldRender = useDesktopOnly();
+	const router = useRouter();
+	const { api } = usePlatform();
+	const { startPomodoro, startShortBreak, startLongBreak, stopPomodoro } =
+		usePomodoroDialog();
+	const { state } = useStore();
+	const { pomodoro } = state;
+	const lang = useLanguage();
+	const t = useTranslations(lang);
 
-  useEffect(() => {
-    if (!api) return
-    
-    const checkFocusMode = async () => {
-      try {
-        const isActive = await api.isFocusModeActive()
-        setFocusModeActive(isActive)
-      } catch (error) {
-        console.error('[DesktopManager] Failed to check focus mode:', error)
-      }
-    }
-    
-    checkFocusMode()
-  }, [api])
+	const [focusModeActive, setFocusModeActive] = useState(false);
+	const [windowVisible, setWindowVisible] = useState(true);
+	const [taskModalOpen, setTaskModalOpen] = useState(false);
 
-  useEffect(() => {
-    if (!api) return
-    
-    const updateMenu = async () => {
-      const menuState: TrayMenuState = {
-        pomodoroRunning: pomodoro.status === 'running' || pomodoro.status === 'paused',
-        pomodoroPhase: pomodoro.phase,
-        focusModeActive,
-        windowVisible,
-      }
-      
-      try {
-        await api.updateTrayMenu(menuState)
-      } catch (error) {
-        console.error('[DesktopManager] Failed to update tray menu:', error)
-      }
-    }
-    
-    updateMenu()
-  }, [api, pomodoro.status, pomodoro.phase, focusModeActive, windowVisible])
+	useEffect(() => {
+		if (!api) return;
 
-  const handleShowWindow = useCallback(async () => {
-    if (!api) return
-    setWindowVisible(true)
-  }, [api])
+		const checkFocusMode = async () => {
+			try {
+				const isActive = await api.isFocusModeActive();
+				setFocusModeActive(isActive);
+			} catch (error) {
+				console.error("[DesktopManager] Failed to check focus mode:", error);
+			}
+		};
 
-  const handleHideWindow = useCallback(async () => {
-    if (!api) return
-    setWindowVisible(false)
-  }, [api])
+		checkFocusMode();
+	}, [api]);
 
-  const handleStartPomodoro = useCallback(() => {
-    startPomodoro()
-  }, [startPomodoro])
+	useEffect(() => {
+		if (!api) return;
 
-  const handleStopPomodoro = useCallback(() => {
-    stopPomodoro()
-  }, [stopPomodoro])
+		const updateMenu = async () => {
+			const menuState: TrayMenuState = {
+				pomodoroRunning:
+					pomodoro.status === "running" || pomodoro.status === "paused",
+				pomodoroPhase: pomodoro.phase,
+				focusModeActive,
+				windowVisible,
+			};
 
-  const handleShortBreak = useCallback(() => {
-    startShortBreak()
-  }, [startShortBreak])
+			try {
+				await api.updateTrayMenu(menuState);
+			} catch (error) {
+				console.error("[DesktopManager] Failed to update tray menu:", error);
+			}
+		};
 
-  const handleLongBreak = useCallback(() => {
-    startLongBreak()
-  }, [startLongBreak])
+		updateMenu();
+	}, [api, pomodoro.status, pomodoro.phase, focusModeActive, windowVisible]);
 
-  const handleEnterFocusMode = useCallback(async () => {
-    if (!api) return
-    await api.enterFocusMode()
-    setFocusModeActive(true)
-  }, [api])
+	const handleShowWindow = useCallback(async () => {
+		if (!api) return;
+		setWindowVisible(true);
+	}, [api]);
 
-  const handleExitFocusMode = useCallback(async () => {
-    if (!api) return
-    await api.exitFocusMode()
-    setFocusModeActive(false)
-  }, [api])
+	const handleHideWindow = useCallback(async () => {
+		if (!api) return;
+		setWindowVisible(false);
+	}, [api]);
 
-  const handleOpenSettings = useCallback(() => {
-    router.push('/settings')
-  }, [router])
+	const handleStartPomodoro = useCallback(() => {
+		startPomodoro();
+	}, [startPomodoro]);
 
-  useEffect(() => {
-    const updater = UpdaterManager.getInstance({
-      updateAvailable: t.settings.updateAvailable,
-      updateLatest: t.settings.updateLatest,
-      updateError: t.settings.updateError,
-      updateDownloading: t.settings.updateDownloading,
-      updateInstalled: t.settings.updateInstalled,
-      updateConfirmTitle: t.settings.updateAvailable,
-      updateConfirmBody: lang === 'zh' ? '点击确定开始更新' : 'Click OK to start updating',
-      updateChecking: lang === 'zh' ? '正在检查更新...' : 'Checking for updates...',
-      updateNetworkError: lang === 'zh' ? '网络错误，请检查网络连接' : 'Network error. Please check your connection.',
-      updateTimeoutError: lang === 'zh' ? '请求超时，请重试' : 'Request timed out. Please try again.',
-    })
-  }, [lang, t.settings])
+	const handleStopPomodoro = useCallback(() => {
+		stopPomodoro();
+	}, [stopPomodoro]);
 
-  const handleCheckUpdate = useCallback(async () => {
-    const updater = UpdaterManager.getInstance()
-    await updater.checkForUpdates(true, true)
-  }, [])
+	const handleShortBreak = useCallback(() => {
+		startShortBreak();
+	}, [startShortBreak]);
 
-  useEffect(() => {
-    const updater = UpdaterManager.getInstance()
-    if (updater.shouldCheckDaily()) {
-      updater.checkForUpdates(false).then(hasUpdate => {
-        if (!hasUpdate) {
-          updater.updateLastCheckDate()
-        }
-      })
-    }
-  }, [])
+	const handleLongBreak = useCallback(() => {
+		startLongBreak();
+	}, [startLongBreak]);
 
-  const handleVisitWebsite = useCallback(() => {
-    if (!api) return
-    api.openExternalLink(OFFICIAL_WEBSITE).catch(console.error)
-  }, [api])
+	const handleEnterFocusMode = useCallback(async () => {
+		if (!api) return;
+		await api.enterFocusMode();
+		setFocusModeActive(true);
+	}, [api]);
 
-  const handleAddTask = useCallback(() => {
-    setTaskModalOpen(true)
-  }, [])
+	const handleExitFocusMode = useCallback(async () => {
+		if (!api) return;
+		await api.exitFocusMode();
+		setFocusModeActive(false);
+	}, [api]);
 
-  if (!shouldRender) {
-    return null
-  }
+	const handleOpenSettings = useCallback(() => {
+		router.push("/settings");
+	}, [router]);
 
-  return (
-    <>
-      <SystemTrayManager
-        onShowWindow={handleShowWindow}
-        onHideWindow={handleHideWindow}
-        onAddTask={handleAddTask}
-        onStartPomodoro={handleStartPomodoro}
-        onStopPomodoro={handleStopPomodoro}
-        onShortBreak={handleShortBreak}
-        onLongBreak={handleLongBreak}
-        onEnterFocusMode={handleEnterFocusMode}
-        onExitFocusMode={handleExitFocusMode}
-        onOpenSettings={handleOpenSettings}
-        onCheckUpdate={handleCheckUpdate}
-        onVisitWebsite={handleVisitWebsite}
-      />
-      <TaskModal
-        open={taskModalOpen}
-        onClose={() => setTaskModalOpen(false)}
-      />
-    </>
-  )
+	useEffect(() => {
+		const _updater = UpdaterManager.getInstance({
+			updateAvailable: t.settings.updateAvailable,
+			updateLatest: t.settings.updateLatest,
+			updateError: t.settings.updateError,
+			updateDownloading: t.settings.updateDownloading,
+			updateInstalled: t.settings.updateInstalled,
+			updateConfirmTitle: t.settings.updateAvailable,
+			updateConfirmBody: t.settings.clickToStartUpdate,
+			updateChecking: t.settings.updateChecking,
+			updateNetworkError: t.settings.updateNetworkError,
+			updateTimeoutError: t.settings.updateTimeoutError,
+		});
+	}, [t.settings]);
+
+	const handleCheckUpdate = useCallback(async () => {
+		const updater = UpdaterManager.getInstance();
+		await updater.checkForUpdates(true, true);
+	}, []);
+
+	useEffect(() => {
+		const updater = UpdaterManager.getInstance();
+		if (updater.shouldCheckDaily()) {
+			updater.checkForUpdates(false).then((hasUpdate) => {
+				if (!hasUpdate) {
+					updater.updateLastCheckDate();
+				}
+			});
+		}
+	}, []);
+
+	const handleVisitWebsite = useCallback(() => {
+		if (!api) return;
+		api.openExternalLink(OFFICIAL_WEBSITE).catch(console.error);
+	}, [api]);
+
+	const handleAddTask = useCallback(() => {
+		setTaskModalOpen(true);
+	}, []);
+
+	if (!shouldRender) {
+		return null;
+	}
+
+	return (
+		<>
+			<SystemTrayManager
+				onShowWindow={handleShowWindow}
+				onHideWindow={handleHideWindow}
+				onAddTask={handleAddTask}
+				onStartPomodoro={handleStartPomodoro}
+				onStopPomodoro={handleStopPomodoro}
+				onShortBreak={handleShortBreak}
+				onLongBreak={handleLongBreak}
+				onEnterFocusMode={handleEnterFocusMode}
+				onExitFocusMode={handleExitFocusMode}
+				onOpenSettings={handleOpenSettings}
+				onCheckUpdate={handleCheckUpdate}
+				onVisitWebsite={handleVisitWebsite}
+			/>
+			<TaskModal open={taskModalOpen} onClose={() => setTaskModalOpen(false)} />
+		</>
+	);
 }

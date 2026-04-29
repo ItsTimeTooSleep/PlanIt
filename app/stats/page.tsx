@@ -1,5 +1,5 @@
-import { StatsView } from '@/components/stats/stats-view'
+import { StatsView } from "@/components/stats/stats-view";
 
 export default function StatsPage() {
-  return <StatsView />
+	return <StatsView />;
 }

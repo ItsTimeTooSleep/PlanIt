@@ -1,1 +1,1 @@
-export const OFFICIAL_WEBSITE = 'https://getplanit.vercel.app'
+export const OFFICIAL_WEBSITE = "https://getplanit.vercel.app";

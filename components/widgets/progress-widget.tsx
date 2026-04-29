@@ -1,19 +1,19 @@
-'use client'
+"use client";
 
-import { useMemo, useRef, useEffect, useState, useCallback } from 'react'
-import { Progress } from '@/components/ui/progress'
-import { useStore, useLanguage } from '@/lib/store'
-import { useTranslations } from '@/lib/i18n'
-import { format } from 'date-fns'
-import { cn } from '@/lib/utils'
-import type { BaseWidgetProps } from '@/lib/widget-types'
-import { CheckCircle2, Circle, Target, TrendingUp } from 'lucide-react'
+import { format } from "date-fns";
+import { CheckCircle2, Circle, Target } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Progress } from "@/components/ui/progress";
+import { useTranslations } from "@/lib/i18n";
+import { useLanguage, useStore } from "@/lib/store";
+import { cn } from "@/lib/utils";
+import type { BaseWidgetProps } from "@/lib/widget-types";
 
-type SizeMode = 'compact' | 'normal' | 'large' | 'wide'
+type SizeMode = "compact" | "normal" | "large" | "wide";
 
 interface ContainerSize {
-  width: number
-  height: number
+	width: number;
+	height: number;
 }
 
 /**
@@ -22,44 +22,53 @@ interface ContainerSize {
  * @param duration - 动画持续时间（毫秒）
  * @returns 当前动画数值
  */
-function useAnimatedNumber(targetValue: number, duration: number = 600): number {
-  const [displayValue, setDisplayValue] = useState(0)
-  const startValueRef = useRef(0)
-  const startTimeRef = useRef<number | null>(null)
-  const animationFrameRef = useRef<number | null>(null)
+function useAnimatedNumber(
+	targetValue: number,
+	duration: number = 600,
+): number {
+	const [displayValue, setDisplayValue] = useState(0);
+	const startValueRef = useRef(0);
+	const startTimeRef = useRef<number | null>(null);
+	const animationFrameRef = useRef<number | null>(null);
+	const targetValueRef = useRef(targetValue);
 
-  const animate = useCallback((timestamp: number) => {
-    if (startTimeRef.current === null) {
-      startTimeRef.current = timestamp
-    }
+	useEffect(() => {
+		targetValueRef.current = targetValue;
+		startValueRef.current = displayValue;
+		startTimeRef.current = null;
 
-    const elapsed = timestamp - startTimeRef.current
-    const progress = Math.min(elapsed / duration, 1)
-    
-    // 使用 easeOutCubic 缓动函数
-    const easeOutCubic = 1 - Math.pow(1 - progress, 3)
-    
-    const currentValue = Math.round(startValueRef.current + (targetValue - startValueRef.current) * easeOutCubic)
-    setDisplayValue(currentValue)
+		const animate = (timestamp: number) => {
+			if (startTimeRef.current === null) {
+				startTimeRef.current = timestamp;
+			}
 
-    if (progress < 1) {
-      animationFrameRef.current = requestAnimationFrame(animate)
-    }
-  }, [targetValue, duration])
+			const elapsed = timestamp - startTimeRef.current;
+			const progress = Math.min(elapsed / duration, 1);
 
-  useEffect(() => {
-    startValueRef.current = displayValue
-    startTimeRef.current = null
-    animationFrameRef.current = requestAnimationFrame(animate)
+			// 使用 easeOutCubic 缓动函数
+			const easeOutCubic = 1 - (1 - progress) ** 3;
 
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current)
-      }
-    }
-  }, [targetValue, animate])
+			const currentValue = Math.round(
+				startValueRef.current +
+					(targetValueRef.current - startValueRef.current) * easeOutCubic,
+			);
+			setDisplayValue(currentValue);
 
-  return displayValue
+			if (progress < 1) {
+				animationFrameRef.current = requestAnimationFrame(animate);
+			}
+		};
+
+		animationFrameRef.current = requestAnimationFrame(animate);
+
+		return () => {
+			if (animationFrameRef.current) {
+				cancelAnimationFrame(animationFrameRef.current);
+			}
+		};
+	}, [targetValue, duration, displayValue]);
+
+	return displayValue;
 }
 
 /**
@@ -70,157 +79,204 @@ function useAnimatedNumber(targetValue: number, duration: number = 600): number 
  * @param props.className - 自定义样式类
  * @returns 进度条组件
  */
-export function ProgressWidget({ id, config, className }: BaseWidgetProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [sizeMode, setSizeMode] = useState<SizeMode>('normal')
-  const [containerSize, setContainerSize] = useState<ContainerSize>({ width: 280, height: 100 })
-  
-  const lang = useLanguage()
-  const t = useTranslations(lang)
-  const { state } = useStore()
+export function ProgressWidget({
+	id: _id,
+	config,
+	className,
+}: BaseWidgetProps) {
+	const containerRef = useRef<HTMLDivElement>(null);
+	const [sizeMode, setSizeMode] = useState<SizeMode>("normal");
+	const [containerSize, setContainerSize] = useState<ContainerSize>({
+		width: 280,
+		height: 100,
+	});
 
-  const showPercentage = (config?.showPercentage as boolean) ?? true
-  const showCount = (config?.showCount as boolean) ?? true
-  const showIcon = (config?.showIcon as boolean) ?? true
-  const progressHeight = (config?.progressHeight as number) ?? 8
+	const lang = useLanguage();
+	const t = useTranslations(lang);
+	const { state } = useStore();
 
-  useEffect(() => {
-    const updateSizeMode = () => {
-      const el = containerRef.current
-      if (!el) return
-      const { width, height } = el.getBoundingClientRect()
-      setContainerSize({ width, height })
-      
-      const isShort = height < 50
-      
-      if (height < 50) {
-        setSizeMode('compact')
-      } else if (width > 380) {
-        setSizeMode('wide')
-      } else if (height > 120) {
-        setSizeMode('large')
-      } else {
-        setSizeMode('normal')
-      }
-    }
+	const showPercentage = (config?.showPercentage as boolean) ?? true;
+	const showCount = (config?.showCount as boolean) ?? true;
+	const showIcon = (config?.showIcon as boolean) ?? true;
 
-    updateSizeMode()
-    window.addEventListener('resize', updateSizeMode)
-    return () => window.removeEventListener('resize', updateSizeMode)
-  }, [])
+	useEffect(() => {
+		const updateSizeMode = () => {
+			const el = containerRef.current;
+			if (!el) return;
+			const { width, height } = el.getBoundingClientRect();
+			setContainerSize({ width, height });
 
-  const today = format(new Date(), 'yyyy-MM-dd')
-  const todayTasks = state.tasks.filter(t => t.date === today)
-  const completedCount = todayTasks.filter(t => t.status === 'completed').length
-  const totalCount = todayTasks.length
-  const pendingCount = totalCount - completedCount
+			if (height < 50) {
+				setSizeMode("compact");
+			} else if (width > 380) {
+				setSizeMode("wide");
+			} else if (height > 120) {
+				setSizeMode("large");
+			} else {
+				setSizeMode("normal");
+			}
+		};
 
-  const targetProgress = useMemo(() => {
-    if (totalCount === 0) return 0
-    return Math.round((completedCount / totalCount) * 100)
-  }, [completedCount, totalCount])
+		updateSizeMode();
+		window.addEventListener("resize", updateSizeMode);
+		return () => window.removeEventListener("resize", updateSizeMode);
+	}, []);
 
-  const animatedProgress = useAnimatedNumber(targetProgress, 600)
+	const today = format(new Date(), "yyyy-MM-dd");
+	const todayTasks = state.tasks.filter((t) => t.date === today);
+	const completedCount = todayTasks.filter(
+		(t) => t.status === "completed",
+	).length;
+	const totalCount = todayTasks.length;
+	const pendingCount = totalCount - completedCount;
 
-  const titleFontSize = useMemo(() => {
-    switch (sizeMode) {
-      case 'compact': return 'text-xs'
-      case 'large': return 'text-base'
-      default: return 'text-sm'
-    }
-  }, [sizeMode])
+	const targetProgress = useMemo(() => {
+		if (totalCount === 0) return 0;
+		return Math.round((completedCount / totalCount) * 100);
+	}, [completedCount, totalCount]);
 
-  const percentageFontSize = useMemo(() => {
-    switch (sizeMode) {
-      case 'compact': return 'text-lg'
-      case 'large': return 'text-3xl'
-      default: return 'text-2xl'
-    }
-  }, [sizeMode])
+	const animatedProgress = useAnimatedNumber(targetProgress, 600);
 
-  const countFontSize = useMemo(() => {
-    switch (sizeMode) {
-      case 'compact': return 'text-[10px]'
-      case 'large': return 'text-sm'
-      default: return 'text-xs'
-    }
-  }, [sizeMode])
+	const titleFontSize = useMemo(() => {
+		switch (sizeMode) {
+			case "compact":
+				return "text-xs";
+			case "large":
+				return "text-base";
+			default:
+				return "text-sm";
+		}
+	}, [sizeMode]);
 
-  const isVertical = sizeMode === 'large'
-  const showDetailedStats = containerSize.height >= 100
+	const percentageFontSize = useMemo(() => {
+		switch (sizeMode) {
+			case "compact":
+				return "text-lg";
+			case "large":
+				return "text-3xl";
+			default:
+				return "text-2xl";
+		}
+	}, [sizeMode]);
 
-  return (
-    <div 
-      ref={containerRef} 
-      className={cn(
-        'flex flex-col h-full bg-card rounded-xl border border-border overflow-hidden',
-        sizeMode === 'compact' ? 'p-2' : 'p-4',
-        className
-      )}
-    >
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          {showIcon && (
-            <Target className={cn('text-primary', sizeMode === 'compact' ? 'w-3 h-3' : 'w-4 h-4')} />
-          )}
-          <span className={cn('font-medium', titleFontSize)}>
-            {t.progress.todayProgress}
-          </span>
-        </div>
-        {showCount && (
-          <span className={cn('text-muted-foreground', countFontSize)}>
-            {completedCount}/{totalCount}
-          </span>
-        )}
-      </div>
+	const countFontSize = useMemo(() => {
+		switch (sizeMode) {
+			case "compact":
+				return "text-[10px]";
+			case "large":
+				return "text-sm";
+			default:
+				return "text-xs";
+		}
+	}, [sizeMode]);
 
-      <Progress
-        value={animatedProgress}
-        className={cn(
-          'transition-all',
-          sizeMode === 'compact' ? 'h-1.5' : sizeMode === 'large' ? 'h-4' : 'h-2'
-        )}
-      />
+	const isVertical = sizeMode === "large";
+	const showDetailedStats = containerSize.height >= 100;
 
-      <div className={cn(
-        'flex items-center mt-2',
-        isVertical ? 'flex-col items-start gap-2' : 'justify-between'
-      )}>
-        {showPercentage && (
-          <span className={cn('font-bold text-primary', percentageFontSize)}>
-            {animatedProgress}%
-          </span>
-        )}
-        <span className={cn('text-muted-foreground', countFontSize)}>
-          {t.progress.completed}
-        </span>
-      </div>
+	return (
+		<div
+			ref={containerRef}
+			className={cn(
+				"flex flex-col h-full bg-card rounded-xl border border-border overflow-hidden",
+				sizeMode === "compact" ? "p-2" : "p-4",
+				className,
+			)}
+		>
+			<div className="flex items-center justify-between mb-2">
+				<div className="flex items-center gap-2">
+					{showIcon && (
+						<Target
+							className={cn(
+								"text-primary",
+								sizeMode === "compact" ? "w-3 h-3" : "w-4 h-4",
+							)}
+						/>
+					)}
+					<span className={cn("font-medium", titleFontSize)}>
+						{t.progress.todayProgress}
+					</span>
+				</div>
+				{showCount && (
+					<span className={cn("text-muted-foreground", countFontSize)}>
+						{completedCount}/{totalCount}
+					</span>
+				)}
+			</div>
 
-      {showDetailedStats && totalCount > 0 && (
-        <div className={cn(
-          'flex gap-4 mt-3 pt-3 border-t border-border/50',
-          sizeMode === 'compact' ? 'gap-2 mt-2 pt-2' : ''
-        )}>
-          <div className="flex items-center gap-1.5">
-            <CheckCircle2 className={cn('text-green-500', sizeMode === 'compact' ? 'w-3 h-3' : 'w-4 h-4')} />
-            <span className={countFontSize}>
-              {lang === 'zh' ? `完成 ${completedCount}` : `${completedCount} done`}
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Circle className={cn('text-muted-foreground', sizeMode === 'compact' ? 'w-3 h-3' : 'w-4 h-4')} />
-            <span className={countFontSize}>
-              {lang === 'zh' ? `待办 ${pendingCount}` : `${pendingCount} pending`}
-            </span>
-          </div>
-        </div>
-      )}
+			<Progress
+				value={animatedProgress}
+				className={cn(
+					"transition-all",
+					sizeMode === "compact"
+						? "h-1.5"
+						: sizeMode === "large"
+							? "h-4"
+							: "h-2",
+				)}
+			/>
 
-      {totalCount === 0 && (
-        <p className={cn('text-muted-foreground text-center mt-2', countFontSize)}>
-          {t.progress.noTasksToday}
-        </p>
-      )}
-    </div>
-  )
+			<div
+				className={cn(
+					"flex items-center mt-2",
+					isVertical ? "flex-col items-start gap-2" : "justify-between",
+				)}
+			>
+				{showPercentage && (
+					<span className={cn("font-bold text-primary", percentageFontSize)}>
+						{animatedProgress}%
+					</span>
+				)}
+				<span className={cn("text-muted-foreground", countFontSize)}>
+					{t.progress.completed}
+				</span>
+			</div>
+
+			{showDetailedStats && totalCount > 0 && (
+				<div
+					className={cn(
+						"flex gap-4 mt-3 pt-3 border-t border-border/50",
+						sizeMode === "compact" ? "gap-2 mt-2 pt-2" : "",
+					)}
+				>
+					<div className="flex items-center gap-1.5">
+						<CheckCircle2
+							className={cn(
+								"text-green-500",
+								sizeMode === "compact" ? "w-3 h-3" : "w-4 h-4",
+							)}
+						/>
+						<span className={countFontSize}>
+							{lang === "zh"
+								? `完成 ${completedCount}`
+								: `${completedCount} done`}
+						</span>
+					</div>
+					<div className="flex items-center gap-1.5">
+						<Circle
+							className={cn(
+								"text-muted-foreground",
+								sizeMode === "compact" ? "w-3 h-3" : "w-4 h-4",
+							)}
+						/>
+						<span className={countFontSize}>
+							{lang === "zh"
+								? `待办 ${pendingCount}`
+								: `${pendingCount} pending`}
+						</span>
+					</div>
+				</div>
+			)}
+
+			{totalCount === 0 && (
+				<p
+					className={cn(
+						"text-muted-foreground text-center mt-2",
+						countFontSize,
+					)}
+				>
+					{t.progress.noTasksToday}
+				</p>
+			)}
+		</div>
+	);
 }

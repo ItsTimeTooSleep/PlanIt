@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useStore } from '@/lib/store'
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useStore } from "@/lib/store";
 
 /**
  * 根页面重定向组件
@@ -10,13 +10,13 @@ import { useStore } from '@/lib/store'
  * @returns null - 不渲染任何内容
  */
 export default function RootPage() {
-  const router = useRouter()
-  const { state } = useStore()
+	const router = useRouter();
+	const { state } = useStore();
 
-  useEffect(() => {
-    const startupPage = state.settings.startupPage || '/home'
-    router.replace(startupPage)
-  }, [state.settings.startupPage, router])
+	useEffect(() => {
+		const startupPage = state.settings.startupPage || "/home";
+		router.replace(startupPage);
+	}, [state.settings.startupPage, router]);
 
-  return null
+	return null;
 }
