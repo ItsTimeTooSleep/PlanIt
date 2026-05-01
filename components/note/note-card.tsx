@@ -43,7 +43,9 @@ export function NoteCard({
 }: NoteCardProps) {
 	const [isHovered, setIsHovered] = useState(false);
 	const [isDragging, setIsDragging] = useState(false);
+	const [isResizing, setIsResizing] = useState(false);
 	const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+	const [resizeOffset, setResizeOffset] = useState({ x: 0, y: 0 });
 	const cardRef = useRef<HTMLDivElement>(null);
 	const lang = useLanguage();
 	const t = useTranslations(lang);
@@ -54,6 +56,7 @@ export function NoteCard({
 		(e: React.MouseEvent) => {
 			if (isConnecting) return;
 			if ((e.target as HTMLElement).closest("button")) return;
+			if ((e.target as HTMLElement).closest(".content-selectable")) return;
 			setIsDragging(true);
 			setDragOffset({
 				x: e.clientX - note.x,
@@ -65,18 +68,39 @@ export function NoteCard({
 		[note.id, note.x, note.y, onBringToFront, isConnecting, onDragStateChange],
 	);
 
+	const handleResizeMouseDown = useCallback(
+		(e: React.MouseEvent) => {
+			e.stopPropagation();
+			e.preventDefault();
+			setIsResizing(true);
+			setResizeOffset({
+				x: e.clientX - (note.x + note.width),
+				y: e.clientY - (note.y + note.height),
+			});
+			onBringToFront(note.id);
+		},
+		[note.id, note.x, note.y, note.width, note.height, onBringToFront],
+	);
+
 	useEffect(() => {
-		if (!isDragging) return;
+		if (!isDragging && !isResizing) return;
 
 		const handleMouseMove = (e: MouseEvent) => {
-			const newX = e.clientX - dragOffset.x;
-			const newY = e.clientY - dragOffset.y;
-			onUpdate(note.id, { x: newX, y: newY });
-			onDragStateChange?.(true, e.clientY);
+			if (isDragging) {
+				const newX = e.clientX - dragOffset.x;
+				const newY = e.clientY - dragOffset.y;
+				onUpdate(note.id, { x: newX, y: newY });
+				onDragStateChange?.(true, e.clientY);
+			} else if (isResizing) {
+				const newWidth = Math.max(150, e.clientX - resizeOffset.x - note.x);
+				const newHeight = Math.max(100, e.clientY - resizeOffset.y - note.y);
+				onUpdate(note.id, { width: newWidth, height: newHeight });
+			}
 		};
 
 		const handleMouseUp = () => {
 			setIsDragging(false);
+			setIsResizing(false);
 			onDragStateChange?.(false, 0);
 		};
 
@@ -87,7 +111,7 @@ export function NoteCard({
 			window.removeEventListener("mousemove", handleMouseMove);
 			window.removeEventListener("mouseup", handleMouseUp);
 		};
-	}, [isDragging, dragOffset, note.id, onUpdate, onDragStateChange]);
+	}, [isDragging, isResizing, dragOffset, resizeOffset, note.id, note.x, note.y, onUpdate, onDragStateChange]);
 
 	const handleStatusToggle = useCallback(() => {
 		onUpdate(note.id, {
@@ -111,13 +135,14 @@ export function NoteCard({
 			ref={cardRef}
 			data-note-id={note.id}
 			className={cn(
-				"absolute rounded-lg shadow-md cursor-move select-none",
+				"absolute rounded-lg shadow-md",
 				colorClasses.bg,
 				colorClasses.border,
 				colorClasses.text,
 				"border-2",
-				isHovered && !isDragging && !isConnecting && "shadow-lg scale-[1.02]",
+				isHovered && !isDragging && !isResizing && !isConnecting && "shadow-lg scale-[1.02]",
 				isDragging && "shadow-2xl scale-[1.03] opacity-90",
+				isResizing && "shadow-2xl opacity-90",
 				note.status === "completed" && "opacity-60",
 				isConnecting && "ring-2 ring-primary ring-offset-2",
 				isConnecting && "cursor-pointer",
@@ -128,7 +153,7 @@ export function NoteCard({
 				width: note.width,
 				height: note.height,
 				zIndex: note.zIndex || 1,
-				transition: isDragging ? "none" : "transform 0.2s, box-shadow 0.2s",
+				transition: isDragging || isResizing ? "none" : "transform 0.2s, box-shadow 0.2s",
 			}}
 			onMouseEnter={() => setIsHovered(true)}
 			onMouseLeave={() => setIsHovered(false)}
@@ -157,11 +182,11 @@ export function NoteCard({
 						colorClasses.border,
 					)}
 				>
-					<div className="flex items-center gap-2">
-						<GripVertical className="w-4 h-4 opacity-50" />
+					<div className="flex items-center gap-2 min-w-0 flex-1">
+						<GripVertical className="w-4 h-4 opacity-50 flex-shrink-0" />
 						<button
 							onClick={handleStatusToggle}
-							className="hover:scale-110 transition-transform"
+							className="hover:scale-110 transition-transform flex-shrink-0"
 							title={
 								note.status === "active"
 									? t.note.markComplete
@@ -177,7 +202,7 @@ export function NoteCard({
 						{note.title && (
 							<h3
 								className={cn(
-									"font-semibold truncate",
+									"font-semibold truncate min-w-0",
 									note.status === "completed" && "line-through",
 								)}
 							>
@@ -228,13 +253,14 @@ export function NoteCard({
 						</div>
 					)}
 				</div>
-				<div className="flex-1 p-3 overflow-hidden">
+				<div className="flex-1 p-3 overflow-y-auto overflow-x-hidden">
 					<div
 						className={cn(
-							"text-sm leading-relaxed overflow-hidden",
+							"text-sm leading-relaxed break-words break-all content-selectable select-text",
 							note.status === "completed" && "line-through",
 						)}
 						dangerouslySetInnerHTML={{ __html: note.content }}
+						onMouseDown={(e) => e.stopPropagation()}
 					/>
 				</div>
 				<div className="px-3 pb-2 text-xs opacity-60">
@@ -247,6 +273,16 @@ export function NoteCard({
 					)}
 				</div>
 			</div>
+
+			{/* Resize Handle */}
+			{isHovered && (
+				<div
+					className="absolute bottom-0 right-0 w-5 h-5 cursor-se-resize flex items-center justify-center"
+					onMouseDown={handleResizeMouseDown}
+				>
+					<div className="w-2 h-2 border-r-2 border-b-2 opacity-30" />
+				</div>
+			)}
 		</div>
 	);
 }

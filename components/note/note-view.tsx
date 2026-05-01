@@ -53,6 +53,7 @@ import {
 	formatDate,
 	getNextZIndex,
 	getRelativeDateStr,
+	getUpdatedCardSize,
 	NOTE_COLORS,
 	NOTE_LINE_COLORS,
 } from "./note-utils";
@@ -61,6 +62,7 @@ export function NoteView() {
 	const [currentDate, setCurrentDate] = useState(new Date());
 	const [isEditorOpen, setIsEditorOpen] = useState(false);
 	const [editingNote, setEditingNote] = useState<Note | null>(null);
+	const [originalNote, setOriginalNote] = useState<Note | null>(null);
 	const [deleteNoteToDelete, setDeleteNoteToDelete] = useState<string | null>(
 		null,
 	);
@@ -80,6 +82,7 @@ export function NoteView() {
 	const [isSearchOpen, setIsSearchOpen] = useState(false);
 	const [isDragging, setIsDragging] = useState(false);
 	const [dragMouseY, setDragMouseY] = useState(0);
+	const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
 	const canvasRef = useRef<HTMLDivElement>(null);
 	const innerRef = useRef<HTMLDivElement>(null);
 	const autoScrollRef = useRef<number | null>(null);
@@ -96,6 +99,22 @@ export function NoteView() {
 	} = useStore();
 	const lang = useLanguage();
 	const t = useTranslations(lang);
+	
+	// 检查是否有未保存的更改
+	const hasUnsavedChanges = useMemo(() => {
+		if (!editingNote || !originalNote) return false;
+		return (
+			editingNote.title !== originalNote.title ||
+			editingNote.content !== originalNote.content ||
+			editingNote.color !== originalNote.color
+		);
+	}, [editingNote, originalNote]);
+	
+	// 判断是编辑现有笔记还是创建新笔记
+	const isEditingExistingNote = useMemo(() => {
+		if (!editingNote) return false;
+		return state.notes.some(note => note.id === editingNote.id);
+	}, [editingNote, state.notes]);
 
 	const dateStr = formatDate(currentDate);
 	const todayStr = formatDate(new Date());
@@ -282,11 +301,13 @@ export function NoteView() {
 			createdAt: now,
 			updatedAt: now,
 		};
+		setOriginalNote({ ...newNote });
 		setEditingNote(newNote);
 		setIsEditorOpen(true);
 	}, [dateStr, notes]);
 
 	const handleEditNote = useCallback((note: Note) => {
+		setOriginalNote({ ...note });
 		setEditingNote({ ...note });
 		setIsEditorOpen(true);
 	}, []);
@@ -294,14 +315,46 @@ export function NoteView() {
 	const handleSaveNote = useCallback(() => {
 		if (!editingNote) return;
 		const existing = state.notes.find((n) => n.id === editingNote.id);
+		// 根据内容长度更新卡片大小
+		const noteCount = existing ? state.notes.length : state.notes.length + 1;
+		const { width, height } = getUpdatedCardSize(editingNote, noteCount);
+		const updatedNote = { ...editingNote, width, height };
+		
 		if (existing) {
-			updateNote(editingNote.id, editingNote);
+			updateNote(editingNote.id, updatedNote);
 		} else {
-			addNote(editingNote);
+			addNote(updatedNote);
 		}
+		// 先关闭对话框，动画完成后再清空内容
 		setIsEditorOpen(false);
-		setEditingNote(null);
 	}, [editingNote, state.notes, addNote, updateNote]);
+	
+	const handleCloseEditor = useCallback(() => {
+		if (hasUnsavedChanges) {
+			setShowUnsavedWarning(true);
+		} else {
+			setIsEditorOpen(false);
+		}
+	}, [hasUnsavedChanges]);
+	
+	const confirmCloseEditor = useCallback(() => {
+		setShowUnsavedWarning(false);
+		setIsEditorOpen(false);
+	}, []);
+	
+	const cancelCloseEditor = useCallback(() => {
+		setShowUnsavedWarning(false);
+	}, []);
+	
+	// 监听 isEditorOpen 变化，关闭后清理数据
+	useEffect(() => {
+		if (!isEditorOpen) {
+			setTimeout(() => {
+				setEditingNote(null);
+				setOriginalNote(null);
+			}, 200); // 等待动画完成
+		}
+	}, [isEditorOpen]);
 
 	const handleDeleteNote = useCallback((id: string) => {
 		setDeleteNoteToDelete(id);
@@ -527,79 +580,99 @@ export function NoteView() {
 				</div>
 			)}
 
-			<Dialog open={isEditorOpen} onOpenChange={setIsEditorOpen}>
+			<Dialog open={isEditorOpen} onOpenChange={(open) => {
+				if (!open) {
+					handleCloseEditor();
+				}
+			}}>
 				<DialogContent className="max-w-2xl">
-					<DialogHeader>
-						<DialogTitle>
-							{editingNote && state.notes.find((n) => n.id === editingNote.id)
-								? t.note.editNote
-								: t.note.newNote}
-						</DialogTitle>
-					</DialogHeader>
 					{editingNote && (
-						<div className="space-y-4">
-							<div>
-								<Label>{t.task.title}</Label>
-								<Input
-									value={editingNote.title}
-									onChange={(e) =>
-										setEditingNote({ ...editingNote, title: e.target.value })
+						<>
+							<DialogHeader>
+								<DialogTitle>
+									{isEditingExistingNote ? t.note.editNote : t.note.newNote}
+								</DialogTitle>
+							</DialogHeader>
+							<div className="space-y-4">
+								<div>
+									<Label>{t.task.title}</Label>
+									<Input
+										value={editingNote.title}
+										onChange={(e) =>
+											setEditingNote({ ...editingNote, title: e.target.value })
+										}
+										placeholder={t.note.titlePlaceholder}
+									/>
+								</div>
+								<div>
+									<Label>{t.note.colors.yellow.replace("黄色", "颜色")}</Label>
+									<ToggleGroup
+										type="single"
+										value={editingNote.color}
+										onValueChange={(value) => {
+											if (value) {
+												setEditingNote({
+													...editingNote,
+													color: value as NoteColor,
+												});
+											}
+										}}
+										className="gap-3 py-2"
+									>
+										{(Object.keys(NOTE_COLORS) as NoteColor[]).map((color) => (
+											<ToggleGroupItem
+												key={color}
+												value={color}
+												className={cn(
+													"w-9 h-9 rounded-full transition-all duration-200",
+													NOTE_COLORS[color].bg,
+													NOTE_COLORS[color].border,
+													"border-2",
+													"hover:scale-110",
+													"data-[state=on]:ring-4 data-[state=on]:ring-primary/60",
+													"data-[state=on]:ring-offset-2",
+													"data-[state=on]:scale-110",
+													"data-[state=on]:shadow-lg",
+												)}
+												aria-label={t.note.colors[color]}
+											/>
+										))}
+									</ToggleGroup>
+								</div>
+								<NoteEditor
+									content={editingNote.content}
+									onChange={(content) =>
+										setEditingNote({ ...editingNote, content })
 									}
-									placeholder={t.note.titlePlaceholder}
+									placeholder={t.note.contentPlaceholder}
 								/>
 							</div>
-							<div>
-								<Label>{t.note.colors.yellow.replace("黄色", "颜色")}</Label>
-								<ToggleGroup
-									type="single"
-									value={editingNote.color}
-									onValueChange={(value) => {
-										if (value) {
-											setEditingNote({
-												...editingNote,
-												color: value as NoteColor,
-											});
-										}
-									}}
-									className="gap-3 py-2"
-								>
-									{(Object.keys(NOTE_COLORS) as NoteColor[]).map((color) => (
-										<ToggleGroupItem
-											key={color}
-											value={color}
-											className={cn(
-												"w-9 h-9 rounded-full transition-all duration-200",
-												NOTE_COLORS[color].bg,
-												NOTE_COLORS[color].border,
-												"border-2",
-												"hover:scale-110",
-												"data-[state=on]:ring-4 data-[state=on]:ring-primary/60",
-												"data-[state=on]:ring-offset-2",
-												"data-[state=on]:scale-110",
-												"data-[state=on]:shadow-lg",
-											)}
-											aria-label={t.note.colors[color]}
-										/>
-									))}
-								</ToggleGroup>
-							</div>
-							<NoteEditor
-								content={editingNote.content}
-								onChange={(content) =>
-									setEditingNote({ ...editingNote, content })
-								}
-								placeholder={t.note.contentPlaceholder}
-							/>
-						</div>
+							<DialogFooter>
+								<Button variant="secondary" onClick={handleCloseEditor}>
+									{t.common.cancel}
+								</Button>
+								<Button onClick={handleSaveNote}>{t.common.save}</Button>
+							</DialogFooter>
+						</>
 					)}
-					<DialogFooter>
-						<Button variant="secondary" onClick={() => setIsEditorOpen(false)}>
-							{t.common.cancel}
-						</Button>
-						<Button onClick={handleSaveNote}>{t.common.save}</Button>
-					</DialogFooter>
 				</DialogContent>
 			</Dialog>
+			
+			{/* 未保存更改的警告对话框 */}
+			<AlertDialog open={showUnsavedWarning} onOpenChange={setShowUnsavedWarning}>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>未保存的更改</AlertDialogTitle>
+						<AlertDialogDescription>
+							您有未保存的更改。确定要离开吗？
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel onClick={cancelCloseEditor}>{t.common.cancel}</AlertDialogCancel>
+						<AlertDialogAction onClick={confirmCloseEditor} className="bg-destructive hover:bg-destructive/90">放弃</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
 
 			<Dialog
 				open={!!editingLine}

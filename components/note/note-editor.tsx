@@ -348,7 +348,7 @@ export function NoteEditor({
 				onInput={handleInput}
 				onMouseUp={handleMouseUp}
 				onKeyUp={handleKeyUp}
-				className="min-h-[250px] p-4 border rounded-lg bg-card focus:outline-none focus:ring-2 focus:ring-primary/20 prose prose-sm max-w-none"
+				className="min-h-[250px] max-h-[400px] overflow-y-auto overflow-x-hidden p-4 border rounded-lg bg-card focus:outline-none focus:ring-2 focus:ring-primary/20 prose prose-sm max-w-none break-words break-all"
 				data-placeholder={placeholder}
 			/>
 		</div>

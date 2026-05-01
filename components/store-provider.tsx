@@ -623,11 +623,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 		(id: string, updates: Partial<Note>) => {
 			set((prev) => ({
 				...prev,
-				notes: prev.notes.map((n) =>
-					n.id === id
-						? { ...n, ...updates, updatedAt: new Date().toISOString() }
-						: n,
-				),
+				notes: prev.notes.map((n) => {
+					if (n.id !== id) return n;
+					
+					// 只有当更新了 title 或 content 时才更新 updatedAt
+					const shouldUpdateTimestamp = 
+						'title' in updates || 'content' in updates;
+					
+					return {
+						...n,
+						...updates,
+						...(shouldUpdateTimestamp 
+							? { updatedAt: new Date().toISOString() } 
+							: {})
+					};
+				}),
 			}));
 		},
 		[set],

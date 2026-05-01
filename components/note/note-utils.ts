@@ -174,6 +174,56 @@ export function clampToBounds(
 	return { x: clampedX, y: clampedY };
 }
 
+// 计算内容的有效长度（去除HTML标签）
+function getContentLength(content: string): number {
+	// 去除HTML标签
+	const temp = document.createElement('div');
+	temp.innerHTML = content;
+	const text = temp.textContent || temp.innerText || '';
+	return text.length;
+}
+
+// 根据内容长度和笔记数量计算合适的卡片大小
+function calculateCardSize(content: string, noteCount: number): { width: number; height: number } {
+	const contentLength = getContentLength(content);
+	
+	// 基础大小基于笔记数量
+	let baseWidth, baseHeight;
+	if (noteCount === 0) {
+		baseWidth = 320;
+		baseHeight = 240;
+	} else if (noteCount < 3) {
+		baseWidth = 280;
+		baseHeight = 200;
+	} else if (noteCount < 6) {
+		baseWidth = 240;
+		baseHeight = 180;
+	} else {
+		baseWidth = 200;
+		baseHeight = 160;
+	}
+	
+	// 根据内容长度调整大小
+	let width = baseWidth;
+	let height = baseHeight;
+	
+	if (contentLength > 500) {
+		// 长内容，大幅增加高度
+		width = Math.min(baseWidth + 80, 400);
+		height = Math.min(baseHeight + 120, 360);
+	} else if (contentLength > 200) {
+		// 中等长度，适当增加
+		width = Math.min(baseWidth + 40, 360);
+		height = Math.min(baseHeight + 60, 300);
+	} else if (contentLength > 50) {
+		// 短内容，小幅增加
+		width = baseWidth;
+		height = Math.min(baseHeight + 20, 260);
+	}
+	
+	return { width, height };
+}
+
 export function createEmptyNote(
 	_date: string,
 	existingNotes: Note[] = [],
@@ -196,8 +246,9 @@ export function createEmptyNote(
 		"orange",
 	];
 	const randomColor = colors[Math.floor(Math.random() * colors.length)];
-	const width = 280;
-	const height = 200;
+	
+	const { width, height } = calculateCardSize("", existingNotes.length);
+	
 	const { x, y } = findNonOverlappingPosition(existingNotes, width, height);
 	const zIndex = getNextZIndex(existingNotes);
 
@@ -211,4 +262,9 @@ export function createEmptyNote(
 		y,
 		zIndex,
 	};
+}
+
+export function getUpdatedCardSize(note: Note, noteCount: number): { width: number; height: number } {
+	const { width, height } = calculateCardSize(note.content, noteCount);
+	return { width, height };
 }
