@@ -1,8 +1,8 @@
 "use client";
 
 import { format } from "date-fns";
-import { CalendarClock, RotateCcw, Shuffle, Trash2 } from "lucide-react";
-import { useCallback } from "react";
+import { CalendarClock, RotateCcw, Shuffle, Trash2, Plus, Pencil, Trash2 as Trash } from "lucide-react";
+import { useCallback, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,10 +10,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import type { AlgorithmConfig, RecommendTask } from "@/lib/smart-recommend/types";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import type { AlgorithmConfig, RecommendTask, RecommendTag } from "@/lib/smart-recommend/types";
+import { PRESET_TAG_COLORS } from "@/lib/colors";
+import { cn } from "@/lib/utils";
+import { generateId } from "@/lib/task-utils";
 
 interface TestPanelProps {
 	tasks: RecommendTask[];
+	tags: RecommendTag[];
 	config: AlgorithmConfig;
 	contextTime?: Date;
 	customCreatedAt: string | null;
@@ -22,16 +27,19 @@ interface TestPanelProps {
 	onCustomCreatedAtChange: (dateStr: string | null) => void;
 	onDeleteTask: (id: string) => void;
 	onGenerateBatchTasks?: () => void;
+	onTagsChange?: (tags: RecommendTag[]) => void;
 }
 
 export function TestPanel({
 	tasks,
+	tags,
 	config,
 	customCreatedAt,
 	onConfigChange,
 	onCustomCreatedAtChange,
 	onDeleteTask,
 	onGenerateBatchTasks,
+	onTagsChange,
 }: TestPanelProps) {
 	const effectiveCreatedAt = customCreatedAt ? new Date(customCreatedAt) : new Date();
 
@@ -41,6 +49,45 @@ export function TestPanel({
 	const createdAtTime = customCreatedAt
 		? format(new Date(customCreatedAt), "HH:mm")
 		: format(effectiveCreatedAt, "HH:mm");
+
+	// 标签编辑状态
+	const [tagDialog, setTagDialog] = useState<{ mode: "add" | "edit"; tag?: RecommendTag } | null>(null);
+	const [tagName, setTagName] = useState("");
+	const [tagColor, setTagColor] = useState(PRESET_TAG_COLORS[0]);
+	const [customTagColor, setCustomTagColor] = useState("#000000");
+	const [useCustomColor, setUseCustomColor] = useState(false);
+
+	const handleAddTag = useCallback(() => {
+		setTagName("");
+		setTagColor(PRESET_TAG_COLORS[0]);
+		setCustomTagColor("#000000");
+		setUseCustomColor(false);
+		setTagDialog({ mode: "add" });
+	}, []);
+
+	const handleEditTag = useCallback((tag: RecommendTag) => {
+		setTagName(tag.name);
+		setTagColor(tag.color);
+		setCustomTagColor(tag.color);
+		setUseCustomColor(!PRESET_TAG_COLORS.includes(tag.color));
+		setTagDialog({ mode: "edit", tag });
+	}, []);
+
+	const handleDeleteTag = useCallback((tagId: string) => {
+		if (!onTagsChange) return;
+		onTagsChange(tags.filter((t) => t.id !== tagId));
+	}, [tags, onTagsChange]);
+
+	const handleSaveTag = useCallback(() => {
+		if (!tagName.trim() || !onTagsChange) return;
+		const selectedColor = useCustomColor ? customTagColor : tagColor;
+		if (tagDialog?.mode === "edit" && tagDialog.tag) {
+			onTagsChange(tags.map((t) => (t.id === tagDialog.tag!.id ? { ...t, name: tagName.trim(), color: selectedColor } : t)));
+		} else {
+			onTagsChange([...tags, { id: generateId(), name: tagName.trim(), color: selectedColor }]);
+		}
+		setTagDialog(null);
+	}, [tagName, tagColor, customTagColor, useCustomColor, tagDialog, tags, onTagsChange]);
 
 	const handleWeightChange = useCallback((key: keyof AlgorithmConfig["weights"], value: number) => {
 		const newWeights = { ...config.weights, [key]: value };
@@ -288,6 +335,121 @@ export function TestPanel({
 					</div>
 				</CardContent>
 			</Card>
+
+			<Card>
+				<CardHeader className="pb-2 pt-4 px-4">
+					<CardTitle className="text-sm">标签管理</CardTitle>
+				</CardHeader>
+				<CardContent className="px-4 pb-4">
+					<div className="flex flex-col gap-3">
+						<div className="space-y-2">
+							{tags.map((tag) => (
+								<div key={tag.id} className="flex items-center justify-between bg-muted/30 rounded px-2 py-1.5">
+									<div className="flex items-center gap-2">
+										<div className="w-3 h-3 rounded-full" style={{ backgroundColor: tag.color }} />
+										<span className="text-sm">{tag.name}</span>
+									</div>
+									<div className="flex gap-1">
+										<Button
+											variant="ghost"
+											size="sm"
+											className="h-6 w-6 p-0"
+											onClick={() => handleEditTag(tag)}
+										>
+											<Pencil className="w-3 h-3" />
+										</Button>
+										<Button
+											variant="ghost"
+											size="sm"
+											className="h-6 w-6 p-0 text-destructive"
+											onClick={() => handleDeleteTag(tag.id)}
+										>
+											<Trash className="w-3 h-3" />
+										</Button>
+									</div>
+								</div>
+							))}
+						</div>
+						<Button size="sm" variant="outline" className="h-7 text-xs" onClick={handleAddTag}>
+							<Plus className="w-3 h-3 mr-1" />
+							添加标签
+						</Button>
+					</div>
+				</CardContent>
+			</Card>
+
+			{/* 标签编辑对话框 */}
+			<Dialog open={!!tagDialog} onOpenChange={(v) => !v && setTagDialog(null)}>
+				<DialogContent className="max-w-sm">
+					<DialogHeader>
+						<DialogTitle>
+							{tagDialog?.mode === "edit" ? "编辑标签" : "添加标签"}
+						</DialogTitle>
+					</DialogHeader>
+					<div className="space-y-4 py-2">
+						<div className="space-y-2">
+							<Label className="text-xs font-medium">标签名称</Label>
+							<Input
+								value={tagName}
+								onChange={(e) => setTagName(e.target.value)}
+								placeholder="输入标签名称"
+								autoFocus
+								onKeyDown={(e) => e.key === "Enter" && handleSaveTag()}
+								className="h-8 text-xs"
+							/>
+						</div>
+						<div className="space-y-2">
+							<Label className="text-xs font-medium">标签颜色</Label>
+							<div className="flex gap-1.5 flex-wrap">
+								{PRESET_TAG_COLORS.map((color) => (
+									<button
+										key={color}
+										type="button"
+										onClick={() => {
+											setTagColor(color);
+											setUseCustomColor(false);
+										}}
+										className={cn(
+											"w-7 h-7 rounded-full transition-transform border-2",
+											!useCustomColor && tagColor === color ? "border-foreground scale-110" : "border-transparent hover:scale-105"
+										)}
+										style={{ backgroundColor: color }}
+									/>
+								))}
+								<button
+									type="button"
+									onClick={() => setUseCustomColor(true)}
+									className={cn(
+										"w-7 h-7 rounded-full transition-transform border-2 flex items-center justify-center",
+										useCustomColor ? "border-foreground scale-110" : "border-transparent hover:scale-105"
+									)}
+								>
+									<span className="text-xs">🎨</span>
+								</button>
+							</div>
+							{useCustomColor && (
+								<div className="flex items-center gap-2 pt-1">
+									<div className="w-5 h-5 rounded-full border" style={{ backgroundColor: customTagColor }} />
+									<input
+										type="color"
+										value={customTagColor}
+										onChange={(e) => setCustomTagColor(e.target.value)}
+										className="h-8 w-20 rounded border border-border"
+									/>
+								</div>
+							)}
+						</div>
+					</div>
+					<DialogFooter className="gap-2">
+						<Button variant="outline" size="sm" onClick={() => setTagDialog(null)} className="h-8">
+							取消
+						</Button>
+						<Button size="sm" onClick={handleSaveTag} disabled={!tagName.trim()} className="h-8">
+							保存
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }

@@ -60,6 +60,7 @@ interface SmartRecommendTaskModalProps {
 	defaultEndTime?: string;
 	defaultStatus?: TaskStatus;
 	defaultCreatedAt?: string;
+	defaultDueDate?: string;
 }
 
 const WEEKDAY_LABELS = ["日", "一", "二", "三", "四", "五", "六"];
@@ -78,6 +79,7 @@ export function SmartRecommendTaskModal({
 	defaultEndTime,
 	defaultStatus,
 	defaultCreatedAt,
+	defaultDueDate,
 }: SmartRecommendTaskModalProps) {
 	const lang = useLanguage();
 	const t = useTranslations(lang);
@@ -115,13 +117,29 @@ export function SmartRecommendTaskModal({
 
 	const currentRec = recommendations[selectedRecIndex];
 
+	const fillRecommendation = useCallback((index: number) => {
+		const rec = recommendations[index];
+		if (!rec) return;
+
+		setTitle(rec.task.title);
+		setDate(rec.task.date ?? "");
+		setDueDate(rec.task.dueDate ?? "");
+		setStartTime(rec.task.startTime ?? "");
+		setEndTime(rec.task.endTime ?? "");
+		setIsAllDay(rec.task.isAllDay);
+		setTagIds(rec.task.tagIds);
+		setNotes(rec.task.notes ?? "");
+		setSelectedRecIndex(index);
+		setIsUsingRecommendation(true);
+	}, [recommendations]);
+
 	useEffect(() => {
 		if (!open) return;
 		// 重置所有字段
 		const tomorrow = format(addDays(new Date(), 1), "yyyy-MM-dd");
 		setTitle("");
 		setDate(defaultDate ?? "");
-		setDueDate(tomorrow);
+		setDueDate(defaultDueDate ?? tomorrow);
 		setStartTime(defaultStartTime ?? "");
 		setEndTime(defaultEndTime ?? "");
 		setIsAllDay(false);
@@ -145,37 +163,24 @@ export function SmartRecommendTaskModal({
 		setSelectedRecIndex(0);
 		setIsUsingRecommendation(false);
 
-		// 如果有推荐，先不自动填充，让用户选择
-	}, [open, defaultDate, defaultStartTime, defaultEndTime, defaultStatus]);
-
-	const fillRecommendation = useCallback((index: number) => {
-		const rec = recommendations[index];
-		if (!rec) return;
-
-		setTitle(rec.task.title);
-		setDate(rec.task.date ?? "");
-		setDueDate(rec.task.dueDate ?? "");
-		setStartTime(rec.task.startTime ?? "");
-		setEndTime(rec.task.endTime ?? "");
-		setIsAllDay(rec.task.isAllDay);
-		setTagIds(rec.task.tagIds);
-		setNotes(rec.task.notes ?? "");
-		setSelectedRecIndex(index);
-		setIsUsingRecommendation(true);
-	}, [recommendations]);
+		// 如果有推荐，自动填充第一个
+		if (recommendations.length > 0) {
+			fillRecommendation(0);
+		}
+	}, [open, defaultDate, defaultStartTime, defaultEndTime, defaultStatus, defaultCreatedAt, defaultDueDate, recommendations, fillRecommendation]);
 
 	const clearRecommendation = useCallback(() => {
 		const tomorrow = format(addDays(new Date(), 1), "yyyy-MM-dd");
 		setTitle("");
-		setDate("");
-		setDueDate(tomorrow);
-		setStartTime("");
-		setEndTime("");
+		setDate(defaultDate ?? "");
+		setDueDate(defaultDueDate ?? tomorrow);
+		setStartTime(defaultStartTime ?? "");
+		setEndTime(defaultEndTime ?? "");
 		setIsAllDay(false);
 		setTagIds([]);
 		setNotes("");
 		setIsUsingRecommendation(false);
-	}, []);
+	}, [defaultDate, defaultDueDate, defaultStartTime, defaultEndTime]);
 
 	const nextRecommendation = useCallback(() => {
 		if (recommendations.length <= 1) return;
@@ -285,26 +290,74 @@ export function SmartRecommendTaskModal({
 									<Sparkles className="w-4 h-4 text-amber-500" />
 								</div>
 								<div className="flex-1 min-w-0">
-									<div className="flex items-center justify-between mb-1">
-										<span className="text-sm font-semibold text-amber-800 dark:text-amber-300">
-											{isUsingRecommendation
-												? `${lang === "zh" ? "智能推荐" : "Smart Recommendation"} ${selectedRecIndex + 1}/${recommendations.length}`
-												: `${lang === "zh" ? "为您准备了" : "We have"} ${recommendations.length} ${lang === "zh" ? "个智能推荐" : "recommendations"}`}
-										</span>
-										{recommendations.length > 1 && (
-											<div className="flex items-center gap-1">
-												{onShowDetail && currentRec && (
-													<Button
-														variant="ghost"
-														size="sm"
-														className="h-7 px-2 text-[10px] text-amber-700 hover:text-amber-800 hover:bg-amber-100/60"
-														onClick={() => onShowDetail(currentRec)}
-													>
-														<BarChart2 className="w-3 h-3 mr-1" />
-														{lang === "zh" ? "详情" : "Details"}
-													</Button>
-												)}
-												{isUsingRecommendation && (
+									{isUsingRecommendation ? (
+										<>
+											<div className="flex items-center justify-between mb-1">
+												<span className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+													{`${lang === "zh" ? "智能推荐" : "Smart Recommendation"} ${selectedRecIndex + 1}/${recommendations.length}`}
+												</span>
+												<div className="flex items-center gap-1">
+													{onShowDetail && currentRec && (
+														<Button
+															variant="ghost"
+															size="sm"
+															className="h-7 px-2 text-[10px] text-amber-700 hover:text-amber-800 hover:bg-amber-100/60"
+															onClick={() => onShowDetail(currentRec)}
+														>
+															<BarChart2 className="w-3 h-3 mr-1" />
+															{lang === "zh" ? "详情" : "Details"}
+														</Button>
+													)}
+													{recommendations.length > 1 && (
+														<Button
+															variant="ghost"
+															size="sm"
+															className="h-7 px-2 text-[10px] text-amber-700 hover:text-amber-800 hover:bg-amber-100/60"
+															onClick={nextRecommendation}
+														>
+															<RefreshCw className="w-3 h-3 mr-1" />
+															{lang === "zh" ? "换一个" : "Next"}
+														</Button>
+													)}
+												</div>
+											</div>
+
+											{currentRec && (
+												<>
+													<p className="text-xs text-amber-700/80 dark:text-amber-200/80 mb-2">
+														{currentRec.reason}
+													</p>
+													<div className="flex items-center gap-2">
+														<Button
+															variant="ghost"
+															size="sm"
+															className="h-7 px-3 text-xs text-amber-700 hover:text-amber-800 hover:bg-amber-100/60"
+															onClick={clearRecommendation}
+														>
+															<X className="w-3 h-3 mr-1" />
+															{lang === "zh" ? "不使用推荐，自己填写" : "Don't Use, Fill Manually"}
+														</Button>
+													</div>
+												</>
+											)}
+										</>
+									) : (
+										<>
+											<div className="flex items-center justify-between mb-1">
+												<span className="text-sm font-semibold text-amber-800 dark:text-amber-300">
+													{`${lang === "zh" ? "为您准备了" : "We have"} ${recommendations.length} ${lang === "zh" ? "个智能推荐" : "recommendations"}`}
+												</span>
+											</div>
+											<div className="flex items-center gap-2">
+												<Button
+													size="sm"
+													className="h-7 px-3 text-xs bg-amber-500 hover:bg-amber-600 text-white"
+													onClick={() => fillRecommendation(selectedRecIndex)}
+												>
+													<Check className="w-3 h-3 mr-1" />
+													{lang === "zh" ? "使用推荐" : "Use Recommendation"}
+												</Button>
+												{recommendations.length > 1 && (
 													<Button
 														variant="ghost"
 														size="sm"
@@ -312,43 +365,11 @@ export function SmartRecommendTaskModal({
 														onClick={nextRecommendation}
 													>
 														<RefreshCw className="w-3 h-3 mr-1" />
-														{lang === "zh" ? "换一个" : "Next"}
+														{lang === "zh" ? "先看看其他推荐" : "Browse Other Recommendations"}
 													</Button>
 												)}
 											</div>
-										)}
-									</div>
-
-									{isUsingRecommendation && currentRec && (
-										<>
-											<p className="text-xs text-amber-700/80 dark:text-amber-200/80 mb-2">
-												{currentRec.reason}
-											</p>
-											<div className="flex items-center gap-2">
-												<Button
-													variant="ghost"
-													size="sm"
-													className="h-7 px-3 text-xs text-amber-700 hover:text-amber-800 hover:bg-amber-100/60"
-													onClick={clearRecommendation}
-												>
-													<X className="w-3 h-3 mr-1" />
-													{lang === "zh" ? "清空，自己填写" : "Clear & Fill Manually"}
-												</Button>
-											</div>
 										</>
-									)}
-
-									{!isUsingRecommendation && (
-										<div className="flex items-center gap-2">
-											<Button
-												size="sm"
-												className="h-7 px-3 text-xs bg-amber-500 hover:bg-amber-600 text-white"
-												onClick={() => fillRecommendation(0)}
-											>
-												<Check className="w-3 h-3 mr-1" />
-												{lang === "zh" ? "使用推荐" : "Use Recommendation"}
-											</Button>
-										</div>
 									)}
 								</div>
 							</div>

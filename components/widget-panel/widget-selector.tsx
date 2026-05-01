@@ -18,11 +18,16 @@ import {
 	Target,
 	Timer,
 	Type,
+	Wrench,
+	Info,
+	Zap,
+	Paintbrush,
 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, AnimatedTabsList, AnimatedTabsTrigger } from "@/components/ui/tabs";
 import { useTranslations } from "@/lib/i18n";
 import { useLanguage } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -57,6 +62,16 @@ const WIDGET_ICONS: Record<
 	line: Minus,
 	text: Type,
 	countdown: CalendarClock,
+};
+
+const CATEGORY_ICONS: Record<
+	WidgetCategory,
+	React.ComponentType<{ className?: string }>
+> = {
+	productivity: Zap,
+	tools: Wrench,
+	info: Info,
+	decoration: Paintbrush,
 };
 
 interface WidgetSelectorProps {
@@ -151,15 +166,28 @@ export function WidgetSelector({
 					onValueChange={(v) => setActiveCategory(v as WidgetCategory)}
 					className="flex-1 flex flex-col"
 				>
-					<TabsList className="grid grid-cols-4 mx-3 mt-2">
-						{CATEGORY_ORDER.map((category) => (
-							<TabsTrigger key={category} value={category} className="text-xs">
-								{lang === "zh"
+					<div className="px-3 mt-2">
+						<AnimatedTabsList className="flex w-full" activeValue={activeCategory}>
+							{CATEGORY_ORDER.map((category) => {
+								const Icon = CATEGORY_ICONS[category];
+								const categoryName = lang === "zh"
 									? WIDGET_CATEGORIES[category].nameZh
-									: WIDGET_CATEGORIES[category].name}
-							</TabsTrigger>
-						))}
-					</TabsList>
+									: WIDGET_CATEGORIES[category].name;
+								return (
+									<AnimatedTabsTrigger key={category} value={category} className="flex-1">
+										<TooltipProvider>
+											<Tooltip>
+												<TooltipTrigger asChild>
+													<div><Icon className="w-4 h-4" /></div>
+												</TooltipTrigger>
+												<TooltipContent>{categoryName}</TooltipContent>
+											</Tooltip>
+										</TooltipProvider>
+									</AnimatedTabsTrigger>
+								);
+							})}
+						</AnimatedTabsList>
+					</div>
 
 					{CATEGORY_ORDER.map((category) => (
 						<TabsContent

@@ -14,7 +14,7 @@ import { DEFAULT_SCHEDULING_PATTERN } from "@/lib/smart-recommend/constants";
 interface LogConsoleProps {
 	logs: DecisionLog[];
 	feedbacks: FeedbackRecord[];
-	config?: any;
+	config?: unknown;
 }
 
 export function LogConsole({ logs, feedbacks }: LogConsoleProps) {
@@ -356,16 +356,19 @@ function StatCard({ label, value, icon, sub }: { label: string; value: string | 
 }
 
 function DecisionLogEntry({ log }: { log: DecisionLog }) {
+	const recommendations = Array.isArray(log.recommendations) ? log.recommendations : [];
+	const factorDetails = Array.isArray(log.factorDetails) ? log.factorDetails : [];
+
 	return (
 		<div className="bg-muted/30 rounded-lg p-2.5">
 			<div className="flex items-center justify-between mb-1.5">
 				<span className="text-[10px] text-muted-foreground">{log.contextTime}</span>
 				<Badge variant="outline" className="text-[9px] px-1 py-0 h-4">
-					{log.recommendations.length} 条推荐
+					{recommendations.length} 条推荐
 				</Badge>
 			</div>
 			<div className="flex flex-col gap-1">
-				{log.factorDetails.map((detail, i) => (
+				{factorDetails.map((detail, i) => (
 					<div key={i} className="flex items-center gap-1.5 text-[10px]">
 						<span className="text-muted-foreground w-14 shrink-0">{detail.factor}</span>
 						<div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
@@ -376,11 +379,11 @@ function DecisionLogEntry({ log }: { log: DecisionLog }) {
 					</div>
 				))}
 			</div>
-			{log.recommendations.length > 0 && (
+			{recommendations.length > 0 && (
 				<div className="mt-1.5 pt-1.5 border-t border-border/50">
 					<p className="text-[10px] text-muted-foreground">
-						Top 1: <span className="text-foreground font-medium">{log.recommendations[0].task.title}</span>
-						<span className="ml-1">({(log.recommendations[0].scores.total * 100).toFixed(1)}%)</span>
+						Top 1: <span className="text-foreground font-medium">{recommendations[0].task.title}</span>
+						<span className="ml-1">({(recommendations[0].scores.total * 100).toFixed(1)}%)</span>
 					</p>
 				</div>
 			)}

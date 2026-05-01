@@ -127,6 +127,7 @@ export interface TimeRelationPattern {
 
 export interface PeriodicTaskPattern {
 	titlePattern: string;
+	exampleTitle: string;
 	frequency: "daily" | "weekly" | "monthly";
 	dayOfWeek?: number;
 	dayOfMonth?: number;

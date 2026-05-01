@@ -79,6 +79,7 @@ export class PeriodicTaskDetector {
       if (confidence >= 0.6) {
         return {
           titlePattern,
+          exampleTitle: tasks[0].title,
           frequency: "daily",
           timeOfDay: mostFrequentTime[0],
           durationMinutes: Math.round(durationSum / tasks.length),
@@ -120,6 +121,7 @@ export class PeriodicTaskDetector {
       if (confidence >= 0.5) {
         return {
           titlePattern,
+          exampleTitle: tasks[0].title,
           frequency: "weekly",
           dayOfWeek: mostFrequentDay[0],
           durationMinutes: Math.round(durationSum / tasks.length),
@@ -161,6 +163,7 @@ export class PeriodicTaskDetector {
       if (confidence >= 0.5) {
         return {
           titlePattern,
+          exampleTitle: tasks[0].title,
           frequency: "monthly",
           dayOfMonth: mostFrequentDay[0],
           durationMinutes: Math.round(durationSum / tasks.length),
@@ -228,11 +231,11 @@ export class PeriodicTaskDetector {
     if (!predictedDate) return null;
 
     return {
-      title: pattern.titlePattern,
+      title: pattern.exampleTitle,
       confidence: pattern.confidence,
       predictedDate: format(predictedDate, 'yyyy-MM-dd'),
       predictedStartTime: pattern.timeOfDay,
-      predictedDueDate: pattern.titlePattern.includes('学习') || pattern.titlePattern.includes('作业') ? format(addDays(predictedDate, 1), 'yyyy-MM-dd') : undefined,
+      predictedDueDate: undefined,
       tagIds: pattern.tagIds,
       durationMinutes: pattern.durationMinutes,
       predictionBasis: `周期性任务模式 (${pattern.frequency})`,

@@ -58,12 +58,15 @@ export function PomodoroTimer() {
 		setSkipBreaks,
 		increaseWorkDuration,
 		decreaseWorkDuration,
+		setWorkDuration,
 		calculateBreakCount,
 		switchToNextPhase,
 		getUpcomingPhaseInfo,
 	} = usePomodoro();
 	const { isFullscreen, toggleFullscreen } = useFullscreen();
 	const [showFocusMode, setShowFocusMode] = useState(false);
+	const [isEditingTime, setIsEditingTime] = useState(false);
+	const [tempMinutes, setTempMinutes] = useState('');
 	const animationRef = useRef<number | null>(null);
 	const timeRef = useRef(0);
 
@@ -330,7 +333,7 @@ export function PomodoroTimer() {
 		);
 	}
 
-	const currentMinutes = Math.ceil(pomodoro.totalSeconds / 60);
+	const currentMinutes = Math.floor(pomodoro.totalSeconds / 60);
 
 	return (
 		<div className="flex flex-col items-center justify-center w-full h-full relative overflow-hidden">
@@ -384,10 +387,49 @@ export function PomodoroTimer() {
 								</Button>
 
 								<div className="text-center min-w-[120px]">
-									<p className="text-7xl font-bold tabular-nums tracking-tight">
-										{String(currentMinutes).padStart(2, "0")}
-										<span className="text-3xl text-muted-foreground">:00</span>
-									</p>
+									{isEditingTime ? (
+										<input
+											type="number"
+											value={tempMinutes}
+											onChange={(e) => {
+												const val = e.target.value;
+												if (val === '' || (/^\d+$/.test(val) && parseInt(val) >= 1 && parseInt(val) <= 240)) {
+													setTempMinutes(val);
+												}
+											}}
+											onBlur={() => {
+												if (tempMinutes) {
+													const newVal = Math.max(1, Math.min(240, parseInt(tempMinutes)));
+													setWorkDuration(newVal);
+												}
+												setIsEditingTime(false);
+											}}
+											onKeyDown={(e) => {
+												if (e.key === 'Enter') {
+													if (tempMinutes) {
+														const newVal = Math.max(1, Math.min(240, parseInt(tempMinutes)));
+														setWorkDuration(newVal);
+													}
+													setIsEditingTime(false);
+												} else if (e.key === 'Escape') {
+													setIsEditingTime(false);
+												}
+											}}
+											className="text-7xl font-bold tabular-nums tracking-tight text-center bg-transparent border-none outline-none w-[120px] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+											autoFocus
+										/>
+									) : (
+										<p 
+											className="text-7xl font-bold tabular-nums tracking-tight cursor-pointer select-none"
+											onClick={() => {
+												setTempMinutes(String(currentMinutes));
+												setIsEditingTime(true);
+											}}
+										>
+											{String(currentMinutes).padStart(2, "0")}
+											<span className="text-3xl text-muted-foreground">:00</span>
+										</p>
+									)}
 								</div>
 
 								<Button

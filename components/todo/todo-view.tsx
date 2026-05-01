@@ -35,17 +35,97 @@ import { TaskItem } from "./task-item";
 
 type GroupedTasks = Record<string, Task[]>;
 
+interface TodoFiltersConfig {
+	timeFilter: TimeFilter;
+	statusFilter: StatusFilter;
+	tagFilter: string | null;
+	sortBy: SortBy;
+	groupBy: GroupBy;
+	viewMode: ViewMode;
+}
+
+const TODO_FILTERS_STORAGE_KEY = "planit:todo-filters";
+
+const DEFAULT_FILTERS: TodoFiltersConfig = {
+	timeFilter: "week",
+	statusFilter: "pending",
+	tagFilter: null,
+	sortBy: "time",
+	groupBy: "date",
+	viewMode: "byDueDate",
+};
+
+function loadTodoFilters(): TodoFiltersConfig {
+	try {
+		const stored = localStorage.getItem(TODO_FILTERS_STORAGE_KEY);
+		if (!stored) return DEFAULT_FILTERS;
+		const parsed = JSON.parse(stored);
+		// 合并默认值和存储的值
+		return { ...DEFAULT_FILTERS, ...parsed };
+	} catch {
+		return DEFAULT_FILTERS;
+	}
+}
+
+function saveTodoFilters(config: TodoFiltersConfig): void {
+	try {
+		localStorage.setItem(TODO_FILTERS_STORAGE_KEY, JSON.stringify(config));
+	} catch {
+		// 忽略存储错误
+	}
+}
+
 export function TodoView() {
 	const lang = useLanguage();
 	const t = useTranslations(lang);
 	const { state } = useStore();
 
-	const [timeFilter, setTimeFilter] = useState<TimeFilter>("week");
-	const [statusFilter, setStatusFilter] = useState<StatusFilter>("pending");
-	const [tagFilter, setTagFilter] = useState<string | null>(null);
-	const [sortBy, setSortBy] = useState<SortBy>("time");
-	const [groupBy, setGroupBy] = useState<GroupBy>("date");
-	const [viewMode, setViewMode] = useState<ViewMode>("byDueDate");
+	// 初始化配置加载
+	const [filters, setFilters] = useState<TodoFiltersConfig>(() =>
+		typeof window !== "undefined"
+			? loadTodoFilters()
+			: DEFAULT_FILTERS,
+	);
+
+	const timeFilter = filters.timeFilter;
+	const statusFilter = filters.statusFilter;
+	const tagFilter = filters.tagFilter;
+	const sortBy = filters.sortBy;
+	const groupBy = filters.groupBy;
+	const viewMode = filters.viewMode;
+
+	const updateFilter = useCallback((key: keyof TodoFiltersConfig, value: any) => {
+		setFilters((prev) => {
+			const newFilters = { ...prev, [key]: value };
+			saveTodoFilters(newFilters);
+			return newFilters;
+		});
+	}, []);
+
+	const setTimeFilter = useCallback(
+		(value: TimeFilter) => updateFilter("timeFilter", value),
+		[updateFilter],
+	);
+	const setStatusFilter = useCallback(
+		(value: StatusFilter) => updateFilter("statusFilter", value),
+		[updateFilter],
+	);
+	const setTagFilter = useCallback(
+		(value: string | null) => updateFilter("tagFilter", value),
+		[updateFilter],
+	);
+	const setSortBy = useCallback(
+		(value: SortBy) => updateFilter("sortBy", value),
+		[updateFilter],
+	);
+	const setGroupBy = useCallback(
+		(value: GroupBy) => updateFilter("groupBy", value),
+		[updateFilter],
+	);
+	const setViewMode = useCallback(
+		(value: ViewMode) => updateFilter("viewMode", value),
+		[updateFilter],
+	);
 	const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 	const [editingTask, setEditingTask] = useState<Task | null>(null);
 	const [exitingTaskIds, setExitingTaskIds] = useState<Set<string>>(new Set());

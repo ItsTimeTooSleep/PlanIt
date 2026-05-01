@@ -57,9 +57,42 @@ function validateConfig(data: unknown): AlgorithmConfig {
 
 function validateLogs(data: unknown): DecisionLog[] {
 	if (!Array.isArray(data)) return [];
-	return data.filter((l: Record<string, unknown>) =>
-		typeof l.id === "string" && typeof l.timestamp === "string",
-	);
+	return data.flatMap((item) => {
+		if (!item || typeof item !== "object") return [];
+		const log = item as Record<string, unknown>;
+		if (typeof log.id !== "string" || typeof log.timestamp !== "string") return [];
+
+		const factorDetails = Array.isArray(log.factorDetails)
+			? log.factorDetails.flatMap((detail) => {
+				if (!detail || typeof detail !== "object") return [];
+				const factor = detail as Record<string, unknown>;
+				if (typeof factor.factor !== "string") return [];
+				return [{
+					factor: factor.factor,
+					weight: typeof factor.weight === "number" ? factor.weight : 0,
+					rawScore: typeof factor.rawScore === "number" ? factor.rawScore : 0,
+					weightedScore: typeof factor.weightedScore === "number" ? factor.weightedScore : 0,
+					description: typeof factor.description === "string" ? factor.description : "",
+				}];
+			})
+			: [];
+
+		const recommendations = Array.isArray(log.recommendations)
+			? (log.recommendations as DecisionLog["recommendations"])
+			: [];
+
+		return [{
+			id: log.id,
+			timestamp: log.timestamp,
+			contextTime: typeof log.contextTime === "string" ? log.contextTime : log.timestamp,
+			factorDetails,
+			recommendations,
+			selectedIndex: typeof log.selectedIndex === "number" ? log.selectedIndex : null,
+			analysisMetadata: log.analysisMetadata && typeof log.analysisMetadata === "object"
+				? log.analysisMetadata as DecisionLog["analysisMetadata"]
+				: undefined,
+		}];
+	});
 }
 
 function validateFeedbacks(data: unknown): FeedbackRecord[] {
@@ -67,6 +100,16 @@ function validateFeedbacks(data: unknown): FeedbackRecord[] {
 	return data.filter((f: Record<string, unknown>) =>
 		typeof f.id === "string" && typeof f.accepted === "boolean",
 	);
+}
+
+function validateTags(data: unknown): RecommendTag[] {
+	if (!Array.isArray(data) || data.length === 0) return PRESET_TAGS;
+	const validated = data.filter((t: Record<string, unknown>) =>
+		typeof t.id === 'string' &&
+		typeof t.name === 'string' &&
+		typeof t.color === 'string'
+	);
+	return validated.length > 0 ? validated : PRESET_TAGS;
 }
 
 function validateSchedulingPatterns(data: unknown): SchedulingPattern {
@@ -89,7 +132,7 @@ export function loadState(): SmartRecommendState {
 
 		return {
 			tasks: validateTasks(parsed.tasks),
-			tags: PRESET_TAGS,
+			tags: validateTags(parsed.tags),
 			config: validateConfig(parsed.config),
 			logs: validateLogs(parsed.logs),
 			feedbacks: validateFeedbacks(parsed.feedbacks),
@@ -149,6 +192,7 @@ function createDefaultState(): SmartRecommendState {
 function migrateState(data: StorageData): SmartRecommendState {
 	const state = createDefaultState();
 	state.tasks = validateTasks(data.tasks);
+	state.tags = validateTags(data.tags);
 	state.config = validateConfig(data.config);
 	state.logs = validateLogs(data.logs);
 	state.feedbacks = validateFeedbacks(data.feedbacks);

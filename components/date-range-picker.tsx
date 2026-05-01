@@ -8,7 +8,7 @@ import {
 	startOfWeek,
 	subWeeks,
 } from "date-fns";
-import { ChevronLeft, ChevronRight, Edit3 } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,7 +24,7 @@ import { Label } from "@/components/ui/label";
 import { DEFAULT_TAG_COLOR } from "@/lib/colors";
 import { useTranslations } from "@/lib/i18n";
 import { useLanguage, useStore } from "@/lib/store";
-import { calculateTaskLayoutsGrouped, type TaskLayoutInfo } from "@/lib/task-layout";
+import { calculateTaskLayoutsGrouped } from "@/lib/task-layout";
 import {
 	minutesToTime,
 	sortTasksByTime,
@@ -44,17 +44,19 @@ interface DateRangePickerProps {
 
 const TIME_COL_W = 48;
 const TOP_PADDING = 24;
-type DragMode = "create" | "move" | "resize-top" | "resize-bottom";
+type DragMode =
+	| "create"
+	| "selection-move"
+	| "selection-resize-top"
+	| "selection-resize-bottom";
 
 interface DragState {
 	mode: DragMode;
-	taskId?: string;
 	colIndex: number;
 	startY: number;
 	startMin: number;
 	origStartMin?: number;
 	origEndMin?: number;
-	origColIndex?: number;
 	origDateStr?: string;
 }
 
@@ -74,18 +76,12 @@ export function DateRangePicker({
 	const [selectedDate, setSelectedDate] = useState<string | null>(null);
 	const [selectedStartMin, setSelectedStartMin] = useState<number | null>(null);
 	const [selectedEndMin, setSelectedEndMin] = useState<number | null>(null);
-	const [isSelecting, setIsSelecting] = useState(false);
-	const [initialStartMin, setInitialStartMin] = useState<number | null>(null);
-	const [tempStartMin, setTempStartMin] = useState<number | null>(null);
-	const [tempEndMin, setTempEndMin] = useState<number | null>(null);
-	const [selectColIndex, setSelectColIndex] = useState(0);
+	const [interactionMode, setInteractionMode] = useState<DragMode | null>(null);
 	const [showManualEdit, setShowManualEdit] = useState(false);
 	const [manualEditDate, setManualEditDate] = useState("");
 	const [manualEditStart, setManualEditStart] = useState("");
 	const [manualEditEnd, setManualEditEnd] = useState("");
-	const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
 	const [ghost, setGhost] = useState<{ dateStr: string; startMin: number; endMin: number } | null>(null);
-	const [isHovered, setIsHovered] = useState<string | null>(null);
 
 	const gridRef = useRef<HTMLDivElement>(null);
 	const scrollRef = useRef<HTMLDivElement>(null);
@@ -101,7 +97,8 @@ export function DateRangePicker({
 	const tags = state.tags;
 
 	useEffect(() => {
-		if (open) {
+		if (!open) return;
+		const frameId = window.requestAnimationFrame(() => {
 			if (initialDate) {
 				setReferenceDate(new Date(initialDate));
 				setSelectedDate(initialDate);
@@ -118,29 +115,39 @@ export function DateRangePicker({
 				setSelectedEndMin(null);
 			}
 
-			setInitialStartMin(null);
-			setTempStartMin(null);
-			setTempEndMin(null);
-			setIsSelecting(false);
-			setActiveTaskId(null);
+			setInteractionMode(null);
 			setGhost(null);
-		}
+		});
+		return () => window.cancelAnimationFrame(frameId);
 	}, [open, initialDate, initialStartTime, initialEndTime]);
 
-	// Scroll to current time on mount
-	useEffect(() => {
-		if (open && scrollRef.current) {
-			const el = scrollRef.current;
-			const now = new Date();
-			const minutes = now.getHours() * 60 + now.getMinutes();
-			const startMinutes = dayStartTime * 60;
-			if (minutes >= startMinutes && minutes <= dayEndTime * 60) {
-				const scrollTop =
-					((minutes - startMinutes) / 60) * hourHeight - el.clientHeight / 3;
-				el.scrollTo({ top: Math.max(0, scrollTop), behavior: "smooth" });
-			}
+	const scrollToCurrentTime = useCallback(() => {
+		const el = scrollRef.current;
+		if (!el) return;
+		const now = new Date();
+		const minutes = now.getHours() * 60 + now.getMinutes();
+		const startMinutes = dayStartTime * 60;
+		if (minutes >= startMinutes && minutes <= dayEndTime * 60) {
+			const scrollTop =
+				((minutes - startMinutes) / 60) * hourHeight - el.clientHeight / 3;
+			el.scrollTo({ top: Math.max(0, scrollTop), behavior: "smooth" });
 		}
-	}, [open, dayStartTime, dayEndTime, hourHeight]);
+	}, [dayStartTime, dayEndTime, hourHeight]);
+
+	useEffect(() => {
+		if (!open) return;
+		let frame1 = 0;
+		let frame2 = 0;
+		frame1 = window.requestAnimationFrame(() => {
+			frame2 = window.requestAnimationFrame(() => {
+				scrollToCurrentTime();
+			});
+		});
+		return () => {
+			window.cancelAnimationFrame(frame1);
+			window.cancelAnimationFrame(frame2);
+		};
+	}, [open, scrollToCurrentTime]);
 
 	const weekStart = startOfWeek(referenceDate, { weekStartsOn: 0 });
 	const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
@@ -204,12 +211,10 @@ export function DateRangePicker({
 				const newStart = Math.min(drag.startMin, currentMin);
 				const newEnd = Math.max(drag.startMin, currentMin);
 				const finalEnd = newEnd - newStart < timeSnap ? newStart + timeSnap : newEnd;
-				
-				setTempStartMin(newStart);
-				setTempEndMin(Math.min(finalEnd, maxMinutes));
+
 				setGhost({ dateStr, startMin: newStart, endMin: Math.min(finalEnd, maxMinutes) });
 			} else if (
-				drag.mode === "move" &&
+				drag.mode === "selection-move" &&
 				drag.origStartMin !== undefined &&
 				drag.origEndMin !== undefined
 			) {
@@ -222,7 +227,10 @@ export function DateRangePicker({
 				const newEnd = newStart + dur;
 
 				setGhost({ dateStr, startMin: newStart, endMin: newEnd });
-			} else if (drag.mode === "resize-top" && drag.origEndMin !== undefined) {
+			} else if (
+				drag.mode === "selection-resize-top" &&
+				drag.origEndMin !== undefined
+			) {
 				const newStart = Math.max(
 					dayStartTime * 60,
 					Math.min(currentMin, drag.origEndMin - timeSnap),
@@ -234,7 +242,7 @@ export function DateRangePicker({
 					endMin: drag.origEndMin,
 				});
 			} else if (
-				drag.mode === "resize-bottom" &&
+				drag.mode === "selection-resize-bottom" &&
 				drag.origStartMin !== undefined
 			) {
 				const newEnd = Math.min(
@@ -257,7 +265,6 @@ export function DateRangePicker({
 			timeSnap,
 			dayStartTime,
 			dayEndTime,
-			hourHeight,
 		],
 	);
 
@@ -268,25 +275,16 @@ export function DateRangePicker({
 				return;
 			}
 			dragRef.current = null;
+			setInteractionMode(null);
 
-			if (drag.mode === "create" && ghost) {
-				setIsSelecting(false);
+			if (ghost) {
 				const finalStartMin = Math.min(ghost.startMin, ghost.endMin);
 				const finalEndMin = Math.max(ghost.startMin, ghost.endMin);
 				setSelectedStartMin(finalStartMin);
 				setSelectedEndMin(finalEndMin);
 				setSelectedDate(ghost.dateStr);
-				setInitialStartMin(null);
-				setTempStartMin(null);
-				setTempEndMin(null);
-			} else if (ghost && drag.taskId) {
-				// 对于拖拽和拉伸，我们通过 onSelect 回调来应用变化
-				const { startMin, endMin, dateStr } = ghost;
-				setSelectedDate(dateStr);
-				setSelectedStartMin(startMin);
-				setSelectedEndMin(endMin);
 			}
-			
+
 			setGhost(null);
 			(e.target as HTMLElement).releasePointerCapture?.(e.pointerId);
 		},
@@ -296,36 +294,63 @@ export function DateRangePicker({
 	const handlePointerDown = useCallback(
 		(colIndex: number, e: React.PointerEvent) => {
 			if (e.button !== 0) return;
-			
-			// 检查是否点击在任务上
+
 			if ((e.target as HTMLElement).closest("[data-task-block]")) {
 				return;
 			}
-			
+
 			e.currentTarget.setPointerCapture(e.pointerId);
 
 			const { y } = getRelativePos(e.nativeEvent);
 			const adjustedY = y - TOP_PADDING;
 			const startMin = getMinuteFromY(Math.max(0, adjustedY));
 			const dateStr = format(days[colIndex], "yyyy-MM-dd");
+			const maxMinutes = dayEndTime === 24 ? 24 * 60 : dayEndTime * 60;
 
-			setIsSelecting(true);
-			setSelectColIndex(colIndex);
-			setSelectedDate(dateStr);
-			setInitialStartMin(startMin);
-			setTempStartMin(startMin);
-			setTempEndMin(startMin);
-			
+			setInteractionMode("create");
 			dragRef.current = {
 				mode: "create",
 				colIndex,
 				startY: y,
 				startMin,
 			};
-			
-			setGhost({ dateStr, startMin, endMin: startMin + timeSnap });
+
+			setGhost({
+				dateStr,
+				startMin,
+				endMin: Math.min(startMin + timeSnap, maxMinutes),
+			});
 		},
-		[days, getRelativePos, getMinuteFromY, timeSnap],
+		[days, getRelativePos, getMinuteFromY, timeSnap, dayEndTime],
+	);
+
+	const startSelectionDrag = useCallback(
+		(
+			mode: Exclude<DragMode, "create">,
+			colIndex: number,
+			dateStr: string,
+			startMin: number,
+			endMin: number,
+			e: React.PointerEvent<HTMLDivElement>,
+		) => {
+			if (e.button !== 0) return;
+			e.stopPropagation();
+			e.currentTarget.setPointerCapture(e.pointerId);
+
+			const { y } = getRelativePos(e.nativeEvent);
+			setInteractionMode(mode);
+			dragRef.current = {
+				mode,
+				colIndex,
+				startY: y,
+				startMin: getMinuteFromY(Math.max(0, y - TOP_PADDING)),
+				origStartMin: startMin,
+				origEndMin: endMin,
+				origDateStr: dateStr,
+			};
+			setGhost({ dateStr, startMin, endMin });
+		},
+		[getMinuteFromY, getRelativePos],
 	);
 
 	useEffect(() => {
@@ -378,18 +403,12 @@ export function DateRangePicker({
 		}
 	};
 
-	// 确定当前应该显示的选择信息
+	const isInteracting = interactionMode !== null;
+	const displayDate = ghost?.dateStr ?? selectedDate;
+	const displayStartMin = ghost?.startMin ?? selectedStartMin;
+	const displayEndMin = ghost?.endMin ?? selectedEndMin;
 	const hasSelection =
-		(selectedDate && selectedStartMin !== null && selectedEndMin !== null) ||
-		(isSelecting &&
-			selectedDate &&
-			tempStartMin !== null &&
-			tempEndMin !== null);
-
-	// 计算显示用的日期和时间
-	const displayDate = selectedDate;
-	const displayStartMin = isSelecting ? tempStartMin : selectedStartMin;
-	const displayEndMin = isSelecting ? tempEndMin : selectedEndMin;
+		!!displayDate && displayStartMin !== null && displayEndMin !== null;
 
 	// 获取任务的标签颜色
 	const getTaskTagColors = (task: Task, tags: Tag[]): string[] => {
@@ -535,20 +554,20 @@ export function DateRangePicker({
 								);
 
 								const ghostHere = ghost?.dateStr === dateStr ? ghost : null;
-
-								// Helper for selection block
-								const blockStartMin =
-									isSelecting && selectColIndex === colIndex
-										? tempStartMin
-										: isSelectedDate
-											? selectedStartMin
-											: null;
-								const blockEndMin =
-									isSelecting && selectColIndex === colIndex
-										? tempEndMin
-										: isSelectedDate
-											? selectedEndMin
-											: null;
+								const committedSelectionHere =
+									!ghost &&
+									isSelectedDate &&
+									selectedStartMin !== null &&
+									selectedEndMin !== null
+										? {
+												dateStr,
+												startMin: selectedStartMin,
+												endMin: selectedEndMin,
+											}
+										: null;
+								const selectionBlock = ghostHere ?? committedSelectionHere;
+								const isCommittedSelection =
+									!ghostHere && committedSelectionHere !== null;
 
 								return (
 									<div
@@ -600,9 +619,6 @@ export function DateRangePicker({
 											const isCompleted = task.status === "completed";
 											const isSkipped = task.status === "skipped";
 											const isDimmed = isCompleted || isSkipped;
-											const isActive = activeTaskId === task.id;
-											const isTaskHovered = isHovered === task.id;
-											const isGhostTask = ghost && ghost.dateStr === dateStr && dragRef.current?.taskId === task.id;
 
 											const top = TOP_PADDING + layout.top;
 											const height = layout.height;
@@ -614,141 +630,50 @@ export function DateRangePicker({
 													key={task.id}
 													data-task-block
 													className={cn(
-														"absolute cursor-pointer rounded-md overflow-hidden transition-all duration-200 group",
-														isActive && "ring-2 ring-primary/50 ring-offset-1 z-20",
-														isGhostTask && "opacity-30"
+														"absolute rounded-md overflow-hidden transition-all duration-200",
 													)}
 													style={{
 														top,
 														height,
 														left: `${left}%`,
 														width: `${width}%`,
-														backgroundColor: colorWithOpacity(primaryColor, isDimmed ? 10 : 16),
 														opacity: isDimmed ? 0.6 : 1,
-														zIndex: isActive ? 20 : 10,
-													}}
-													onMouseEnter={() => setIsHovered(task.id)}
-													onMouseLeave={() => setIsHovered(null)}
-													onClick={(e) => {
-														e.stopPropagation();
-														setActiveTaskId(activeTaskId === task.id ? null : task.id);
-													}}
-													onPointerDown={(e) => {
-														if (e.button !== 0) return;
-														if ((e.target as HTMLElement).closest("[data-resize-handle]")) {
-															return;
-														}
-														e.stopPropagation();
-														e.currentTarget.setPointerCapture(e.pointerId);
-														const { y } = getRelativePos(e.nativeEvent);
-														const adjustedY = y - TOP_PADDING;
-														const startMin = getMinuteFromY(Math.max(0, adjustedY));
-
-														dragRef.current = {
-															mode: "move",
-															taskId: task.id,
-															colIndex,
-															startY: y,
-															startMin,
-															origStartMin: timeToMinutes(task.startTime!),
-															origEndMin: timeToMinutes(task.endTime!),
-															origColIndex: colIndex,
-															origDateStr: dateStr,
-														};
-
-														setGhost({
-															dateStr,
-															startMin: timeToMinutes(task.startTime!),
-															endMin: timeToMinutes(task.endTime!),
-														});
-														setActiveTaskId(task.id);
+														zIndex: 10,
 													}}
 												>
-													{/* Resize handles */}
-													{isActive && (
-														<>
-															<div
-																data-resize-handle="top"
-																className="absolute top-0 left-0 right-0 h-2 cursor-ns-resize z-10 hover:bg-primary/30 transition-colors"
-																onPointerDown={(e) => {
-																	e.stopPropagation();
-																	e.currentTarget.setPointerCapture(e.pointerId);
-																	const { y } = getRelativePos(e.nativeEvent);
-																	
-																	dragRef.current = {
-																		mode: "resize-top",
-																		taskId: task.id,
-																		colIndex,
-																		startY: y,
-																		startMin: getMinuteFromY(Math.max(0, y - TOP_PADDING)),
-																		origStartMin: timeToMinutes(task.startTime!),
-																		origEndMin: timeToMinutes(task.endTime!),
-																		origColIndex: colIndex,
-																		origDateStr: dateStr,
-																	};
-																	
-																	setGhost({
-																		dateStr,
-																		startMin: timeToMinutes(task.startTime!),
-																		endMin: timeToMinutes(task.endTime!),
-																	});
-																}}
-															/>
-															<div
-																data-resize-handle="bottom"
-																className="absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize z-10 hover:bg-primary/30 transition-colors"
-																onPointerDown={(e) => {
-																	e.stopPropagation();
-																	e.currentTarget.setPointerCapture(e.pointerId);
-																	const { y } = getRelativePos(e.nativeEvent);
-																	
-																	dragRef.current = {
-																		mode: "resize-bottom",
-																		taskId: task.id,
-																		colIndex,
-																		startY: y,
-																		startMin: getMinuteFromY(Math.max(0, y - TOP_PADDING)),
-																		origStartMin: timeToMinutes(task.startTime!),
-																		origEndMin: timeToMinutes(task.endTime!),
-																		origColIndex: colIndex,
-																		origDateStr: dateStr,
-																	};
-																	
-																	setGhost({
-																		dateStr,
-																		startMin: timeToMinutes(task.startTime!),
-																		endMin: timeToMinutes(task.endTime!),
-																	});
-																}}
-															/>
-														</>
-													)}
-
-													{/* Task color strip */}
-													<div className="flex h-full">
+													<div className="flex h-full rounded-md overflow-hidden">
 														<div
-															className="w-1 flex-shrink-0"
-															style={{ backgroundColor: primaryColor }}
-														/>
-														<div className="flex-1 p-1 min-w-0">
-															<p className="text-[10px] font-medium truncate" style={{ color: primaryColor }}>
+															className="flex flex-col w-1 shrink-0 rounded-l-md overflow-hidden"
+														>
+															{tagColors.map((color, idx) => (
+																<div
+																	key={idx}
+																	className="flex-1"
+																	style={{ backgroundColor: color }}
+																/>
+															))}
+														</div>
+														<div
+															className="flex-1 min-w-0 rounded-r-md px-2 py-1"
+															style={{
+																backgroundColor: colorWithOpacity(
+																	primaryColor,
+																	isDimmed ? 10 : 16,
+																),
+															}}
+														>
+															<p
+																className="text-[10px] font-medium truncate"
+																style={{ color: primaryColor }}
+															>
 																{task.title}
 															</p>
+															{height >= 28 && task.startTime && task.endTime && (
+																<p className="mt-0.5 text-[9px] text-muted-foreground tabular-nums">
+																	{task.startTime} - {task.endTime}
+																</p>
+															)}
 														</div>
-														{(isTaskHovered || isActive) && (
-															<div className="absolute right-1 top-1/2 -translate-y-1/2">
-																<div
-																	className="w-4 h-4 rounded-full flex items-center justify-center"
-																	style={{
-																		backgroundColor: primaryColor,
-																		color: "white",
-																		textShadow: "0 1px 2px rgba(0,0,0,0.3)",
-																	}}
-																>
-																	<Edit3 className="w-2.5 h-2.5" />
-																</div>
-															</div>
-														)}
 													</div>
 												</div>
 											);
@@ -772,37 +697,112 @@ export function DateRangePicker({
 												</div>
 											)}
 
-										{/* Selection block / Ghost block */}
-										{(ghostHere || (blockStartMin !== null && blockEndMin !== null && !ghost)) && (
+										{/* Selection block */}
+										{selectionBlock && (
 											<div
-												className="absolute left-0.5 right-0.5 rounded-md pointer-events-none z-40 border-2 border-primary/70 bg-primary/20 transition-all duration-75"
+												data-selection-block={isCommittedSelection ? "true" : undefined}
+												className={cn(
+													"absolute left-0.5 right-0.5 rounded-md z-40 border-2 transition-all duration-75",
+													isCommittedSelection
+														? "border-primary/80 bg-primary/20 cursor-grab active:cursor-grabbing shadow-sm"
+														: "pointer-events-none border-dashed border-primary/60 bg-primary/20",
+												)}
 												style={{
 													top:
 														TOP_PADDING +
 														((Math.min(
-															ghostHere?.startMin ?? blockStartMin!,
-															ghostHere?.endMin ?? blockEndMin!
+															selectionBlock.startMin,
+															selectionBlock.endMin,
 														) - dayStartTime * 60) / 60) * hourHeight,
 													height: Math.max(
 														((Math.max(
-															ghostHere?.startMin ?? blockStartMin!,
-															ghostHere?.endMin ?? blockEndMin!
+															selectionBlock.startMin,
+															selectionBlock.endMin,
 														) - Math.min(
-															ghostHere?.startMin ?? blockStartMin!,
-															ghostHere?.endMin ?? blockEndMin!
+															selectionBlock.startMin,
+															selectionBlock.endMin,
 														)) / 60) * hourHeight,
 														4,
 													),
 												}}
+												onPointerDown={
+													isCommittedSelection
+														? (e) =>
+																startSelectionDrag(
+																	"selection-move",
+																	colIndex,
+																	dateStr,
+																	Math.min(
+																		selectionBlock.startMin,
+																		selectionBlock.endMin,
+																	),
+																	Math.max(
+																		selectionBlock.startMin,
+																		selectionBlock.endMin,
+																	),
+																	e,
+																)
+														: undefined
+												}
 											>
+												{isCommittedSelection && (
+													<>
+														<div
+															data-resize-handle="top"
+															className="absolute top-0 left-0 right-0 h-2 cursor-ns-resize rounded-t-md hover:bg-primary/20"
+															onPointerDown={(e) =>
+																startSelectionDrag(
+																	"selection-resize-top",
+																	colIndex,
+																	dateStr,
+																	Math.min(
+																		selectionBlock.startMin,
+																		selectionBlock.endMin,
+																	),
+																	Math.max(
+																		selectionBlock.startMin,
+																		selectionBlock.endMin,
+																	),
+																	e,
+																)
+															}
+														/>
+														<div
+															data-resize-handle="bottom"
+															className="absolute bottom-0 left-0 right-0 h-2 cursor-ns-resize rounded-b-md hover:bg-primary/20"
+															onPointerDown={(e) =>
+																startSelectionDrag(
+																	"selection-resize-bottom",
+																	colIndex,
+																	dateStr,
+																	Math.min(
+																		selectionBlock.startMin,
+																		selectionBlock.endMin,
+																	),
+																	Math.max(
+																		selectionBlock.startMin,
+																		selectionBlock.endMin,
+																	),
+																	e,
+																)
+															}
+														/>
+													</>
+												)}
 												<div className="absolute -top-5 left-1 px-1.5 py-0.5 bg-primary text-primary-foreground text-[10px] font-semibold rounded shadow-sm whitespace-nowrap">
-													{minutesToTime(Math.min(
-														ghostHere?.startMin ?? blockStartMin!,
-														ghostHere?.endMin ?? blockEndMin!
-													))} – {minutesToTime(Math.max(
-														ghostHere?.startMin ?? blockStartMin!,
-														ghostHere?.endMin ?? blockEndMin!
-													))}
+													{minutesToTime(
+														Math.min(
+															selectionBlock.startMin,
+															selectionBlock.endMin,
+														),
+													)}{" "}
+													–{" "}
+													{minutesToTime(
+														Math.max(
+															selectionBlock.startMin,
+															selectionBlock.endMin,
+														),
+													)}
 												</div>
 											</div>
 										)}
@@ -820,12 +820,12 @@ export function DateRangePicker({
 					displayEndMin !== null && (
 						<div
 							className="px-6 py-3 bg-muted/30 border-t border-border cursor-pointer hover:bg-muted/50 transition-colors"
-							onClick={!isSelecting ? handleOpenManualEdit : undefined}
+							onClick={!isInteracting ? handleOpenManualEdit : undefined}
 						>
 							<Label className="text-xs text-muted-foreground">
 								{t.dateRangePicker.selected}
-								{isSelecting && t.dateRangePicker.selecting}
-								{!isSelecting && t.dateRangePicker.clickToEdit}
+								{isInteracting && t.dateRangePicker.selecting}
+								{!isInteracting && t.dateRangePicker.clickToEdit}
 							</Label>
 							<p className="text-sm font-medium mt-1">
 								{lang === "zh"
@@ -841,7 +841,7 @@ export function DateRangePicker({
 					</Button>
 					<Button
 						onClick={handleConfirm}
-						disabled={!hasSelection || isSelecting}
+						disabled={!hasSelection || isInteracting}
 					>
 						{t.common.confirm}
 					</Button>

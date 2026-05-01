@@ -66,11 +66,13 @@ function TabsContent({
 interface AnimatedTabsListProps
 	extends React.ComponentProps<typeof TabsPrimitive.List> {
 	children: React.ReactNode;
+	activeValue?: string;
 }
 
 function AnimatedTabsList({
 	className,
 	children,
+	activeValue,
 	...props
 }: AnimatedTabsListProps) {
 	const [indicatorStyle, setIndicatorStyle] = React.useState({
@@ -79,22 +81,22 @@ function AnimatedTabsList({
 	});
 	const listRef = React.useRef<HTMLDivElement>(null);
 
-	React.useEffect(() => {
-		const updateIndicator = () => {
-			if (!listRef.current) return;
-			const activeTrigger = listRef.current.querySelector(
-				'[data-state="active"]',
-			) as HTMLElement;
-			if (activeTrigger) {
-				const listRect = listRef.current.getBoundingClientRect();
-				const triggerRect = activeTrigger.getBoundingClientRect();
-				setIndicatorStyle({
-					left: triggerRect.left - listRect.left,
-					width: triggerRect.width,
-				});
-			}
-		};
+	const updateIndicator = React.useCallback(() => {
+		if (!listRef.current) return;
+		const activeTrigger = listRef.current.querySelector(
+			'[data-state="active"]',
+		) as HTMLElement;
+		if (activeTrigger) {
+			const listRect = listRef.current.getBoundingClientRect();
+			const triggerRect = activeTrigger.getBoundingClientRect();
+			setIndicatorStyle({
+				left: triggerRect.left - listRect.left,
+				width: triggerRect.width,
+			});
+		}
+	}, []);
 
+	React.useEffect(() => {
 		updateIndicator();
 
 		const observer = new MutationObserver(updateIndicator);
@@ -107,20 +109,29 @@ function AnimatedTabsList({
 		}
 
 		return () => observer.disconnect();
-	}, []);
+	}, [updateIndicator, activeValue]);
+
+	React.useEffect(() => {
+		updateIndicator();
+	}, [activeValue, updateIndicator]);
+
+	React.useEffect(() => {
+		window.addEventListener('resize', updateIndicator);
+		return () => window.removeEventListener('resize', updateIndicator);
+	}, [updateIndicator]);
 
 	return (
 		<TabsPrimitive.List
 			ref={listRef}
 			data-slot="tabs-list"
 			className={cn(
-				"bg-muted/60 text-muted-foreground relative inline-flex h-10 w-fit items-center justify-center rounded-xl p-1",
+				"bg-muted/60 text-muted-foreground relative inline-flex h-10 items-center justify-center rounded-xl p-1",
 				className,
 			)}
 			{...props}
 		>
 			<div
-				className="absolute h-[calc(100%-8px)] rounded-lg bg-background shadow-sm transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
+				className="absolute h-[calc(100%-8px)] rounded-lg bg-background shadow-md transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] z-0"
 				style={{
 					left: `${indicatorStyle.left}px`,
 					width: `${indicatorStyle.width}px`,
@@ -146,7 +157,7 @@ function AnimatedTabsTrigger({
 		<TabsPrimitive.Trigger
 			data-slot="tabs-trigger"
 			className={cn(
-				"relative z-10 inline-flex h-8 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-foreground data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+				"relative z-10 inline-flex h-8 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-foreground data-[state=active]:scale-105 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-muted/50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 				className,
 			)}
 			{...props}

@@ -164,13 +164,13 @@ export function usePomodoro() {
 	);
 
 	const increaseWorkDuration = useCallback(() => {
-		const currentMinutes = Math.ceil(pomodoro.totalSeconds / 60);
+		const currentMinutes = Math.floor(pomodoro.totalSeconds / 60);
 		const newMinutes = Math.min(240, currentMinutes + 5);
 		setWorkDuration(newMinutes);
 	}, [pomodoro.totalSeconds, setWorkDuration]);
 
 	const decreaseWorkDuration = useCallback(() => {
-		const currentMinutes = Math.ceil(pomodoro.totalSeconds / 60);
+		const currentMinutes = Math.floor(pomodoro.totalSeconds / 60);
 		const newMinutes = Math.max(1, currentMinutes - 5);
 		setWorkDuration(newMinutes);
 	}, [pomodoro.totalSeconds, setWorkDuration]);
@@ -447,6 +447,7 @@ export function usePomodoro() {
 		setSkipBreaks,
 		customWorkMinutes,
 		setCustomWorkMinutes,
+		setWorkDuration,
 		increaseWorkDuration,
 		decreaseWorkDuration,
 		calculateBreakCount,

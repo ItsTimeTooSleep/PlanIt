@@ -1,6 +1,6 @@
 "use client";
 
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 import { ArrowLeft, Brain, FlaskConical, ScrollText, Plus, TrendingUp, Calendar, Clock, Sparkles, Check, X, BarChart2 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -21,7 +21,7 @@ import { generateId } from "@/lib/task-utils";
 
 export default function SmartRecommendTestPage() {
 	const [tasks, setTasks] = useState<RecommendTask[]>([]);
-	const [tags] = useState<RecommendTag[]>(PRESET_TAGS);
+	const [tags, setTags] = useState<RecommendTag[]>(PRESET_TAGS);
 	const [config, setConfig] = useState<AlgorithmConfig>(DEFAULT_CONFIG);
 	const [logs, setLogs] = useState<DecisionLog[]>([]);
 	const [feedbacks, setFeedbacks] = useState<FeedbackRecord[]>([]);
@@ -39,6 +39,7 @@ export default function SmartRecommendTestPage() {
 	useEffect(() => {
 		const state = loadState();
 		setTasks(state.tasks);
+		setTags(state.tags);
 		setConfig(state.config);
 		setLogs(state.logs);
 		setFeedbacks(state.feedbacks);
@@ -95,7 +96,12 @@ export default function SmartRecommendTestPage() {
 	const handleAccept = useCallback((index: number) => {
 		const rec = recommendations[index];
 		if (!rec) return;
-		setTasks((prev) => [...prev, { ...rec.task, id: generateId() }]);
+		const newTask = { 
+			...rec.task, 
+			id: generateId(), 
+			createdAt: contextTime.toISOString() 
+		};
+		setTasks((prev) => [...prev, newTask]);
 		setLogs((prev) => [currentLog, ...prev].slice(0, 100));
 		setFeedbacks((prev) => [
 			...prev,
@@ -105,12 +111,12 @@ export default function SmartRecommendTestPage() {
 				taskTitle: rec.task.title,
 				accepted: true,
 				timestamp: new Date().toISOString(),
-				contextTime: new Date().toISOString(),
+				contextTime: contextTime.toISOString(),
 				scores: rec.scores,
-				task: rec.task,
+				task: newTask,
 			},
 		].slice(0, 1000));
-	}, [recommendations, currentLog]);
+	}, [recommendations, currentLog, contextTime]);
 
 	const handleReject = useCallback((index: number) => {
 		const rec = recommendations[index];
@@ -157,9 +163,9 @@ export default function SmartRecommendTestPage() {
 	}, []);
 
 	const handleGenerateBatchTasks = useCallback(() => {
-		const batchTasks = generateBatchTasks(5);
+		const batchTasks = generateBatchTasks(5, tasks);
 		setTasks((prev) => [...prev, ...batchTasks]);
-	}, []);
+	}, [tasks]);
 
 	const handleShowDetailFromModal = useCallback((rec: Recommendation) => {
 		setSelectedRecommendation(rec);
@@ -341,6 +347,7 @@ export default function SmartRecommendTestPage() {
 				{activeTab === "test" && (
 					<TestPanel
 						tasks={tasks}
+						tags={tags}
 						config={config}
 						contextTime={contextTime}
 						customCreatedAt={customCreatedAt}
@@ -349,6 +356,7 @@ export default function SmartRecommendTestPage() {
 						onCustomCreatedAtChange={setCustomCreatedAt}
 						onDeleteTask={handleDeleteTask}
 						onGenerateBatchTasks={handleGenerateBatchTasks}
+						onTagsChange={setTags}
 					/>
 				)}
 
@@ -368,7 +376,11 @@ export default function SmartRecommendTestPage() {
 				recommendations={recommendations}
 				onSubmit={handleCreateTask}
 				onShowDetail={handleShowDetailFromModal}
-				defaultCreatedAt={format(effectiveCreatedAt, "yyyy-MM-dd'T'HH:mm")}
+				defaultCreatedAt={format(contextTime, "yyyy-MM-dd'T'HH:mm")}
+				defaultDate={format(contextTime, "yyyy-MM-dd")}
+				defaultStartTime={format(contextTime, "HH:mm")}
+				defaultEndTime={format(addDays(contextTime, 0.0417), "HH:mm")} // 默认1小时后结束
+				defaultDueDate={format(addDays(contextTime, 1), "yyyy-MM-dd")}
 			/>
 
 			<RecommendDetailPanel

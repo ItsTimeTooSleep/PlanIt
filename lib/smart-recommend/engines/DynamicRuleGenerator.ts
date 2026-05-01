@@ -30,18 +30,32 @@ export class DynamicRuleGenerator {
     });
 
     if (morningTasks.length > 5) {
-      const studyTags = morningTasks.filter(t => t.tagIds.includes('tag-study')).length;
-      if (studyTags / morningTasks.length > 0.5) {
-        return {
-          id: generateId(),
-          name: '早晨学习',
-          condition: 'timeOfDay === "morning"',
-          action: 'recommend study tasks',
-          confidence: 0.7,
-          usageCount: 0,
-          lastUsed: new Date().toISOString(),
-          ruleType: 'time',
-        };
+      // 动态分析早晨最常用的标签，不使用硬编码
+      const tagCounts: Record<string, number> = {};
+      for (const task of morningTasks) {
+        for (const tagId of task.tagIds) {
+          tagCounts[tagId] = (tagCounts[tagId] || 0) + 1;
+        }
+      }
+      
+      // 找出最常用的标签
+      const sortedTags = Object.entries(tagCounts)
+        .sort(([, a], [, b]) => b - a);
+      
+      if (sortedTags.length > 0) {
+        const [mostUsedTagId, count] = sortedTags[0];
+        if (count / morningTasks.length > 0.3) {
+          return {
+            id: generateId(),
+            name: `早晨任务标签: ${mostUsedTagId}`,
+            condition: 'timeOfDay === "morning"',
+            action: `useTag(${mostUsedTagId})`,
+            confidence: 0.7,
+            usageCount: 0,
+            lastUsed: new Date().toISOString(),
+            ruleType: 'time',
+          };
+        }
       }
     }
     return null;

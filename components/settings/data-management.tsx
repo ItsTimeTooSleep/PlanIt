@@ -2,7 +2,7 @@
 
 import { Download, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useTranslations } from "@/lib/i18n";
 import { useLanguage } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -13,7 +13,6 @@ import { useDataExport, useDataImport } from "./use-data-management";
 export function DataManagement() {
 	const lang = useLanguage();
 	const t = useTranslations(lang);
-	const { toast } = useToast();
 	const { handleExport } = useDataExport();
 	const {
 		fileInputRef,
@@ -28,10 +27,7 @@ export function DataManagement() {
 
 	const handleExportWithToast = () => {
 		handleExport();
-		toast({
-			title: t.common.success,
-			description: t.settings.exportSuccess,
-		});
+		toast.success(t.settings.exportSuccess);
 	};
 
 	return (
