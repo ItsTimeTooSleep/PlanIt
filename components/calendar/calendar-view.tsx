@@ -6,7 +6,9 @@ import {
 	addWeeks,
 	endOfWeek,
 	format,
+	isSameMonth,
 	isSameWeek,
+	parseISO,
 	startOfWeek,
 	subMonths,
 	subWeeks,
@@ -105,17 +107,32 @@ export function CalendarView() {
 	const [dateRangePickerOpen, setDateRangePickerOpen] = useState(false);
 	const [taskToSchedule, setTaskToSchedule] = useState<Task | null>(null);
 
+	const today = useMemo(
+		() => format(new Date(), "yyyy-MM-dd"),
+		[],
+	);
+
 	const tomorrow = useMemo(
 		() => format(addDays(new Date(), 1), "yyyy-MM-dd"),
 		[],
 	);
 
 	const pendingDueTasks = useMemo(() => {
-		return state.tasks.filter(
+		const filtered = state.tasks.filter(
 			(task) =>
-				task.dueDate === tomorrow && !task.date && task.status !== "completed",
+				(task.dueDate === today || task.dueDate === tomorrow) &&
+				!task.date &&
+				task.status !== "completed" &&
+				task.status !== "skipped",
 		);
-	}, [state.tasks, tomorrow]);
+
+		// 按截止日期排序：今天截止的任务排在前面，明天截止的排在后面
+		return filtered.sort((a, b) => {
+			if (a.dueDate === today && b.dueDate !== today) return -1;
+			if (a.dueDate !== today && b.dueDate === today) return 1;
+			return 0;
+		});
+	}, [state.tasks, today, tomorrow]);
 	const viewContainerRef = useRef<HTMLDivElement>(null);
 	const batchMenuRef = useRef<HTMLDivElement>(null);
 	const prevScrollTopRef = useRef(0);
@@ -346,14 +363,22 @@ export function CalendarView() {
 							<ChevronRight className="w-4 h-4" />
 						</Button>
 
-						{!isSameWeek(referenceDate, new Date(), { weekStartsOn: 0 }) && (
+						{(() => {
+							// 根据视图类型判断是否显示按钮
+							const today = new Date();
+							if (view === "week") {
+								return !isSameWeek(referenceDate, today, { weekStartsOn: 0 });
+							} else {
+								return !isSameMonth(referenceDate, today);
+							}
+						})() && (
 							<Button
 								variant="default"
 								size="sm"
 								onClick={goToday}
 								className="text-xs px-3 h-7 rounded-md ml-1"
 							>
-								{t.calendar.thisWeek}
+								{view === "week" ? t.calendar.thisWeek : t.calendar.thisMonth}
 							</Button>
 						)}
 					</div>
@@ -415,15 +440,22 @@ export function CalendarView() {
 													key={task.id}
 													className="text-sm py-1.5 px-2 hover:bg-muted rounded-md cursor-pointer transition-all duration-100 flex items-center justify-between gap-2"
 												>
-													<span
+													<div
 														onClick={() => {
 															setEditTask(task);
 															setModalOpen(true);
 														}}
-														className="flex-1"
+														className="flex-1 flex flex-col gap-0.5"
 													>
-														{task.title}
-													</span>
+														<span className="font-medium">{task.title}</span>
+														{task.dueDate && (
+															<span className="text-[10px] text-muted-foreground">
+																{lang === "zh"
+																	? `截止：${format(parseISO(task.dueDate), "M月d日")}`
+																	: `Due: ${format(parseISO(task.dueDate), "MMM d")}`}
+															</span>
+														)}
+													</div>
 													<Button
 														variant="ghost"
 														size="icon"

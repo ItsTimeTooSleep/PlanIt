@@ -384,8 +384,12 @@ export function SmartRecommendTaskModal({
 					</DialogHeader>
 
 					<div className="flex flex-col gap-4">
+						{/* Title */}
 						<div className="flex flex-col gap-1.5">
-							<Label htmlFor="task-title">{t.task.title} *</Label>
+							<Label htmlFor="task-title" className="flex items-center gap-1">
+								{t.task.title}
+								<span className="text-destructive font-bold">*</span>
+							</Label>
 							<Input
 								id="task-title"
 								value={title}
@@ -395,20 +399,39 @@ export function SmartRecommendTaskModal({
 							/>
 						</div>
 
+						{/* 截止日期与计划时间 - 二选一必填区域 */}
 						<div className="flex flex-col gap-1.5">
-							<Label htmlFor="task-due-date">{t.task.dueDate}</Label>
-							<Input
-								id="task-due-date"
-								type="date"
-								value={dueDate}
-								onChange={(e) => setDueDate(e.target.value)}
-							/>
+							<div className="flex items-center gap-2 mb-1">
+								<div className="flex items-center gap-1">
+									<span className="text-sm font-semibold text-foreground">
+										{t.task.dateOrDueDateRequired}
+									</span>
+									<span className="text-sm font-bold text-destructive">*</span>
+								</div>
+								<span className="text-xs text-muted-foreground">
+									({lang === "zh" ? "至少填写一项" : "At least one required"})
+								</span>
+							</div>
+
+							{/* 截止日期 */}
+							<div className="flex flex-col gap-1.5">
+								<Label htmlFor="task-due-date" className="text-sm">
+									{t.task.dueDate}
+								</Label>
+								<Input
+									id="task-due-date"
+									type="date"
+									value={dueDate}
+									onChange={(e) => setDueDate(e.target.value)}
+								/>
+							</div>
 						</div>
 
+						{/* 计划日期与时间设置区域 */}
 						<div className="flex flex-col gap-3 p-3 bg-muted/30 rounded-lg">
 							<div className="flex items-center gap-2">
 								<Label className="text-sm font-semibold text-foreground">
-									{lang === "zh" ? "计划时间" : "Schedule Time"}
+									{t.task.date}
 								</Label>
 							</div>
 

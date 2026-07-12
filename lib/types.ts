@@ -32,6 +32,7 @@ export type NoteLineColor =
 	| "purple"
 	| "orange";
 export type DeleteRecurringOption = "only_this" | "all" | "future" | "pending";
+export type NotesSyncOption = "only_this" | "all" | "future" | "pending";
 
 export interface Tag {
 	id: string;
@@ -173,6 +174,7 @@ export interface PomodoroState {
 	actualEndTime: Date | null;
 	shortBreakCount: number;
 	longBreakCount: number;
+	manualStop: boolean;
 }
 
 export interface AppState {

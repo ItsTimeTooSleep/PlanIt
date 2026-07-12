@@ -250,10 +250,7 @@ export function NotificationSettings() {
 									: t.settings.notificationsDefault}
 						</span>
 						<Switch
-							checked={
-								state.settings.notifications?.enabled &&
-								notifPermission === "granted"
-							}
+							checked={state.settings.notifications?.enabled ?? false}
 							onCheckedChange={handleToggleNotifications}
 							disabled={notifPermission === "denied"}
 						/>
@@ -263,7 +260,7 @@ export function NotificationSettings() {
 				<SettingSubGroup
 					show={
 						state.settings.notifications?.enabled &&
-						notifPermission === "granted"
+						notifPermission !== "denied"
 					}
 				>
 					<SettingRow

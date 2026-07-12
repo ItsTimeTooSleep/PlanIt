@@ -30,12 +30,11 @@ export class SelfLearningMechanism {
       "timePattern",
       "tagCorrelation",
       "durationStats",
-      "schedulingPattern",
-      "dueDatePattern",
       "timeRelation",
-      "behaviorPrediction",
       "periodicPattern",
-      "contextAdaptation",
+      "contextMatch",
+      "sequenceMatch",
+      "frequencyScore",
     ];
 
     for (const factor of factors) {

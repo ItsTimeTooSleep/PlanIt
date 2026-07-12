@@ -1,0 +1,5078 @@
+{
+  "exportDate": "2026-07-06T08:23:38.413Z",
+  "context": {
+    "contextTime": "2026-07-06T08:18:21.012Z",
+    "timeOfDay": "afternoon",
+    "dayType": "workday",
+    "currentHour": 16,
+    "currentDayOfWeek": 1
+  },
+  "config": {
+    "weights": {
+      "nameSimilarity": 0.14,
+      "timePattern": 0.14,
+      "tagCorrelation": 0.12,
+      "durationStats": 0.1,
+      "timeRelation": 0.14,
+      "periodicPattern": 0.12,
+      "contextMatch": 0.14,
+      "sequenceMatch": 0.1
+    },
+    "maxRecommendations": 8,
+    "minConfidence": 0.15,
+    "diversityLambda": 0.3,
+    "autoLearning": true,
+    "learningRate": 0.05
+  },
+  "rawTasks": [
+    {
+      "id": "1hx1i4zvujymmvfvavf",
+      "title": "Meeting",
+      "date": "2026-03-18",
+      "startTime": "16:30",
+      "endTime": "17:00",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 30,
+      "createdAt": "2026-03-18T02:45:27.627Z",
+      "status": "completed"
+    },
+    {
+      "id": "fxs7kc6h1ffmmvfwvgf",
+      "title": "曹刿论战",
+      "date": "2026-03-18",
+      "startTime": "15:35",
+      "endTime": "16:05",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 30,
+      "createdAt": "2026-03-18T02:46:40.959Z",
+      "status": "completed"
+    },
+    {
+      "id": "8qonob1zodymmvg6c3t",
+      "title": "Practicing with Sources and Commentary",
+      "date": "2026-03-18",
+      "startTime": "19:15",
+      "endTime": "19:50",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 35,
+      "createdAt": "2026-03-18T02:54:02.441Z",
+      "status": "completed"
+    },
+    {
+      "id": "mdckrn5vlammvh7nvl",
+      "title": "打卡",
+      "date": "2026-03-18",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "0fdis8kuhjrvmmvh7nvl",
+      "title": "打卡",
+      "date": "2026-03-19",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "k8yhyd4lc5mmvh7nvl",
+      "title": "打卡",
+      "date": "2026-03-20",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "xaez8fbht5mmvh7nvl",
+      "title": "打卡",
+      "date": "2026-03-21",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "nyhevgqcshmmvh7nvl",
+      "title": "打卡",
+      "date": "2026-03-22",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "g98ribclacgmmvh7nvl",
+      "title": "打卡",
+      "date": "2026-03-23",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "fit2d91wakmmvh7nvl",
+      "title": "打卡",
+      "date": "2026-03-24",
+      "startTime": "19:41",
+      "endTime": "19:56",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "wqs21om6otdmmvh7nvl",
+      "title": "打卡",
+      "date": "2026-03-25",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "elgpnu4orwommvh7nvl",
+      "title": "打卡",
+      "date": "2026-03-26",
+      "startTime": "19:00",
+      "endTime": "19:21",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 21,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "o0wm34v4wxmmmvh7nvl",
+      "title": "打卡",
+      "date": "2026-03-27",
+      "startTime": "22:22",
+      "endTime": "22:37",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "bz9aatzuc6cmmvh7nvl",
+      "title": "打卡",
+      "date": "2026-03-28",
+      "startTime": "11:33",
+      "endTime": "11:48",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "3rw00f49o8cmmvh7nvl",
+      "title": "打卡",
+      "date": "2026-03-29",
+      "startTime": "11:45",
+      "endTime": "12:00",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "nj2x6mxfutommvh7nvl",
+      "title": "打卡",
+      "date": "2026-03-30",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "sexcqfdyn3mmvh7nvl",
+      "title": "打卡",
+      "date": "2026-03-31",
+      "startTime": "19:00",
+      "endTime": "19:19",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 19,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "fba98a9ca0ammvh7nvl",
+      "title": "打卡",
+      "date": "2026-04-01",
+      "startTime": "08:06",
+      "endTime": "08:33",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 27,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "tbop0o7ouvmmvh7nvl",
+      "title": "打卡",
+      "date": "2026-04-02",
+      "startTime": "19:52",
+      "endTime": "20:07",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "v1dls162btrmmvh7nvl",
+      "title": "打卡",
+      "date": "2026-04-03",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "mu9ro8zo2pgmmvh7nvl",
+      "title": "打卡",
+      "date": "2026-04-04",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "6vrofjnnx4cmmvh7nvl",
+      "title": "打卡",
+      "date": "2026-04-05",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "g82oxnvhkxdmmvh7nvl",
+      "title": "打卡",
+      "date": "2026-04-06",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "xwx2shd4w6mmvh7nvl",
+      "title": "打卡",
+      "date": "2026-04-07",
+      "startTime": "20:18",
+      "endTime": "20:33",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "rd6pix6sprmmvh7nvl",
+      "title": "打卡",
+      "date": "2026-04-08",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "4ub6t4hptn9mmvh7nvl",
+      "title": "打卡",
+      "date": "2026-04-09",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "kifvw04enibmmvh7nvl",
+      "title": "打卡",
+      "date": "2026-04-10",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "eb95xh06oemmvh7nvl",
+      "title": "打卡",
+      "date": "2026-04-11",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "6qlssmo38nmmmvh7nvl",
+      "title": "打卡",
+      "date": "2026-04-12",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "iptnibsnv8fmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-04-13",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "xvjrx4mwqlmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-04-14",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "u0q3ngugiummmvh7nvm",
+      "title": "打卡",
+      "date": "2026-04-15",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "2h983xjt20ommvh7nvm",
+      "title": "打卡",
+      "date": "2026-04-16",
+      "startTime": "22:35",
+      "endTime": "22:50",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "nku8g8il58mmvh7nvm",
+      "title": "打卡",
+      "date": "2026-04-17",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "ywf4em36f9kmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-04-18",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "3a4cbf1o6t5mmvh7nvm",
+      "title": "打卡",
+      "date": "2026-04-19",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "be8bzujkqwemmvh7nvm",
+      "title": "打卡",
+      "date": "2026-04-20",
+      "startTime": "19:00",
+      "endTime": "19:26",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 26,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "mcxm5w9ubzgmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-04-21",
+      "startTime": "20:03",
+      "endTime": "20:18",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "cpvb74nhf2pmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-04-22",
+      "startTime": "19:37",
+      "endTime": "20:01",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 24,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "9rx745lnh04mmvh7nvm",
+      "title": "打卡",
+      "date": "2026-04-23",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "dg97i0wia3immvh7nvm",
+      "title": "打卡",
+      "date": "2026-04-24",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "8p7tvbp469pmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-04-25",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "shgqhe54bu8mmvh7nvm",
+      "title": "打卡",
+      "date": "2026-04-26",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "puh95pdxhmmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-04-27",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "7vdj2rmx71kmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-04-28",
+      "startTime": "22:09",
+      "endTime": "22:24",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "i60adsakec8mmvh7nvm",
+      "title": "打卡",
+      "date": "2026-04-29",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "8tz2p54f7fqmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-04-30",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "n3lv7eo2kbgmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-01",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "i15mwt89ydqmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-02",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "2rsnx2gry3fmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-03",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "le2hn2qmtlammvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-04",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "a5bprc1yf4mmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-05",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "2h3w03y95eqmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-06",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "3efflwzfh6qmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-07",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "6fm0zcu461pmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-08",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "7hceibxvxafmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-09",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "2zvaoplyw1mmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-10",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "reuk2y8daqmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-11",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "1e0y3joea2xmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-12",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "35hnny4vx8mmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-13",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "anynbbtccf6mmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-14",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "tp7teznv71lmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-15",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "aqdkqt0idibmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-16",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "oow7czfm4zmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-17",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "w4ohyimc9okmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-18",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "zf4dv4key1immvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-19",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "55sascmumf5mmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-20",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "skipped"
+    },
+    {
+      "id": "iv5ptd0sz3jmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-21",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "completed"
+    },
+    {
+      "id": "mbo8ed3i6gmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-22",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "5ej501nmiqcmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-23",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "kuwf1pv1eybmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-24",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "yi5uk5nvg7mmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-25",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "yuxow5qhhsqmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-26",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "o1p2qumv91mmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-27",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "st2smzj9wnlmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-28",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "5gb87ed8vdcmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-29",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "97pv0l1pb0kmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-30",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "c0qgzb274rqmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-05-31",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "1894piouu87mmvh7nvm",
+      "title": "打卡",
+      "date": "2026-06-01",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "41864sywomlmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-06-02",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "9vmt3qmwwnvmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-06-03",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "d5eas7mwn4vmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-06-04",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "5mubqo5b91emmvh7nvm",
+      "title": "打卡",
+      "date": "2026-06-05",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "b1jrye3smqimmvh7nvm",
+      "title": "打卡",
+      "date": "2026-06-06",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "u7lv4h0l7tmmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-06-07",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "9skkxqzeximmvh7nvm",
+      "title": "打卡",
+      "date": "2026-06-08",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "yjfhfr1jvojmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-06-09",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "1amqi9eovrzmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-06-10",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "8u3tqj22xkcmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-06-11",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "zd88h2phk8mmvh7nvm",
+      "title": "打卡",
+      "date": "2026-06-12",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "x9lm767hzjbmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-06-13",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "ap8js7nyeqmmvh7nvm",
+      "title": "打卡",
+      "date": "2026-06-14",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "ryd6ihxxeu9mmvh7nvm",
+      "title": "打卡",
+      "date": "2026-06-15",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "3ie89pksah9mmvh7nvm",
+      "title": "打卡",
+      "date": "2026-06-16",
+      "startTime": "19:00",
+      "endTime": "19:15",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-18T03:23:03.969Z",
+      "status": "pending"
+    },
+    {
+      "id": "hdh4dvf0hepmmvj3qhb",
+      "title": "Math Textbook",
+      "date": "2026-03-18",
+      "startTime": "17:00",
+      "endTime": "17:25",
+      "isAllDay": false,
+      "tagIds": [
+        "isst3sdlz1mmvj4dhp"
+      ],
+      "duration": 25,
+      "createdAt": "2026-03-18T04:15:59.951Z",
+      "status": "completed"
+    },
+    {
+      "id": "paa2msvj64ammvrsoek",
+      "title": "Lit WorkSheet",
+      "date": "2026-03-18",
+      "startTime": "17:25",
+      "endTime": "17:45",
+      "isAllDay": false,
+      "tagIds": [
+        "6seou11haoemmvrsmrg"
+      ],
+      "duration": 20,
+      "createdAt": "2026-03-18T08:19:20.588Z",
+      "status": "completed"
+    },
+    {
+      "id": "33k167c10j8mmx6ldjm",
+      "title": "Textbook",
+      "date": "2026-03-19",
+      "startTime": "16:33",
+      "endTime": "16:45",
+      "isAllDay": false,
+      "tagIds": [
+        "isst3sdlz1mmvj4dhp"
+      ],
+      "duration": 12,
+      "createdAt": "2026-03-19T08:01:20.338Z",
+      "status": "completed"
+    },
+    {
+      "id": "jcf42zj9snmmx6nuqk",
+      "title": "南风",
+      "date": "2026-03-19",
+      "startTime": "16:08",
+      "endTime": "16:33",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 25,
+      "createdAt": "2026-03-19T08:03:15.932Z",
+      "status": "completed"
+    },
+    {
+      "id": "sy72h02dkrsmmx6oy68",
+      "title": "History",
+      "date": "2026-03-19",
+      "startTime": "16:45",
+      "endTime": "17:00",
+      "isAllDay": false,
+      "tagIds": [],
+      "duration": 15,
+      "createdAt": "2026-03-19T08:04:07.040Z",
+      "status": "completed"
+    },
+    {
+      "id": "bzecfei0i7wmmy7kj2o",
+      "title": "Revise your Commentary Practice",
+      "date": "2026-03-22",
+      "isAllDay": true,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 60,
+      "createdAt": "2026-03-20T01:16:26.640Z",
+      "status": "completed"
+    },
+    {
+      "id": "gix1nbzat2kmmy7ldus",
+      "title": "作文",
+      "date": "2026-03-25",
+      "isAllDay": true,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-03-20T01:17:06.532Z",
+      "status": "completed"
+    },
+    {
+      "id": "p9sl8b10mqmn2ofwns",
+      "title": "出师表原文+翻译",
+      "date": "2026-03-23",
+      "startTime": "17:06",
+      "endTime": "17:26",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 20,
+      "createdAt": "2026-03-23T04:19:49.144Z",
+      "status": "completed"
+    },
+    {
+      "id": "ys9x3lkcwlmn2ohhuj",
+      "title": "Magazine",
+      "date": "2026-03-23",
+      "startTime": "16:36",
+      "endTime": "17:06",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 30,
+      "createdAt": "2026-03-23T04:21:03.259Z",
+      "status": "completed"
+    },
+    {
+      "id": "7zimkhvfjldmn2oi9h9",
+      "title": "Textbook",
+      "date": "2026-03-23",
+      "startTime": "17:26",
+      "endTime": "18:19",
+      "isAllDay": false,
+      "tagIds": [
+        "isst3sdlz1mmvj4dhp"
+      ],
+      "duration": 53,
+      "createdAt": "2026-03-23T04:21:39.069Z",
+      "status": "completed"
+    },
+    {
+      "id": "o2s5nq28fymn2oiwoq",
+      "title": "AP Classroom",
+      "date": "2026-03-23",
+      "startTime": "19:15",
+      "endTime": "19:35",
+      "isAllDay": false,
+      "tagIds": [
+        "ugd47djvlbmn2oiv73"
+      ],
+      "duration": 20,
+      "createdAt": "2026-03-23T04:22:09.146Z",
+      "status": "completed"
+    },
+    {
+      "id": "sqifhlo1osmn2ojq45",
+      "title": "Graphing Challenge",
+      "date": "2026-03-23",
+      "startTime": "18:19",
+      "endTime": "18:36",
+      "isAllDay": false,
+      "tagIds": [
+        "yn4bnllkltimn2ojooa"
+      ],
+      "duration": 17,
+      "createdAt": "2026-03-23T04:22:47.285Z",
+      "status": "completed"
+    },
+    {
+      "id": "bvt682i0kmamn2zcsdc",
+      "title": "Packet",
+      "date": "2026-03-23",
+      "startTime": "21:00",
+      "endTime": "21:15",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-23T09:25:19.392Z",
+      "status": "completed"
+    },
+    {
+      "id": "hl9pxuwebqmn2zfpyc",
+      "title": "Read Act 3, scenes 2, 3 and 4",
+      "date": "2026-03-23",
+      "isAllDay": true,
+      "tagIds": [
+        "6seou11haoemmvrsmrg"
+      ],
+      "duration": 60,
+      "createdAt": "2026-03-23T09:27:36.228Z",
+      "status": "completed"
+    },
+    {
+      "id": "8h4imlf0zpmn2zgpoz",
+      "title": "Act 2 quiz",
+      "date": "2026-03-25",
+      "isAllDay": true,
+      "tagIds": [
+        "6seou11haoemmvrsmrg"
+      ],
+      "duration": 60,
+      "createdAt": "2026-03-23T09:28:22.547Z",
+      "status": "completed"
+    },
+    {
+      "id": "ho9si5tbhfmn2zhlbd",
+      "title": "Benchmark Tests",
+      "date": "2026-03-26",
+      "isAllDay": true,
+      "tagIds": [
+        "6seou11haoemmvrsmrg"
+      ],
+      "duration": 60,
+      "createdAt": "2026-03-23T09:29:03.529Z",
+      "status": "completed"
+    },
+    {
+      "id": "e6nzhfuj55fmn2zi3qa",
+      "title": "Benchmark Tests",
+      "date": "2026-03-27",
+      "isAllDay": true,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 60,
+      "createdAt": "2026-03-23T09:29:27.394Z",
+      "status": "completed"
+    },
+    {
+      "id": "dtkc78n6ov5mn2zjmxq",
+      "title": "Benchmark Tests",
+      "date": "2026-04-02",
+      "isAllDay": true,
+      "tagIds": [
+        "isst3sdlz1mmvj4dhp"
+      ],
+      "duration": 60,
+      "createdAt": "2026-03-23T09:30:38.942Z",
+      "status": "completed"
+    },
+    {
+      "id": "19gv7qa4aqpmn3ap84x",
+      "title": "Micro Unit ONE",
+      "date": "2026-03-23",
+      "startTime": "22:45",
+      "endTime": "23:23",
+      "isAllDay": false,
+      "tagIds": [
+        "yn4bnllkltimn2ojooa"
+      ],
+      "duration": 38,
+      "createdAt": "2026-03-23T14:42:55.473Z",
+      "status": "completed"
+    },
+    {
+      "id": "po9hajj4ynamn3v2cd8",
+      "title": "作文",
+      "date": "2026-03-25",
+      "startTime": "15:00",
+      "endTime": "15:27",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 27,
+      "createdAt": "2026-03-24T00:12:59.804Z",
+      "status": "completed"
+    },
+    {
+      "id": "51lstwty47amn3x5rui",
+      "title": "出师表抄写",
+      "date": "2026-03-24",
+      "startTime": "16:20",
+      "endTime": "16:35",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-24T01:11:39.067Z",
+      "status": "completed"
+    },
+    {
+      "id": "zuzup0m2ngmn41vfub",
+      "title": "Ap Classroom",
+      "date": "2026-03-24",
+      "startTime": "20:03",
+      "endTime": "20:24",
+      "isAllDay": false,
+      "tagIds": [
+        "ugd47djvlbmn2oiv73"
+      ],
+      "duration": 21,
+      "createdAt": "2026-03-24T03:23:35.027Z",
+      "status": "completed"
+    },
+    {
+      "id": "7bysm6wfqtmmn4l4y0a",
+      "title": "历史WS",
+      "date": "2026-03-24",
+      "startTime": "22:17",
+      "endTime": "22:18",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": 1,
+      "createdAt": "2026-03-24T12:22:51.178Z",
+      "status": "completed"
+    },
+    {
+      "id": "lb9o8j2od5mn4l5baf",
+      "title": "WS",
+      "date": "2026-03-24",
+      "startTime": "22:34",
+      "endTime": "22:57",
+      "isAllDay": false,
+      "tagIds": [
+        "isst3sdlz1mmvj4dhp"
+      ],
+      "duration": 23,
+      "createdAt": "2026-03-24T12:23:08.391Z",
+      "status": "completed"
+    },
+    {
+      "id": "sctb1aczjj8mn4l5j5b",
+      "title": "Albert",
+      "date": "2026-03-24",
+      "startTime": "20:57",
+      "endTime": "21:22",
+      "isAllDay": false,
+      "tagIds": [
+        "yn4bnllkltimn2ojooa"
+      ],
+      "duration": 25,
+      "createdAt": "2026-03-24T12:23:18.575Z",
+      "status": "completed"
+    },
+    {
+      "id": "h6jh82jmgiemn5jb0e4",
+      "title": "Finish Packet",
+      "date": "2026-03-25",
+      "startTime": "16:25",
+      "endTime": "16:51",
+      "isAllDay": false,
+      "tagIds": [
+        "ugd47djvlbmn2oiv73"
+      ],
+      "duration": 26,
+      "createdAt": "2026-03-25T04:19:21.148Z",
+      "status": "completed"
+    },
+    {
+      "id": "k7ufdglycumn5jhrwa",
+      "title": "Precalculus AB BM SG",
+      "date": "2026-03-25",
+      "startTime": "16:51",
+      "endTime": "18:25",
+      "isAllDay": false,
+      "tagIds": [
+        "isst3sdlz1mmvj4dhp"
+      ],
+      "duration": 94,
+      "createdAt": "2026-03-25T04:24:36.730Z",
+      "status": "completed"
+    },
+    {
+      "id": "iz942jtf7mmn5jll3e",
+      "title": "AP-Physis Unit ONE",
+      "date": "2026-03-28",
+      "startTime": "21:26",
+      "endTime": "21:59",
+      "isAllDay": false,
+      "tagIds": [
+        "ugd47djvlbmn2oiv73"
+      ],
+      "duration": 33,
+      "createdAt": "2026-03-25T04:27:34.538Z",
+      "status": "skipped"
+    },
+    {
+      "id": "q8r1wh3vb4imn64fjzl",
+      "title": "历史WS",
+      "date": "2026-03-25",
+      "startTime": "22:11",
+      "endTime": "22:44",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": 33,
+      "createdAt": "2026-03-25T14:10:45.105Z",
+      "dueDate": "2026-03-26",
+      "status": "completed"
+    },
+    {
+      "id": "bijcuut8kb7mn682cf2",
+      "title": "Lit Review",
+      "date": "2026-03-25",
+      "startTime": "23:01",
+      "endTime": "23:54",
+      "isAllDay": false,
+      "tagIds": [
+        "6seou11haoemmvrsmrg"
+      ],
+      "duration": 53,
+      "createdAt": "2026-03-25T15:52:27.230Z",
+      "dueDate": "2026-03-26",
+      "status": "completed"
+    },
+    {
+      "id": "fm6n8t95s9bmn72uoe2",
+      "title": "复习Lan",
+      "date": "2026-03-26",
+      "startTime": "23:03",
+      "endTime": "23:21",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 18,
+      "createdAt": "2026-03-26T06:14:17.594Z",
+      "dueDate": "2026-03-27",
+      "status": "completed"
+    },
+    {
+      "id": "uvkghg3gf4bmn72zxwv",
+      "title": "Finish Packet",
+      "date": "2026-03-26",
+      "startTime": "19:21",
+      "endTime": "19:36",
+      "isAllDay": false,
+      "tagIds": [
+        "ugd47djvlbmn2oiv73"
+      ],
+      "duration": 15,
+      "createdAt": "2026-03-26T06:18:23.215Z",
+      "dueDate": "2026-03-27",
+      "status": "completed"
+    },
+    {
+      "id": "kd333jnfz4dmn730mo7",
+      "title": "Review Packet",
+      "date": "2026-03-26",
+      "startTime": "20:14",
+      "endTime": "21:38",
+      "isAllDay": false,
+      "tagIds": [
+        "isst3sdlz1mmvj4dhp"
+      ],
+      "duration": 84,
+      "createdAt": "2026-03-26T06:18:55.303Z",
+      "dueDate": "2026-03-27",
+      "status": "completed"
+    },
+    {
+      "id": "ntjpvmpjzcsmn731eee",
+      "title": "History Project",
+      "date": "2026-03-26",
+      "startTime": "22:22",
+      "endTime": "22:36",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": 14,
+      "createdAt": "2026-03-26T06:19:31.238Z",
+      "dueDate": "2026-03-27",
+      "status": "completed"
+    },
+    {
+      "id": "ki4jw41sk1mn7l8pbm",
+      "title": "Essay Correction",
+      "date": "2026-03-28",
+      "startTime": "09:58",
+      "endTime": "11:05",
+      "isAllDay": false,
+      "tagIds": [
+        "6seou11haoemmvrsmrg"
+      ],
+      "duration": 67,
+      "createdAt": "2026-03-26T14:49:05.074Z",
+      "dueDate": "2026-03-30",
+      "status": "completed"
+    },
+    {
+      "id": "jxmwv9yz40fmn7lbd7q",
+      "title": "Finish WS",
+      "date": "2026-03-26",
+      "startTime": "22:51",
+      "endTime": "23:03",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": 12,
+      "createdAt": "2026-03-26T14:51:09.350Z",
+      "dueDate": "2026-03-27",
+      "status": "completed"
+    },
+    {
+      "id": "c4xpx3x9ldimn7niy5r",
+      "title": "南风",
+      "date": "2026-03-26",
+      "startTime": "23:21",
+      "endTime": "23:58",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 37,
+      "createdAt": "2026-03-26T15:53:02.319Z",
+      "dueDate": "2026-03-28",
+      "status": "completed"
+    },
+    {
+      "id": "0irpo7h41e36mn8ifgjg",
+      "title": "Quote",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 60,
+      "createdAt": "2026-03-27T06:18:07.612Z",
+      "dueDate": "2026-03-30",
+      "status": "completed"
+    },
+    {
+      "id": "kpwblsxqhmcmn90avtv",
+      "title": "征稿作文",
+      "date": "2026-03-27",
+      "startTime": "20:56",
+      "endTime": "22:22",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 86,
+      "createdAt": "2026-03-27T14:38:27.235Z",
+      "dueDate": "2026-03-28",
+      "status": "completed"
+    },
+    {
+      "id": "u2wj2mr9znmn9lst9o",
+      "title": "查阅下列名为“九下单元学习资料汇总②”的资料，抄写第四单元字词",
+      "date": "2026-03-29",
+      "startTime": "21:49",
+      "endTime": "23:10",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 81,
+      "createdAt": "2026-03-28T00:40:15.660Z",
+      "dueDate": "2026-03-30",
+      "status": "completed"
+    },
+    {
+      "id": "xfl8zho3buomn9lu7is",
+      "title": "巩固已学古文篇目的背诵，准备3月31日即下周二的古文默写",
+      "date": "2026-03-30",
+      "startTime": "20:00",
+      "endTime": "21:00",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-03-28T00:41:20.788Z",
+      "dueDate": "2026-03-31",
+      "status": "completed"
+    },
+    {
+      "id": "aeo3yd9z7omn9m0jsi",
+      "title": "BM3 Study Guide",
+      "date": "2026-03-28",
+      "startTime": "16:12",
+      "endTime": "17:03",
+      "isAllDay": false,
+      "tagIds": [
+        "isst3sdlz1mmvj4dhp"
+      ],
+      "duration": 51,
+      "createdAt": "2026-03-28T00:46:16.626Z",
+      "dueDate": "2026-03-30",
+      "status": "completed"
+    },
+    {
+      "id": "1oh6q4yc2gumnbrwohb",
+      "title": "Podcast Recording",
+      "date": "2026-03-29",
+      "startTime": "20:01",
+      "endTime": "21:06",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": 65,
+      "createdAt": "2026-03-29T13:06:46.127Z",
+      "dueDate": "2026-03-30",
+      "status": "completed"
+    },
+    {
+      "id": "jovq1vmjylqmncjt6gn",
+      "title": "Packet",
+      "date": "2026-03-30",
+      "startTime": "15:30",
+      "endTime": "16:19",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 49,
+      "createdAt": "2026-03-30T02:07:52.055Z",
+      "dueDate": "2026-03-31",
+      "status": "completed"
+    },
+    {
+      "id": "x43h1eatxdmnckwq6n",
+      "title": "Ap Classroom",
+      "date": "2026-03-30",
+      "startTime": "19:15",
+      "endTime": "19:39",
+      "isAllDay": false,
+      "tagIds": [
+        "ugd47djvlbmn2oiv73"
+      ],
+      "duration": 24,
+      "createdAt": "2026-03-30T02:38:37.199Z",
+      "dueDate": "2026-03-31",
+      "status": "completed"
+    },
+    {
+      "id": "h7q2ovyirtpmnckx1vc",
+      "title": "Quote Assignment",
+      "date": "2026-03-30",
+      "startTime": "19:39",
+      "endTime": "20:00",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 21,
+      "createdAt": "2026-03-30T02:38:52.344Z",
+      "dueDate": "2026-03-31",
+      "status": "completed"
+    },
+    {
+      "id": "mlv4xgxhb2mncms1b3",
+      "title": "HWP",
+      "date": "2026-03-30",
+      "startTime": "11:16",
+      "endTime": "11:30",
+      "isAllDay": false,
+      "tagIds": [
+        "yn4bnllkltimn2ojooa"
+      ],
+      "duration": 14,
+      "createdAt": "2026-03-30T03:30:57.567Z",
+      "dueDate": "2026-03-31",
+      "status": "completed"
+    },
+    {
+      "id": "ubqmxvltpcmnctp236",
+      "title": "Finsih WS",
+      "date": "2026-03-30",
+      "startTime": "14:30",
+      "endTime": "14:44",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": 14,
+      "createdAt": "2026-03-30T06:44:35.922Z",
+      "dueDate": "2026-03-31",
+      "status": "completed"
+    },
+    {
+      "id": "yhefuw2954cmncycu95",
+      "title": "Select & take a Carbon Footprint test",
+      "date": "2026-03-30",
+      "startTime": "16:54",
+      "endTime": "17:19",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 25,
+      "createdAt": "2026-03-30T08:55:03.977Z",
+      "dueDate": "2026-03-31",
+      "status": "completed"
+    },
+    {
+      "id": "u287nc0k0grmnczvpee",
+      "title": "AP-Mirco Econ Unit ONE",
+      "date": "2026-03-30",
+      "startTime": "17:37",
+      "endTime": "18:28",
+      "isAllDay": false,
+      "tagIds": [
+        "yn4bnllkltimn2ojooa"
+      ],
+      "duration": 51,
+      "createdAt": "2026-03-30T09:37:43.766Z",
+      "dueDate": "2026-03-31",
+      "status": "completed"
+    },
+    {
+      "id": "53n6mlhc9mymnd1qnle",
+      "title": "Podcast Editing",
+      "date": "2026-03-30",
+      "startTime": "13:00",
+      "endTime": "13:38",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": 38,
+      "createdAt": "2026-03-30T10:29:47.378Z",
+      "dueDate": "2026-03-30",
+      "status": "completed"
+    },
+    {
+      "id": "7zvd812zlzmndwsf5a",
+      "title": "Quiz 8.6-8.8",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": 60,
+      "createdAt": "2026-03-31T00:58:57.838Z",
+      "dueDate": "2026-04-01",
+      "status": "completed"
+    },
+    {
+      "id": "4qkwmljyb47mndwut2t",
+      "title": "MCQ vocabulary review",
+      "date": "2026-03-31",
+      "startTime": "09:00",
+      "endTime": "09:30",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 30,
+      "createdAt": "2026-03-31T01:00:49.205Z",
+      "dueDate": "2026-04-01",
+      "status": "completed"
+    },
+    {
+      "id": "toc167qbbtmndxxwfe",
+      "title": "Review Quiz 8.6-8.8",
+      "date": "2026-03-31",
+      "startTime": "10:50",
+      "endTime": "11:19",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": 29,
+      "createdAt": "2026-03-31T01:31:13.130Z",
+      "dueDate": "2026-04-01",
+      "status": "completed"
+    },
+    {
+      "id": "z3riw0ftw3mne0bfw3",
+      "title": "Ap Classroom",
+      "date": "2026-03-31",
+      "startTime": "19:19",
+      "endTime": "19:32",
+      "isAllDay": false,
+      "tagIds": [
+        "ugd47djvlbmn2oiv73"
+      ],
+      "duration": 13,
+      "createdAt": "2026-03-31T02:37:44.115Z",
+      "dueDate": "2026-04-01",
+      "status": "completed"
+    },
+    {
+      "id": "6e9u5zai97amne2hnap",
+      "title": "HWP",
+      "date": "2026-03-31",
+      "startTime": "11:27",
+      "endTime": "11:38",
+      "isAllDay": false,
+      "tagIds": [
+        "yn4bnllkltimn2ojooa"
+      ],
+      "duration": 11,
+      "createdAt": "2026-03-31T03:38:32.881Z",
+      "dueDate": "2026-04-01",
+      "status": "completed"
+    },
+    {
+      "id": "wdje9geeybmneempna",
+      "title": "Exit Ticket + Inclass Worksheet",
+      "date": "2026-03-31",
+      "startTime": "19:32",
+      "endTime": "20:01",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": 29,
+      "createdAt": "2026-03-31T09:18:24.598Z",
+      "dueDate": "2026-04-01",
+      "status": "completed"
+    },
+    {
+      "id": "5ngq5ifecblmneenkkb",
+      "title": "Define and Copy Vocab",
+      "date": "2026-03-31",
+      "startTime": "20:40",
+      "endTime": "20:53",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 13,
+      "createdAt": "2026-03-31T09:19:04.667Z",
+      "dueDate": "2026-04-01",
+      "status": "completed"
+    },
+    {
+      "id": "z0vk7702499mnftunni",
+      "title": "Act 3- Life and Literature Collide- Writing Task",
+      "date": "2026-04-01",
+      "startTime": "16:40",
+      "endTime": "17:11",
+      "isAllDay": false,
+      "tagIds": [
+        "6seou11haoemmvrsmrg"
+      ],
+      "duration": 31,
+      "createdAt": "2026-04-01T09:12:15.678Z",
+      "dueDate": "2026-04-02",
+      "status": "completed"
+    },
+    {
+      "id": "vlkz3umbzkmnftuvzd",
+      "title": "WS",
+      "date": "2026-04-01",
+      "startTime": "17:19",
+      "endTime": "18:07",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": 48,
+      "createdAt": "2026-04-01T09:12:26.473Z",
+      "dueDate": "2026-04-02",
+      "status": "completed"
+    },
+    {
+      "id": "bqyei5h5n4omnftvpr0",
+      "title": "Independent Work Wednesday #1 (not #myfreedomday)",
+      "date": "2026-04-01",
+      "startTime": "17:13",
+      "endTime": "17:19",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 6,
+      "createdAt": "2026-04-01T09:13:05.052Z",
+      "dueDate": "2026-04-02",
+      "status": "completed"
+    },
+    {
+      "id": "s4nqyeqotngmng06bwa",
+      "title": "Review Math",
+      "date": "2026-04-01",
+      "startTime": "19:55",
+      "endTime": "21:08",
+      "isAllDay": false,
+      "tagIds": [
+        "isst3sdlz1mmvj4dhp"
+      ],
+      "duration": 73,
+      "createdAt": "2026-04-01T12:09:18.010Z",
+      "dueDate": "2026-04-02",
+      "status": "completed"
+    },
+    {
+      "id": "3i9jmol6hormnh3scyg",
+      "title": "R and J Act 4 Scenes 1-4 Qs",
+      "date": "2026-04-02",
+      "startTime": "15:25",
+      "endTime": "15:49",
+      "isAllDay": false,
+      "tagIds": [
+        "6seou11haoemmvrsmrg"
+      ],
+      "duration": 24,
+      "createdAt": "2026-04-02T06:38:10.840Z",
+      "dueDate": "2026-04-02",
+      "status": "completed"
+    },
+    {
+      "id": "7343nwz26vxmnjpl0ib",
+      "title": "南风",
+      "date": "2026-04-04",
+      "startTime": "11:35",
+      "endTime": "12:03",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 28,
+      "createdAt": "2026-04-04T02:23:52.019Z",
+      "dueDate": "2026-04-05",
+      "status": "completed"
+    },
+    {
+      "id": "qphsify23smnjplyrh",
+      "title": "History WS",
+      "date": "2026-04-04",
+      "startTime": "12:44",
+      "endTime": "13:12",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": 28,
+      "createdAt": "2026-04-04T02:24:36.413Z",
+      "dueDate": "2026-04-05",
+      "status": "completed"
+    },
+    {
+      "id": "12p8jwg23qbqmnmoazd7",
+      "title": "Econ Packet",
+      "date": "2026-04-06",
+      "startTime": "09:57",
+      "endTime": "12:33",
+      "isAllDay": false,
+      "tagIds": [
+        "yn4bnllkltimn2ojooa"
+      ],
+      "duration": 156,
+      "createdAt": "2026-04-06T04:11:22.891Z",
+      "status": "completed"
+    },
+    {
+      "id": "7r9rvg02b3imnmocf50",
+      "title": "Physics FRQ",
+      "date": "2026-04-06",
+      "startTime": "09:01",
+      "endTime": "09:57",
+      "isAllDay": false,
+      "tagIds": [
+        "ugd47djvlbmn2oiv73"
+      ],
+      "duration": 56,
+      "createdAt": "2026-04-06T04:12:29.988Z",
+      "dueDate": "2026-04-07",
+      "status": "completed"
+    },
+    {
+      "id": "f0mofrjis3emno0wrwk",
+      "title": "论题构思",
+      "date": "2026-04-07",
+      "startTime": "19:02",
+      "endTime": "19:23",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 21,
+      "createdAt": "2026-04-07T02:52:01.220Z",
+      "dueDate": "2026-04-08",
+      "status": "completed"
+    },
+    {
+      "id": "xbxisle7jmqmno497hn",
+      "title": "Check Graphing Challenge",
+      "date": "2026-04-07",
+      "startTime": "13:13",
+      "endTime": "13:34",
+      "isAllDay": false,
+      "tagIds": [
+        "yn4bnllkltimn2ojooa"
+      ],
+      "duration": 21,
+      "createdAt": "2026-04-07T04:25:40.139Z",
+      "dueDate": "2026-04-08",
+      "status": "completed"
+    },
+    {
+      "id": "43t3a6u7gnimnpe48o0",
+      "title": "全品",
+      "date": "2026-04-08",
+      "startTime": "09:47",
+      "endTime": "10:20",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 33,
+      "createdAt": "2026-04-08T01:49:30.720Z",
+      "dueDate": "2026-04-09",
+      "status": "completed"
+    },
+    {
+      "id": "27rvr05ef7lmnpe4oln",
+      "title": "Vocab Definition",
+      "date": "2026-04-08",
+      "startTime": "10:31",
+      "endTime": "11:08",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 37,
+      "createdAt": "2026-04-08T01:49:51.371Z",
+      "dueDate": "2026-04-09",
+      "status": "completed"
+    },
+    {
+      "id": "o1d4ixrp6osmnqr9zih",
+      "title": "WorkSheet",
+      "date": "2026-04-10",
+      "startTime": "08:21",
+      "endTime": "09:14",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 53,
+      "createdAt": "2026-04-09T00:45:39.977Z",
+      "dueDate": "2026-04-10",
+      "status": "completed"
+    },
+    {
+      "id": "pny25zmkpuimns6msf5",
+      "title": "练笔",
+      "date": "2026-04-12",
+      "startTime": "09:24",
+      "endTime": "10:42",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 78,
+      "createdAt": "2026-04-10T00:43:17.729Z",
+      "dueDate": "2026-04-11",
+      "status": "completed"
+    },
+    {
+      "id": "ne0oqxhsupmntz2w12",
+      "title": "Review Econ",
+      "date": "2026-04-11",
+      "startTime": "14:41",
+      "endTime": "15:40",
+      "isAllDay": false,
+      "tagIds": [
+        "yn4bnllkltimn2ojooa"
+      ],
+      "duration": 59,
+      "createdAt": "2026-04-11T06:47:24.326Z",
+      "dueDate": "2026-04-12",
+      "status": "completed"
+    },
+    {
+      "id": "3umtrcy1tfbmnwjhcbi",
+      "title": "Stage Two",
+      "date": "2026-04-13",
+      "startTime": "15:59",
+      "endTime": "16:41",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 42,
+      "createdAt": "2026-04-13T01:54:03.294Z",
+      "dueDate": "2026-04-14",
+      "status": "completed"
+    },
+    {
+      "id": "n52nuvo5x7lmnwn1uvf",
+      "title": "Micro Packet",
+      "date": "2026-04-13",
+      "startTime": "13:17",
+      "endTime": "14:05",
+      "isAllDay": false,
+      "tagIds": [
+        "yn4bnllkltimn2ojooa"
+      ],
+      "duration": 48,
+      "createdAt": "2026-04-13T03:33:59.307Z",
+      "dueDate": "2026-04-20",
+      "status": "completed"
+    },
+    {
+      "id": "tgkw4a8ekmmnwn24ib",
+      "title": "AP Classroom",
+      "date": "2026-04-13",
+      "startTime": "13:07",
+      "endTime": "13:17",
+      "isAllDay": false,
+      "tagIds": [
+        "yn4bnllkltimn2ojooa"
+      ],
+      "duration": 10,
+      "createdAt": "2026-04-13T03:34:11.795Z",
+      "dueDate": "2026-04-20",
+      "status": "completed"
+    },
+    {
+      "id": "w4i8q0fwtk9mnzlqyu4",
+      "title": "Packet",
+      "date": "2026-04-16",
+      "startTime": "21:18",
+      "endTime": "22:11",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 53,
+      "createdAt": "2026-04-15T05:20:50.140Z",
+      "dueDate": "2026-04-16",
+      "status": "completed"
+    },
+    {
+      "id": "x8nd2ir061mo0tfgpf",
+      "title": "Math Review Packet",
+      "date": "2026-04-16",
+      "startTime": "19:00",
+      "endTime": "20:04",
+      "isAllDay": false,
+      "tagIds": [
+        "isst3sdlz1mmvj4dhp"
+      ],
+      "duration": 64,
+      "createdAt": "2026-04-16T01:43:36.531Z",
+      "dueDate": "2026-04-17",
+      "status": "completed"
+    },
+    {
+      "id": "ry92rwgeio8mo0tg2iy",
+      "title": "南风",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-16T01:44:04.810Z",
+      "dueDate": "2026-04-18",
+      "status": "completed"
+    },
+    {
+      "id": "t1sohwm7lxmo10awki",
+      "title": "AP Classroom",
+      "date": "2026-04-16",
+      "startTime": "15:45",
+      "endTime": "18:00",
+      "isAllDay": false,
+      "tagIds": [
+        "yn4bnllkltimn2ojooa"
+      ],
+      "duration": 135,
+      "createdAt": "2026-04-16T04:56:01.122Z",
+      "dueDate": "2026-04-17",
+      "status": "completed"
+    },
+    {
+      "id": "ol7okf7d9emmo1kmdrq",
+      "title": "WS",
+      "date": "2026-04-17",
+      "startTime": "08:32",
+      "endTime": "08:50",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": 18,
+      "createdAt": "2026-04-16T14:24:48.950Z",
+      "dueDate": "2026-04-17",
+      "status": "completed"
+    },
+    {
+      "id": "vu5ces7jd6mo2gf7by",
+      "title": "AP Classroom",
+      "date": "2026-04-17",
+      "startTime": "13:14",
+      "endTime": "14:00",
+      "isAllDay": false,
+      "tagIds": [
+        "yn4bnllkltimn2ojooa"
+      ],
+      "duration": 46,
+      "createdAt": "2026-04-17T05:15:01.726Z",
+      "dueDate": "2026-04-18",
+      "status": "completed"
+    },
+    {
+      "id": "qac3e499s6mo6j8r4f",
+      "title": "Art",
+      "date": "2026-04-21",
+      "startTime": "21:05",
+      "endTime": "22:03",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 58,
+      "createdAt": "2026-04-20T01:45:04.335Z",
+      "dueDate": "2026-04-22",
+      "status": "completed"
+    },
+    {
+      "id": "7x88qvjgi9umo6lecu8",
+      "title": "Stage 4",
+      "date": "2026-04-20",
+      "startTime": "19:30",
+      "endTime": "19:41",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 11,
+      "createdAt": "2026-04-20T02:45:24.992Z",
+      "dueDate": "2026-04-21",
+      "status": "completed"
+    },
+    {
+      "id": "orul0ikgfilmo731dyp",
+      "title": "MCQ Practise",
+      "date": "2026-04-20",
+      "startTime": "19:41",
+      "endTime": "20:22",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": 41,
+      "createdAt": "2026-04-20T10:59:13.009Z",
+      "dueDate": "2026-04-21",
+      "status": "completed"
+    },
+    {
+      "id": "f22973vw6hmo73jbbp",
+      "title": "准备语文辩论稿子",
+      "date": "2026-04-21",
+      "startTime": "19:16",
+      "endTime": "19:48",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 32,
+      "createdAt": "2026-04-20T11:13:09.397Z",
+      "dueDate": "2026-04-21",
+      "status": "completed"
+    },
+    {
+      "id": "3ixf1wten78mo89ag3q",
+      "title": "MCQ Practise",
+      "date": "2026-04-21",
+      "startTime": "23:25",
+      "endTime": "23:56",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": 31,
+      "createdAt": "2026-04-21T06:41:59.558Z",
+      "dueDate": "2026-04-22",
+      "status": "completed"
+    },
+    {
+      "id": "z7ccz013trmo89al09",
+      "title": "WS",
+      "date": "2026-04-21",
+      "startTime": "22:03",
+      "endTime": "22:40",
+      "isAllDay": false,
+      "tagIds": [
+        "6seou11haoemmvrsmrg"
+      ],
+      "duration": 37,
+      "createdAt": "2026-04-21T06:42:05.913Z",
+      "dueDate": "2026-04-22",
+      "status": "completed"
+    },
+    {
+      "id": "ajkgdxrnc6jmo8rbhja",
+      "title": "Worksheet",
+      "date": "2026-04-21",
+      "startTime": "23:06",
+      "endTime": "23:19",
+      "isAllDay": false,
+      "tagIds": [
+        "isst3sdlz1mmvj4dhp"
+      ],
+      "duration": 13,
+      "createdAt": "2026-04-21T15:06:41.158Z",
+      "dueDate": "2026-04-22",
+      "status": "completed"
+    },
+    {
+      "id": "gzwlyalvozbmo9giv45",
+      "title": "Min 20 FRQ For MACRO",
+      "date": "2026-04-29",
+      "startTime": "16:29",
+      "endTime": "18:44",
+      "isAllDay": false,
+      "tagIds": [
+        "yn4bnllkltimn2ojooa"
+      ],
+      "duration": 135,
+      "createdAt": "2026-04-22T02:52:15.749Z",
+      "dueDate": "2026-04-30",
+      "status": "completed"
+    },
+    {
+      "id": "pf4y1djx38nmo9gj9wf",
+      "title": "Min 20 FRQ For MICRO",
+      "date": "2026-04-27",
+      "startTime": "15:30",
+      "endTime": "17:30",
+      "isAllDay": false,
+      "tagIds": [
+        "yn4bnllkltimn2ojooa"
+      ],
+      "duration": 120,
+      "createdAt": "2026-04-22T02:52:34.911Z",
+      "dueDate": "2026-04-28",
+      "status": "completed"
+    },
+    {
+      "id": "fuvs024oymcmo9zaxzf",
+      "title": "Worksheet",
+      "date": "2026-04-22",
+      "startTime": "21:50",
+      "endTime": "22:48",
+      "isAllDay": false,
+      "tagIds": [
+        "6seou11haoemmvrsmrg"
+      ],
+      "duration": 58,
+      "createdAt": "2026-04-22T11:37:58.923Z",
+      "dueDate": "2026-04-23",
+      "status": "completed"
+    },
+    {
+      "id": "hwbmo8ockadmo9zb2h5",
+      "title": "Review Test",
+      "date": "2026-04-22",
+      "startTime": "20:01",
+      "endTime": "21:37",
+      "isAllDay": false,
+      "tagIds": [
+        "6seou11haoemmvrsmrg"
+      ],
+      "duration": 96,
+      "createdAt": "2026-04-22T11:38:04.745Z",
+      "dueDate": "2026-04-23",
+      "status": "completed"
+    },
+    {
+      "id": "jmothpx8e5imoa0thdc",
+      "title": "Annotate Documents",
+      "date": "2026-04-22",
+      "startTime": "23:27",
+      "endTime": "00:00",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": -1407,
+      "createdAt": "2026-04-22T12:20:23.472Z",
+      "dueDate": "2026-04-23",
+      "status": "completed"
+    },
+    {
+      "id": "xu81m96v4cmogfn5r1",
+      "title": "APClassroom",
+      "date": "2026-04-26",
+      "startTime": "19:09",
+      "endTime": "22:43",
+      "isAllDay": false,
+      "tagIds": [
+        "yn4bnllkltimn2ojooa"
+      ],
+      "duration": 214,
+      "createdAt": "2026-04-27T00:01:59.773Z",
+      "dueDate": "2026-04-28",
+      "status": "completed"
+    },
+    {
+      "id": "h085ad0zrgjmogfnvw5",
+      "title": "复习语文-诗词五首",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [],
+      "duration": 60,
+      "createdAt": "2026-04-27T00:02:33.653Z",
+      "dueDate": "2026-04-28",
+      "status": "completed"
+    },
+    {
+      "id": "5ui5ojb3go3mogvvt22",
+      "title": "Albert",
+      "date": "2026-04-27",
+      "startTime": "19:00",
+      "endTime": "20:30",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": 90,
+      "createdAt": "2026-04-27T07:36:37.082Z",
+      "dueDate": "2026-04-28",
+      "status": "completed"
+    },
+    {
+      "id": "g8mj453poe9moh81ny5",
+      "title": "Correction for Lan",
+      "date": "2026-04-27",
+      "startTime": "21:13",
+      "endTime": "21:27",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 14,
+      "createdAt": "2026-04-27T13:17:05.789Z",
+      "dueDate": "2026-04-28",
+      "status": "completed"
+    },
+    {
+      "id": "k4b0mxqknemoi00x85",
+      "title": "抄写古诗",
+      "date": "2026-04-28",
+      "startTime": "21:01",
+      "endTime": "21:13",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 12,
+      "createdAt": "2026-04-28T02:20:20.405Z",
+      "dueDate": "2026-04-30",
+      "status": "completed"
+    },
+    {
+      "id": "v5t5719no1gmoi02fr8",
+      "title": "Stage 1 Worksheet",
+      "date": "2026-04-28",
+      "startTime": "21:13",
+      "endTime": "22:09",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 56,
+      "createdAt": "2026-04-28T02:21:31.076Z",
+      "dueDate": "2026-04-30",
+      "status": "completed"
+    },
+    {
+      "id": "6msddubv6hdmoimhyln",
+      "title": "Summative Reflection",
+      "date": "2026-04-28",
+      "startTime": "19:01",
+      "endTime": "20:49",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 108,
+      "createdAt": "2026-04-28T12:49:26.891Z",
+      "dueDate": "2026-04-29",
+      "status": "completed"
+    },
+    {
+      "id": "pnq07wmtm7fmojbxkqy",
+      "title": "每天一个课的字词",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-29T00:41:25.834Z",
+      "dueDate": "2026-04-30",
+      "status": "completed"
+    },
+    {
+      "id": "efg9yaz0064mojbxkr0",
+      "title": "每天一个课的字词",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-29T00:41:25.834Z",
+      "dueDate": "2026-05-01",
+      "status": "completed"
+    },
+    {
+      "id": "tzj7rhwuw5mojbxkr0",
+      "title": "每天一个课的字词",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-29T00:41:25.834Z",
+      "dueDate": "2026-05-02",
+      "status": "completed"
+    },
+    {
+      "id": "mmxo6c0o5t9mojbxkr0",
+      "title": "每天一个课的字词",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-29T00:41:25.834Z",
+      "dueDate": "2026-05-03",
+      "status": "completed"
+    },
+    {
+      "id": "e65r8wd4qygmojbxkr0",
+      "title": "每天一个课的字词",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-29T00:41:25.834Z",
+      "dueDate": "2026-05-04",
+      "status": "completed"
+    },
+    {
+      "id": "4by5mn5b3y4mojbxkr0",
+      "title": "每天一个课的字词",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-29T00:41:25.834Z",
+      "dueDate": "2026-05-05",
+      "status": "completed"
+    },
+    {
+      "id": "d77njx6fi2fmojbxkr0",
+      "title": "每天一个课的字词",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-29T00:41:25.834Z",
+      "dueDate": "2026-05-06",
+      "status": "completed"
+    },
+    {
+      "id": "lfda0ezc0cnmojbxkr0",
+      "title": "每天一个课的字词",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-29T00:41:25.834Z",
+      "dueDate": "2026-05-07",
+      "status": "completed"
+    },
+    {
+      "id": "8tk3e5kbtf2mojbxkr1",
+      "title": "每天一个课的字词",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-29T00:41:25.834Z",
+      "dueDate": "2026-05-08",
+      "status": "completed"
+    },
+    {
+      "id": "o7lnfqbjdmojbxkr1",
+      "title": "每天一个课的字词",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-29T00:41:25.834Z",
+      "dueDate": "2026-05-09",
+      "status": "completed"
+    },
+    {
+      "id": "8km2gqpv5thmojbxkr1",
+      "title": "每天一个课的字词",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-29T00:41:25.834Z",
+      "dueDate": "2026-05-10",
+      "status": "completed"
+    },
+    {
+      "id": "790glp3lfwmmojbxkr1",
+      "title": "每天一个课的字词",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-29T00:41:25.834Z",
+      "dueDate": "2026-05-11",
+      "status": "completed"
+    },
+    {
+      "id": "vyalyjllkomojbxkr1",
+      "title": "每天一个课的字词",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-29T00:41:25.834Z",
+      "dueDate": "2026-05-12",
+      "status": "completed"
+    },
+    {
+      "id": "a589li5kjc6mojbxkr1",
+      "title": "每天一个课的字词",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-29T00:41:25.834Z",
+      "dueDate": "2026-05-13",
+      "status": "completed"
+    },
+    {
+      "id": "cmai9cnuqvimojbxkr1",
+      "title": "每天一个课的字词",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-29T00:41:25.834Z",
+      "dueDate": "2026-05-14",
+      "status": "completed"
+    },
+    {
+      "id": "ge4g6ccrd4emojbxkr1",
+      "title": "每天一个课的字词",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-29T00:41:25.834Z",
+      "dueDate": "2026-05-15",
+      "status": "completed"
+    },
+    {
+      "id": "7d99akpomtpmojbxkr1",
+      "title": "每天一个课的字词",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-29T00:41:25.834Z",
+      "dueDate": "2026-05-16",
+      "status": "completed"
+    },
+    {
+      "id": "7lx0oa0hhwbmojbxkr1",
+      "title": "每天一个课的字词",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-29T00:41:25.834Z",
+      "dueDate": "2026-05-17",
+      "status": "completed"
+    },
+    {
+      "id": "aezvnol9h5hmojelf1s",
+      "title": "MACRO Packet",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "yn4bnllkltimn2ojooa"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-29T01:55:57.424Z",
+      "dueDate": "2026-04-30",
+      "status": "completed"
+    },
+    {
+      "id": "89eqdlwyybpmok6idza",
+      "title": "Packet",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-29T14:57:25.318Z",
+      "dueDate": "2026-04-30",
+      "status": "completed"
+    },
+    {
+      "id": "52z4pxa88p2mol58jfu",
+      "title": "Review Packet",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-30T07:09:32.394Z",
+      "dueDate": "2026-05-11",
+      "status": "completed"
+    },
+    {
+      "id": "6f06r09pvecmolbivll",
+      "title": "洗衣凝珠",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "duration": 60,
+      "createdAt": "2026-04-30T10:05:32.409Z",
+      "dueDate": "2026-05-04",
+      "status": "completed"
+    },
+    {
+      "id": "s4qdiyqdtfmp0jd6c1",
+      "title": "全品",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-11T01:41:35.953Z",
+      "dueDate": "2026-05-12",
+      "status": "completed"
+    },
+    {
+      "id": "og7r2ee4ngmp0jdbly",
+      "title": "Stage 2",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-11T01:41:42.790Z",
+      "dueDate": "2026-05-12",
+      "status": "completed"
+    },
+    {
+      "id": "ni7qosn1r9mp0jdtpq",
+      "title": "Edpuzzle",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [],
+      "duration": 60,
+      "createdAt": "2026-05-11T01:42:06.254Z",
+      "dueDate": "2026-05-12",
+      "status": "completed"
+    },
+    {
+      "id": "xje5uk9087gmp0w1nur",
+      "title": "correction",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "6seou11haoemmvrsmrg"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-11T07:36:33.795Z",
+      "dueDate": "2026-05-12",
+      "status": "completed"
+    },
+    {
+      "id": "5u0hhgtfmwkmp1xm3vf",
+      "title": "背默古文四篇",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-12T01:08:13.467Z",
+      "dueDate": "2026-05-13",
+      "status": "completed"
+    },
+    {
+      "id": "0n6frr23ogtmp1xmya6",
+      "title": "背默古诗",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-12T01:08:52.878Z",
+      "dueDate": "2026-05-13",
+      "status": "completed"
+    },
+    {
+      "id": "raepmpfxa7mp3m5hn6",
+      "title": "Worksheet",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "isst3sdlz1mmvj4dhp"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-13T05:22:54.738Z",
+      "dueDate": "2026-05-14",
+      "status": "completed"
+    },
+    {
+      "id": "skpfwtdtq4mp6kwjww",
+      "title": "病句",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-15T07:11:16.688Z",
+      "dueDate": "2026-05-16",
+      "status": "completed"
+    },
+    {
+      "id": "undlpclnvrmp6kwrby",
+      "title": "古诗project",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-15T07:11:26.302Z",
+      "dueDate": "2026-05-16",
+      "status": "completed"
+    },
+    {
+      "id": "1pnh0ekac2ymp6l7s6k",
+      "title": "Reply Lorena",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-15T07:20:00.620Z",
+      "dueDate": "2026-05-16",
+      "status": "completed"
+    },
+    {
+      "id": "gy1t5cmfijvmp6l8uvx",
+      "title": "Listen Podcast and make notes",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "6seou11haoemmvrsmrg"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-15T07:20:50.781Z",
+      "dueDate": "2026-05-16",
+      "status": "completed"
+    },
+    {
+      "id": "50un724vyqomp6lapt4",
+      "title": "复习文长",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-15T07:22:17.512Z",
+      "dueDate": "2026-05-16",
+      "status": "completed"
+    },
+    {
+      "id": "mdrm2mjxt4jmp6lec1z",
+      "title": "洗衣凝珠",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [],
+      "duration": 60,
+      "createdAt": "2026-05-15T07:25:06.311Z",
+      "dueDate": "2026-05-16",
+      "status": "skipped"
+    },
+    {
+      "id": "7m1vj5ayg8mpb3c8e4",
+      "title": "复习Quiz",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-18T10:58:26.044Z",
+      "dueDate": "2026-05-20",
+      "status": "completed"
+    },
+    {
+      "id": "jcim2cw1e2impb3ct0f",
+      "title": "Get Answer for MCQ practice",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-18T10:58:52.767Z",
+      "dueDate": "2026-05-22",
+      "status": "completed"
+    },
+    {
+      "id": "p6uxpi1k9pmpb3cyl7",
+      "title": "Project",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-18T10:58:59.995Z",
+      "dueDate": "2026-05-25",
+      "status": "completed"
+    },
+    {
+      "id": "pvybz03i96fmpb3dawr",
+      "title": "Prepare for paragraph assignment",
+      "date": "2026-05-18",
+      "startTime": "21:43",
+      "endTime": "22:01",
+      "isAllDay": false,
+      "tagIds": [
+        "6seou11haoemmvrsmrg"
+      ],
+      "duration": 18,
+      "createdAt": "2026-05-18T10:59:15.963Z",
+      "dueDate": "2026-05-19",
+      "status": "completed"
+    },
+    {
+      "id": "xfqdk74vlvmpb3wfzc",
+      "title": "题目",
+      "date": "2026-05-18",
+      "startTime": "21:32",
+      "endTime": "21:43",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 11,
+      "createdAt": "2026-05-18T11:14:09.000Z",
+      "dueDate": "2026-05-19",
+      "status": "completed"
+    },
+    {
+      "id": "ppslptle3dbmpbzc8zp",
+      "title": "Teams Assignment",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-19T01:54:14.533Z",
+      "dueDate": "2026-05-20",
+      "status": "completed"
+    },
+    {
+      "id": "oliqebj7z7impbzhnv3",
+      "title": "Podcast Project- Group Exploration",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "6seou11haoemmvrsmrg"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-19T01:58:27.087Z",
+      "dueDate": "2026-05-20",
+      "status": "completed"
+    },
+    {
+      "id": "2a83f3n4l82mpbzi2ip",
+      "title": "Stage 3 and 4",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-19T01:58:46.081Z",
+      "dueDate": "2026-05-21",
+      "status": "completed"
+    },
+    {
+      "id": "iqmkb7l5luqmpbzkcpy",
+      "title": "Physics Project",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "ugd47djvlbmn2oiv73"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-19T02:00:32.614Z",
+      "dueDate": "2026-05-27",
+      "status": "completed"
+    },
+    {
+      "id": "zqbmcugkelmpbzkmvq",
+      "title": "Buy Spring",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "ugd47djvlbmn2oiv73"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-19T02:00:45.782Z",
+      "dueDate": "2026-05-22",
+      "status": "completed"
+    },
+    {
+      "id": "sv43tn6mlmmpc5na35",
+      "title": "Worksheet",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "isst3sdlz1mmvj4dhp"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-19T04:50:46.865Z",
+      "dueDate": "2026-05-20",
+      "status": "completed"
+    },
+    {
+      "id": "l2w7foa8kjmpdg1c6v",
+      "title": "完成病句排序练习",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-20T02:29:25.111Z",
+      "dueDate": "2026-05-21",
+      "status": "completed"
+    },
+    {
+      "id": "b42c7k89vlmpdg2txx",
+      "title": "Test",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "isst3sdlz1mmvj4dhp"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-20T02:30:34.773Z",
+      "dueDate": "2026-05-22",
+      "status": "completed"
+    },
+    {
+      "id": "s5zwpnivrlmpdits99",
+      "title": "Review Packet",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "isst3sdlz1mmvj4dhp"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-20T03:47:31.533Z",
+      "dueDate": "2026-05-21",
+      "status": "completed"
+    },
+    {
+      "id": "te88iwuggampeq1xxx",
+      "title": "Lit BenchMark",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "6seou11haoemmvrsmrg"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-20T23:57:35.637Z",
+      "dueDate": "2026-05-27",
+      "status": "completed"
+    },
+    {
+      "id": "rxx0s46sapnmpeq2b7e",
+      "title": "Lan BenchMark",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-20T23:57:52.826Z",
+      "dueDate": "2026-05-27",
+      "status": "completed"
+    },
+    {
+      "id": "7u7iyjy03zimpg7sgts",
+      "title": "Project",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-22T01:01:52.816Z",
+      "dueDate": "2026-05-25",
+      "status": "completed"
+    },
+    {
+      "id": "9nywsvgqj2ampg7srwz",
+      "title": "Correction",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-22T01:02:07.187Z",
+      "dueDate": "2026-05-25",
+      "status": "completed"
+    },
+    {
+      "id": "do6zkx2achmpgkzkue",
+      "title": "6 MCQ Questions",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "6seou11haoemmvrsmrg"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-22T07:11:19.622Z",
+      "dueDate": "2026-05-25",
+      "status": "completed"
+    },
+    {
+      "id": "7k21u4dbqc2mpkidqyt",
+      "title": "模拟考",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-25T01:09:26.598Z",
+      "dueDate": "2026-05-26",
+      "status": "completed"
+    },
+    {
+      "id": "vyj5p4jfh3gmpkkviu9",
+      "title": "Podcast Individual Research Task",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "6seou11haoemmvrsmrg"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-25T02:19:15.105Z",
+      "dueDate": "2026-05-28",
+      "status": "completed"
+    },
+    {
+      "id": "nohznt0jtdmpktat5c",
+      "title": "Poster",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-25T06:15:05.232Z",
+      "dueDate": "2026-06-01",
+      "status": "completed"
+    },
+    {
+      "id": "p3jcz197sqlmpmj3d99",
+      "title": "Review Packet",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "isst3sdlz1mmvj4dhp"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-26T11:04:54.237Z",
+      "dueDate": "2026-06-04",
+      "status": "pending"
+    },
+    {
+      "id": "0ses99d0pezfmpnfxgj2",
+      "title": "Stage 4: Formal Script Planning",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-27T02:24:05.870Z",
+      "dueDate": "2026-05-31",
+      "status": "completed"
+    },
+    {
+      "id": "k8udu3ui6hempnfxvv1",
+      "title": "STAGE 5 --Your g9 Documentary: YOU DID IT!",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-27T02:24:25.741Z",
+      "dueDate": "2026-06-01",
+      "status": "pending"
+    },
+    {
+      "id": "8viowvjfhc9mpp1kju9",
+      "title": "Chinese Final",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-28T05:17:41.361Z",
+      "dueDate": "2026-06-02",
+      "status": "pending"
+    },
+    {
+      "id": "mu03a1gd7xgmpp1ktor",
+      "title": "Math Final",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "isst3sdlz1mmvj4dhp"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-28T05:17:54.123Z",
+      "dueDate": "2026-06-04",
+      "status": "pending"
+    },
+    {
+      "id": "andd0ve5477mpp5om4j",
+      "title": "Sheet",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "6seou11haoemmvrsmrg"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-28T07:12:49.411Z",
+      "dueDate": "2026-05-29",
+      "status": "completed"
+    },
+    {
+      "id": "z7kn08znwvampqr7eho",
+      "title": "Lit Podcast Script",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [
+        "6seou11haoemmvrsmrg"
+      ],
+      "duration": 60,
+      "createdAt": "2026-05-29T10:03:04.092Z",
+      "dueDate": "2026-05-31",
+      "status": "completed"
+    },
+    {
+      "id": "464j8mijm9kmr3g4hq5",
+      "title": "散步",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [],
+      "duration": 60,
+      "createdAt": "2026-07-02T11:53:35.165Z",
+      "dueDate": "2026-07-02",
+      "status": "completed"
+    },
+    {
+      "id": "cpsvhk3ljn9mr3g4hq7",
+      "title": "散步",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [],
+      "duration": 60,
+      "createdAt": "2026-07-02T11:53:35.165Z",
+      "dueDate": "2026-07-03",
+      "status": "pending"
+    },
+    {
+      "id": "jmesv84gjs9mr3g4hq7",
+      "title": "散步",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [],
+      "duration": 60,
+      "createdAt": "2026-07-02T11:53:35.165Z",
+      "dueDate": "2026-07-04",
+      "status": "completed"
+    },
+    {
+      "id": "nea1hgo14fkmr3g4hq7",
+      "title": "散步",
+      "startTime": "",
+      "endTime": "",
+      "isAllDay": false,
+      "tagIds": [],
+      "duration": 60,
+      "createdAt": "2026-07-02T11:53:35.165Z",
+      "dueDate": "2026-07-05",
+      "status": "pending"
+    }
+  ],
+  "tags": [
+    {
+      "id": "tag-study",
+      "name": "学习",
+      "color": "var(--tag-blue)"
+    },
+    {
+      "id": "tag-exercise",
+      "name": "运动",
+      "color": "var(--tag-green)"
+    },
+    {
+      "id": "tag-rest",
+      "name": "休息",
+      "color": "var(--tag-amber)"
+    },
+    {
+      "id": "tag-social",
+      "name": "社交",
+      "color": "var(--tag-pink)"
+    },
+    {
+      "id": "tag-work",
+      "name": "工作",
+      "color": "var(--tag-purple)"
+    },
+    {
+      "id": "tag-creative",
+      "name": "创作",
+      "color": "var(--tag-red)"
+    },
+    {
+      "id": "tag-reading",
+      "name": "阅读",
+      "color": "var(--tag-cyan)"
+    },
+    {
+      "id": "tag-cooking",
+      "name": "烹饪",
+      "color": "var(--tag-orange)"
+    }
+  ],
+  "recommendations": [
+    {
+      "taskTitle": "Act 3- Life and Literature Collide- Writing Task",
+      "taskDate": "2026-07-06",
+      "taskStartTime": "16:40",
+      "taskEndTime": "17:11",
+      "taskTagIds": [
+        "6seou11haoemmvrsmrg"
+      ],
+      "taskDuration": 31,
+      "confidence": 0.464,
+      "reason": "时间关系模式匹配",
+      "recommendationType": "historical",
+      "scores": {
+        "nameSimilarity": 0.024,
+        "timePattern": 1,
+        "tagCorrelation": 0.315,
+        "durationStats": 0.928,
+        "timeRelation": 0.839,
+        "periodicPattern": 0.3,
+        "contextMatch": 0.05,
+        "sequenceMatch": 0.3,
+        "total": 0.464
+      },
+      "scoreBreakdown": [
+        {
+          "factor": "nameSimilarity",
+          "rawScore": 0.024,
+          "weight": 0.14,
+          "weightedScore": 0.0033600000000000006
+        },
+        {
+          "factor": "timePattern",
+          "rawScore": 1,
+          "weight": 0.14,
+          "weightedScore": 0.14
+        },
+        {
+          "factor": "tagCorrelation",
+          "rawScore": 0.315,
+          "weight": 0.12,
+          "weightedScore": 0.0378
+        },
+        {
+          "factor": "durationStats",
+          "rawScore": 0.928,
+          "weight": 0.1,
+          "weightedScore": 0.09280000000000001
+        },
+        {
+          "factor": "timeRelation",
+          "rawScore": 0.839,
+          "weight": 0.14,
+          "weightedScore": 0.11746000000000001
+        },
+        {
+          "factor": "periodicPattern",
+          "rawScore": 0.3,
+          "weight": 0.12,
+          "weightedScore": 0.036
+        },
+        {
+          "factor": "contextMatch",
+          "rawScore": 0.05,
+          "weight": 0.14,
+          "weightedScore": 0.007000000000000001
+        },
+        {
+          "factor": "sequenceMatch",
+          "rawScore": 0.3,
+          "weight": 0.1,
+          "weightedScore": 0.03
+        }
+      ]
+    },
+    {
+      "taskTitle": "打卡",
+      "taskDate": "2026-07-06",
+      "taskStartTime": "19:00",
+      "taskEndTime": "19:30",
+      "taskTagIds": [
+        "w0mob0242ymmvfv5a7"
+      ],
+      "taskDuration": 15,
+      "confidence": 0.407,
+      "reason": "周期性任务模式",
+      "recommendationType": "historical",
+      "scores": {
+        "nameSimilarity": 0.342,
+        "timePattern": 0.5,
+        "tagCorrelation": 0.373,
+        "durationStats": 0.58,
+        "timeRelation": 0.3,
+        "periodicPattern": 0.94,
+        "contextMatch": 0.01,
+        "sequenceMatch": 0.3,
+        "total": 0.407
+      },
+      "scoreBreakdown": [
+        {
+          "factor": "nameSimilarity",
+          "rawScore": 0.342,
+          "weight": 0.14,
+          "weightedScore": 0.047880000000000006
+        },
+        {
+          "factor": "timePattern",
+          "rawScore": 0.5,
+          "weight": 0.14,
+          "weightedScore": 0.07
+        },
+        {
+          "factor": "tagCorrelation",
+          "rawScore": 0.373,
+          "weight": 0.12,
+          "weightedScore": 0.04476
+        },
+        {
+          "factor": "durationStats",
+          "rawScore": 0.58,
+          "weight": 0.1,
+          "weightedScore": 0.057999999999999996
+        },
+        {
+          "factor": "timeRelation",
+          "rawScore": 0.3,
+          "weight": 0.14,
+          "weightedScore": 0.042
+        },
+        {
+          "factor": "periodicPattern",
+          "rawScore": 0.94,
+          "weight": 0.12,
+          "weightedScore": 0.11279999999999998
+        },
+        {
+          "factor": "contextMatch",
+          "rawScore": 0.01,
+          "weight": 0.14,
+          "weightedScore": 0.0014000000000000002
+        },
+        {
+          "factor": "sequenceMatch",
+          "rawScore": 0.3,
+          "weight": 0.1,
+          "weightedScore": 0.03
+        }
+      ]
+    },
+    {
+      "taskTitle": "Stage Two",
+      "taskDate": "2026-07-07",
+      "taskStartTime": "15:59",
+      "taskEndTime": "16:41",
+      "taskTagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "taskDuration": 42,
+      "confidence": 0.451,
+      "reason": "时间关系模式匹配",
+      "recommendationType": "historical",
+      "scores": {
+        "nameSimilarity": 0.017,
+        "timePattern": 0.833,
+        "tagCorrelation": 0.323,
+        "durationStats": 0.909,
+        "timeRelation": 0.939,
+        "periodicPattern": 0.3,
+        "contextMatch": 0.036,
+        "sequenceMatch": 0.3,
+        "total": 0.451
+      },
+      "scoreBreakdown": [
+        {
+          "factor": "nameSimilarity",
+          "rawScore": 0.017,
+          "weight": 0.14,
+          "weightedScore": 0.0023800000000000006
+        },
+        {
+          "factor": "timePattern",
+          "rawScore": 0.833,
+          "weight": 0.14,
+          "weightedScore": 0.11662
+        },
+        {
+          "factor": "tagCorrelation",
+          "rawScore": 0.323,
+          "weight": 0.12,
+          "weightedScore": 0.03876
+        },
+        {
+          "factor": "durationStats",
+          "rawScore": 0.909,
+          "weight": 0.1,
+          "weightedScore": 0.09090000000000001
+        },
+        {
+          "factor": "timeRelation",
+          "rawScore": 0.939,
+          "weight": 0.14,
+          "weightedScore": 0.13146
+        },
+        {
+          "factor": "periodicPattern",
+          "rawScore": 0.3,
+          "weight": 0.12,
+          "weightedScore": 0.036
+        },
+        {
+          "factor": "contextMatch",
+          "rawScore": 0.036,
+          "weight": 0.14,
+          "weightedScore": 0.00504
+        },
+        {
+          "factor": "sequenceMatch",
+          "rawScore": 0.3,
+          "weight": 0.1,
+          "weightedScore": 0.03
+        }
+      ]
+    },
+    {
+      "taskTitle": "出师表原文+翻译",
+      "taskDate": "2026-07-06",
+      "taskStartTime": "17:06",
+      "taskEndTime": "17:26",
+      "taskTagIds": [
+        "9pslu7k6ejrmmvfwsfs"
+      ],
+      "taskDuration": 20,
+      "confidence": 0.366,
+      "reason": "时间关系模式匹配",
+      "recommendationType": "historical",
+      "scores": {
+        "nameSimilarity": 0.001,
+        "timePattern": 0.833,
+        "tagCorrelation": 0.333,
+        "durationStats": 0.595,
+        "timeRelation": 0.55,
+        "periodicPattern": 0.3,
+        "contextMatch": 0.045,
+        "sequenceMatch": 0.3,
+        "total": 0.366
+      },
+      "scoreBreakdown": [
+        {
+          "factor": "nameSimilarity",
+          "rawScore": 0.001,
+          "weight": 0.14,
+          "weightedScore": 0.00014000000000000001
+        },
+        {
+          "factor": "timePattern",
+          "rawScore": 0.833,
+          "weight": 0.14,
+          "weightedScore": 0.11662
+        },
+        {
+          "factor": "tagCorrelation",
+          "rawScore": 0.333,
+          "weight": 0.12,
+          "weightedScore": 0.03996
+        },
+        {
+          "factor": "durationStats",
+          "rawScore": 0.595,
+          "weight": 0.1,
+          "weightedScore": 0.0595
+        },
+        {
+          "factor": "timeRelation",
+          "rawScore": 0.55,
+          "weight": 0.14,
+          "weightedScore": 0.07700000000000001
+        },
+        {
+          "factor": "periodicPattern",
+          "rawScore": 0.3,
+          "weight": 0.12,
+          "weightedScore": 0.036
+        },
+        {
+          "factor": "contextMatch",
+          "rawScore": 0.045,
+          "weight": 0.14,
+          "weightedScore": 0.0063
+        },
+        {
+          "factor": "sequenceMatch",
+          "rawScore": 0.3,
+          "weight": 0.1,
+          "weightedScore": 0.03
+        }
+      ]
+    },
+    {
+      "taskTitle": "BM3 Study Guide",
+      "taskDate": "2026-07-07",
+      "taskStartTime": "16:12",
+      "taskEndTime": "17:03",
+      "taskTagIds": [
+        "isst3sdlz1mmvj4dhp"
+      ],
+      "taskDuration": 51,
+      "confidence": 0.415,
+      "reason": "时间关系模式匹配",
+      "recommendationType": "historical",
+      "scores": {
+        "nameSimilarity": 0.008,
+        "timePattern": 1,
+        "tagCorrelation": 0.313,
+        "durationStats": 0.5,
+        "timeRelation": 0.804,
+        "periodicPattern": 0.3,
+        "contextMatch": 0.053,
+        "sequenceMatch": 0.3,
+        "total": 0.415
+      },
+      "scoreBreakdown": [
+        {
+          "factor": "nameSimilarity",
+          "rawScore": 0.008,
+          "weight": 0.14,
+          "weightedScore": 0.0011200000000000001
+        },
+        {
+          "factor": "timePattern",
+          "rawScore": 1,
+          "weight": 0.14,
+          "weightedScore": 0.14
+        },
+        {
+          "factor": "tagCorrelation",
+          "rawScore": 0.313,
+          "weight": 0.12,
+          "weightedScore": 0.037559999999999996
+        },
+        {
+          "factor": "durationStats",
+          "rawScore": 0.5,
+          "weight": 0.1,
+          "weightedScore": 0.05
+        },
+        {
+          "factor": "timeRelation",
+          "rawScore": 0.804,
+          "weight": 0.14,
+          "weightedScore": 0.11256000000000002
+        },
+        {
+          "factor": "periodicPattern",
+          "rawScore": 0.3,
+          "weight": 0.12,
+          "weightedScore": 0.036
+        },
+        {
+          "factor": "contextMatch",
+          "rawScore": 0.053,
+          "weight": 0.14,
+          "weightedScore": 0.00742
+        },
+        {
+          "factor": "sequenceMatch",
+          "rawScore": 0.3,
+          "weight": 0.1,
+          "weightedScore": 0.03
+        }
+      ]
+    },
+    {
+      "taskTitle": "AP-Mirco Econ Unit ONE",
+      "taskDate": "2026-07-06",
+      "taskStartTime": "17:37",
+      "taskEndTime": "18:28",
+      "taskTagIds": [
+        "yn4bnllkltimn2ojooa"
+      ],
+      "taskDuration": 51,
+      "confidence": 0.41,
+      "reason": "时间关系模式匹配",
+      "recommendationType": "historical",
+      "scores": {
+        "nameSimilarity": 0.015,
+        "timePattern": 0.833,
+        "tagCorrelation": 0.313,
+        "durationStats": 0.5,
+        "timeRelation": 0.939,
+        "periodicPattern": 0.3,
+        "contextMatch": 0.042,
+        "sequenceMatch": 0.3,
+        "total": 0.41
+      },
+      "scoreBreakdown": [
+        {
+          "factor": "nameSimilarity",
+          "rawScore": 0.015,
+          "weight": 0.14,
+          "weightedScore": 0.0021000000000000003
+        },
+        {
+          "factor": "timePattern",
+          "rawScore": 0.833,
+          "weight": 0.14,
+          "weightedScore": 0.11662
+        },
+        {
+          "factor": "tagCorrelation",
+          "rawScore": 0.313,
+          "weight": 0.12,
+          "weightedScore": 0.037559999999999996
+        },
+        {
+          "factor": "durationStats",
+          "rawScore": 0.5,
+          "weight": 0.1,
+          "weightedScore": 0.05
+        },
+        {
+          "factor": "timeRelation",
+          "rawScore": 0.939,
+          "weight": 0.14,
+          "weightedScore": 0.13146
+        },
+        {
+          "factor": "periodicPattern",
+          "rawScore": 0.3,
+          "weight": 0.12,
+          "weightedScore": 0.036
+        },
+        {
+          "factor": "contextMatch",
+          "rawScore": 0.042,
+          "weight": 0.14,
+          "weightedScore": 0.005880000000000001
+        },
+        {
+          "factor": "sequenceMatch",
+          "rawScore": 0.3,
+          "weight": 0.1,
+          "weightedScore": 0.03
+        }
+      ]
+    },
+    {
+      "taskTitle": "Finsih WS",
+      "taskDate": "2026-07-07",
+      "taskStartTime": "14:30",
+      "taskEndTime": "14:44",
+      "taskTagIds": [
+        "g2grf4tbp6wmn2zcpmq"
+      ],
+      "taskDuration": 14,
+      "confidence": 0.387,
+      "reason": "时间关系模式匹配",
+      "recommendationType": "historical",
+      "scores": {
+        "nameSimilarity": 0.013,
+        "timePattern": 0.667,
+        "tagCorrelation": 0.317,
+        "durationStats": 0.58,
+        "timeRelation": 0.889,
+        "periodicPattern": 0.3,
+        "contextMatch": 0.04,
+        "sequenceMatch": 0.3,
+        "total": 0.387
+      },
+      "scoreBreakdown": [
+        {
+          "factor": "nameSimilarity",
+          "rawScore": 0.013,
+          "weight": 0.14,
+          "weightedScore": 0.00182
+        },
+        {
+          "factor": "timePattern",
+          "rawScore": 0.667,
+          "weight": 0.14,
+          "weightedScore": 0.09338000000000002
+        },
+        {
+          "factor": "tagCorrelation",
+          "rawScore": 0.317,
+          "weight": 0.12,
+          "weightedScore": 0.03804
+        },
+        {
+          "factor": "durationStats",
+          "rawScore": 0.58,
+          "weight": 0.1,
+          "weightedScore": 0.057999999999999996
+        },
+        {
+          "factor": "timeRelation",
+          "rawScore": 0.889,
+          "weight": 0.14,
+          "weightedScore": 0.12446000000000002
+        },
+        {
+          "factor": "periodicPattern",
+          "rawScore": 0.3,
+          "weight": 0.12,
+          "weightedScore": 0.036
+        },
+        {
+          "factor": "contextMatch",
+          "rawScore": 0.04,
+          "weight": 0.14,
+          "weightedScore": 0.005600000000000001
+        },
+        {
+          "factor": "sequenceMatch",
+          "rawScore": 0.3,
+          "weight": 0.1,
+          "weightedScore": 0.03
+        }
+      ]
+    },
+    {
+      "taskTitle": "Independent Work Wednesday #1 (not #myfreedomday)",
+      "taskDate": "2026-07-06",
+      "taskStartTime": "17:13",
+      "taskEndTime": "17:19",
+      "taskTagIds": [
+        "8dyal2ccch7mmvg6aib"
+      ],
+      "taskDuration": 6,
+      "confidence": 0.394,
+      "reason": "时间关系模式匹配",
+      "recommendationType": "historical",
+      "scores": {
+        "nameSimilarity": 0.017,
+        "timePattern": 0.833,
+        "tagCorrelation": 0.323,
+        "durationStats": 0.553,
+        "timeRelation": 0.789,
+        "periodicPattern": 0.3,
+        "contextMatch": 0.036,
+        "sequenceMatch": 0.3,
+        "total": 0.394
+      },
+      "scoreBreakdown": [
+        {
+          "factor": "nameSimilarity",
+          "rawScore": 0.017,
+          "weight": 0.14,
+          "weightedScore": 0.0023800000000000006
+        },
+        {
+          "factor": "timePattern",
+          "rawScore": 0.833,
+          "weight": 0.14,
+          "weightedScore": 0.11662
+        },
+        {
+          "factor": "tagCorrelation",
+          "rawScore": 0.323,
+          "weight": 0.12,
+          "weightedScore": 0.03876
+        },
+        {
+          "factor": "durationStats",
+          "rawScore": 0.553,
+          "weight": 0.1,
+          "weightedScore": 0.05530000000000001
+        },
+        {
+          "factor": "timeRelation",
+          "rawScore": 0.789,
+          "weight": 0.14,
+          "weightedScore": 0.11046000000000002
+        },
+        {
+          "factor": "periodicPattern",
+          "rawScore": 0.3,
+          "weight": 0.12,
+          "weightedScore": 0.036
+        },
+        {
+          "factor": "contextMatch",
+          "rawScore": 0.036,
+          "weight": 0.14,
+          "weightedScore": 0.00504
+        },
+        {
+          "factor": "sequenceMatch",
+          "rawScore": 0.3,
+          "weight": 0.1,
+          "weightedScore": 0.03
+        }
+      ]
+    }
+  ],
+  "analysisMetadata": {
+    "periodicPatterns": [
+      {
+        "titlePattern": "打卡",
+        "frequency": "daily",
+        "occurrences": 91,
+        "confidence": 0.8791208791208791,
+        "timeOfDay": "19:00"
+      },
+      {
+        "titlePattern": "benchmark tests",
+        "frequency": "weekly",
+        "occurrences": 3,
+        "confidence": 0.6666666666666666,
+        "dayOfWeek": 4
+      }
+    ],
+    "taskSequences": [
+      {
+        "sequence": [
+          "w0mob0242ymmvfv5a7",
+          "w0mob0242ymmvfv5a7"
+        ],
+        "frequency": 0.9473684210526315
+      },
+      {
+        "sequence": [
+          "9pslu7k6ejrmmvfwsfs",
+          "9pslu7k6ejrmmvfwsfs"
+        ],
+        "frequency": 0.5476190476190477
+      },
+      {
+        "sequence": [
+          "yn4bnllkltimn2ojooa",
+          "g2grf4tbp6wmn2zcpmq"
+        ],
+        "frequency": 0.375
+      },
+      {
+        "sequence": [
+          "ugd47djvlbmn2oiv73",
+          "isst3sdlz1mmvj4dhp"
+        ],
+        "frequency": 0.3
+      },
+      {
+        "sequence": [
+          "g2grf4tbp6wmn2zcpmq",
+          "8dyal2ccch7mmvg6aib"
+        ],
+        "frequency": 0.2857142857142857
+      },
+      {
+        "sequence": [
+          "8dyal2ccch7mmvg6aib",
+          "9pslu7k6ejrmmvfwsfs"
+        ],
+        "frequency": 0.2413793103448276
+      },
+      {
+        "sequence": [
+          "g2grf4tbp6wmn2zcpmq",
+          "6seou11haoemmvrsmrg"
+        ],
+        "frequency": 0.23809523809523808
+      },
+      {
+        "sequence": [
+          "isst3sdlz1mmvj4dhp",
+          "6seou11haoemmvrsmrg"
+        ],
+        "frequency": 0.23529411764705882
+      },
+      {
+        "sequence": [
+          "9pslu7k6ejrmmvfwsfs",
+          "8dyal2ccch7mmvg6aib"
+        ],
+        "frequency": 0.21428571428571427
+      },
+      {
+        "sequence": [
+          "6seou11haoemmvrsmrg",
+          "6seou11haoemmvrsmrg"
+        ],
+        "frequency": 0.21052631578947367
+      },
+      {
+        "sequence": [
+          "6seou11haoemmvrsmrg",
+          "8dyal2ccch7mmvg6aib"
+        ],
+        "frequency": 0.21052631578947367
+      },
+      {
+        "sequence": [
+          "6seou11haoemmvrsmrg",
+          "g2grf4tbp6wmn2zcpmq"
+        ],
+        "frequency": 0.21052631578947367
+      },
+      {
+        "sequence": [
+          "6seou11haoemmvrsmrg",
+          "9pslu7k6ejrmmvfwsfs"
+        ],
+        "frequency": 0.21052631578947367
+      },
+      {
+        "sequence": [
+          "ugd47djvlbmn2oiv73",
+          "yn4bnllkltimn2ojooa"
+        ],
+        "frequency": 0.2
+      },
+      {
+        "sequence": [
+          "ugd47djvlbmn2oiv73",
+          "g2grf4tbp6wmn2zcpmq"
+        ],
+        "frequency": 0.2
+      },
+      {
+        "sequence": [
+          "yn4bnllkltimn2ojooa",
+          "8dyal2ccch7mmvg6aib"
+        ],
+        "frequency": 0.1875
+      },
+      {
+        "sequence": [
+          "isst3sdlz1mmvj4dhp",
+          "yn4bnllkltimn2ojooa"
+        ],
+        "frequency": 0.17647058823529413
+      },
+      {
+        "sequence": [
+          "8dyal2ccch7mmvg6aib",
+          "isst3sdlz1mmvj4dhp"
+        ],
+        "frequency": 0.13793103448275862
+      },
+      {
+        "sequence": [
+          "8dyal2ccch7mmvg6aib",
+          "6seou11haoemmvrsmrg"
+        ],
+        "frequency": 0.13793103448275862
+      },
+      {
+        "sequence": [
+          "8dyal2ccch7mmvg6aib",
+          "8dyal2ccch7mmvg6aib"
+        ],
+        "frequency": 0.13793103448275862
+      }
+    ]
+  },
+  "statistics": {
+    "totalTasks": 264,
+    "uniqueTitles": 119,
+    "tasksByTitle": [
+      [
+        "打卡",
+        91
+      ],
+      [
+        "每天一个课的字词",
+        18
+      ],
+      [
+        "ap classroom",
+        7
+      ],
+      [
+        "worksheet",
+        5
+      ],
+      [
+        "南风",
+        4
+      ],
+      [
+        "packet",
+        4
+      ],
+      [
+        "ws",
+        4
+      ],
+      [
+        "review packet",
+        4
+      ],
+      [
+        "散步",
+        4
+      ],
+      [
+        "benchmark tests",
+        3
+      ],
+      [
+        "textbook",
+        2
+      ],
+      [
+        "作文",
+        2
+      ],
+      [
+        "历史ws",
+        2
+      ],
+      [
+        "albert",
+        2
+      ],
+      [
+        "finish packet",
+        2
+      ],
+      [
+        "hwp",
+        2
+      ],
+      [
+        "全品",
+        2
+      ],
+      [
+        "mcq practise",
+        2
+      ],
+      [
+        "洗衣凝珠",
+        2
+      ],
+      [
+        "correction",
+        2
+      ],
+      [
+        "project",
+        2
+      ],
+      [
+        "meeting",
+        1
+      ],
+      [
+        "曹刿论战",
+        1
+      ],
+      [
+        "practicing with sources and commentary",
+        1
+      ],
+      [
+        "math textbook",
+        1
+      ],
+      [
+        "lit worksheet",
+        1
+      ],
+      [
+        "history",
+        1
+      ],
+      [
+        "revise your commentary practice",
+        1
+      ],
+      [
+        "出师表原文+翻译",
+        1
+      ],
+      [
+        "magazine",
+        1
+      ],
+      [
+        "graphing challenge",
+        1
+      ],
+      [
+        "read act 3, scenes 2, 3 and 4",
+        1
+      ],
+      [
+        "act 2 quiz",
+        1
+      ],
+      [
+        "micro unit one",
+        1
+      ],
+      [
+        "出师表抄写",
+        1
+      ],
+      [
+        "precalculus ab bm sg",
+        1
+      ],
+      [
+        "ap-physis unit one",
+        1
+      ],
+      [
+        "lit review",
+        1
+      ],
+      [
+        "复习lan",
+        1
+      ],
+      [
+        "history project",
+        1
+      ],
+      [
+        "essay correction",
+        1
+      ],
+      [
+        "finish ws",
+        1
+      ],
+      [
+        "quote",
+        1
+      ],
+      [
+        "征稿作文",
+        1
+      ],
+      [
+        "查阅下列名为“九下单元学习资料汇总②”的资料，抄写第四单元字词",
+        1
+      ],
+      [
+        "巩固已学古文篇目的背诵，准备3月31日即下周二的古文默写",
+        1
+      ],
+      [
+        "bm3 study guide",
+        1
+      ],
+      [
+        "podcast recording",
+        1
+      ],
+      [
+        "quote assignment",
+        1
+      ],
+      [
+        "finsih ws",
+        1
+      ],
+      [
+        "select & take a carbon footprint test",
+        1
+      ],
+      [
+        "ap-mirco econ unit one",
+        1
+      ],
+      [
+        "podcast editing",
+        1
+      ],
+      [
+        "quiz 8.6-8.8",
+        1
+      ],
+      [
+        "mcq vocabulary review",
+        1
+      ],
+      [
+        "review quiz 8.6-8.8",
+        1
+      ],
+      [
+        "exit ticket + inclass worksheet",
+        1
+      ],
+      [
+        "define and copy vocab",
+        1
+      ],
+      [
+        "act 3- life and literature collide- writing task",
+        1
+      ],
+      [
+        "independent work wednesday #1 (not #myfreedomday)",
+        1
+      ],
+      [
+        "review math",
+        1
+      ],
+      [
+        "r and j act 4 scenes 1-4 qs",
+        1
+      ],
+      [
+        "history ws",
+        1
+      ],
+      [
+        "econ packet",
+        1
+      ],
+      [
+        "physics frq",
+        1
+      ],
+      [
+        "论题构思",
+        1
+      ],
+      [
+        "check graphing challenge",
+        1
+      ],
+      [
+        "vocab definition",
+        1
+      ],
+      [
+        "练笔",
+        1
+      ],
+      [
+        "review econ",
+        1
+      ],
+      [
+        "stage two",
+        1
+      ],
+      [
+        "micro packet",
+        1
+      ],
+      [
+        "math review packet",
+        1
+      ],
+      [
+        "art",
+        1
+      ],
+      [
+        "stage 4",
+        1
+      ],
+      [
+        "准备语文辩论稿子",
+        1
+      ],
+      [
+        "min 20 frq for macro",
+        1
+      ],
+      [
+        "min 20 frq for micro",
+        1
+      ],
+      [
+        "review test",
+        1
+      ],
+      [
+        "annotate documents",
+        1
+      ],
+      [
+        "apclassroom",
+        1
+      ],
+      [
+        "复习语文-诗词五首",
+        1
+      ],
+      [
+        "correction for lan",
+        1
+      ],
+      [
+        "抄写古诗",
+        1
+      ],
+      [
+        "stage 1 worksheet",
+        1
+      ],
+      [
+        "summative reflection",
+        1
+      ],
+      [
+        "macro packet",
+        1
+      ],
+      [
+        "stage 2",
+        1
+      ],
+      [
+        "edpuzzle",
+        1
+      ],
+      [
+        "背默古文四篇",
+        1
+      ],
+      [
+        "背默古诗",
+        1
+      ],
+      [
+        "病句",
+        1
+      ],
+      [
+        "古诗project",
+        1
+      ],
+      [
+        "reply lorena",
+        1
+      ],
+      [
+        "listen podcast and make notes",
+        1
+      ],
+      [
+        "复习文长",
+        1
+      ],
+      [
+        "复习quiz",
+        1
+      ],
+      [
+        "get answer for mcq practice",
+        1
+      ],
+      [
+        "prepare for paragraph assignment",
+        1
+      ],
+      [
+        "题目",
+        1
+      ],
+      [
+        "teams assignment",
+        1
+      ],
+      [
+        "podcast project- group exploration",
+        1
+      ],
+      [
+        "stage 3 and 4",
+        1
+      ],
+      [
+        "physics project",
+        1
+      ],
+      [
+        "buy spring",
+        1
+      ],
+      [
+        "完成病句排序练习",
+        1
+      ],
+      [
+        "test",
+        1
+      ],
+      [
+        "lit benchmark",
+        1
+      ],
+      [
+        "lan benchmark",
+        1
+      ],
+      [
+        "6 mcq questions",
+        1
+      ],
+      [
+        "模拟考",
+        1
+      ],
+      [
+        "podcast individual research task",
+        1
+      ],
+      [
+        "poster",
+        1
+      ],
+      [
+        "stage 4: formal script planning",
+        1
+      ],
+      [
+        "stage 5 --your g9 documentary: you did it!",
+        1
+      ],
+      [
+        "chinese final",
+        1
+      ],
+      [
+        "math final",
+        1
+      ],
+      [
+        "sheet",
+        1
+      ],
+      [
+        "lit podcast script",
+        1
+      ]
+    ],
+    "tasksByTag": [
+      [
+        "w0mob0242ymmvfv5a7",
+        97
+      ],
+      [
+        "9pslu7k6ejrmmvfwsfs",
+        43
+      ],
+      [
+        "8dyal2ccch7mmvg6aib",
+        30
+      ],
+      [
+        "isst3sdlz1mmvj4dhp",
+        17
+      ],
+      [
+        "6seou11haoemmvrsmrg",
+        20
+      ],
+      [
+        "ugd47djvlbmn2oiv73",
+        10
+      ],
+      [
+        "yn4bnllkltimn2ojooa",
+        17
+      ],
+      [
+        "g2grf4tbp6wmn2zcpmq",
+        22
+      ]
+    ]
+  }
+}

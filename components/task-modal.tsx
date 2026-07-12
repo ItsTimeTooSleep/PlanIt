@@ -41,10 +41,12 @@ import {
 	expandRepeatTasks,
 	generateId,
 	getTaskIdsToDelete,
+	getTaskIdsToSyncNotes,
 	isPartOfRecurringGroup,
 } from "@/lib/task-utils";
 import type {
 	DeleteRecurringOption,
+	NotesSyncOption,
 	RepeatFrequency,
 	Task,
 	TaskStatus,
@@ -52,6 +54,7 @@ import type {
 } from "@/lib/types";
 import { DateRangePicker } from "./date-range-picker";
 import { TaskDeleteDialog } from "./task-delete-dialog";
+import { TaskNotesSyncDialog } from "./task-notes-sync-dialog";
 
 interface TaskModalProps {
 	open: boolean;
@@ -61,6 +64,7 @@ interface TaskModalProps {
 	defaultStartTime?: string;
 	defaultEndTime?: string;
 	defaultStatus?: TaskStatus;
+	onTaskCreated?: (task: Task) => void;
 }
 
 const WEEKDAY_LABELS = ["日", "一", "二", "三", "四", "五", "六"];
@@ -74,6 +78,7 @@ export function TaskModal({
 	defaultStartTime,
 	defaultEndTime,
 	defaultStatus,
+	onTaskCreated,
 }: TaskModalProps) {
 	const lang = useLanguage();
 	const t = useTranslations(lang);
@@ -99,6 +104,8 @@ export function TaskModal({
 	const [notes, setNotes] = useState("");
 	const [status, setStatus] = useState<TaskStatus>("pending");
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+	const [showNotesSyncConfirm, setShowNotesSyncConfirm] = useState(false);
+	const [pendingNotes, setPendingNotes] = useState<string>("");
 	const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
 	const [dueDateOffset, setDueDateOffset] = useState<number>(0);
 	const [showDateRangePicker, setShowDateRangePicker] = useState(false);
@@ -185,6 +192,19 @@ export function TaskModal({
 		if (!title.trim()) return;
 		if (!date && !dueDate) return;
 
+		// 检查是否是重复任务且备注发生了变化
+		const currentNotes = task?.notes?.trim() || "";
+		const newNotes = notes.trim();
+		if (task && isRecurring && currentNotes !== newNotes) {
+			setPendingNotes(notes.trim());
+			setShowNotesSyncConfirm(true);
+			return;
+		}
+
+		performSave(notes.trim());
+	}
+
+	function performSave(notesContent: string) {
 		const baseTask: Task = {
 			id: task?.id ?? generateId(),
 			title: title.trim(),
@@ -201,7 +221,7 @@ export function TaskModal({
 				interval: frequency === "custom" ? repeatInterval : undefined,
 				customUnit: frequency === "custom" ? repeatUnit : undefined,
 			},
-			notes: notes.trim() || undefined,
+			notes: notesContent || undefined,
 			status,
 			createdAt: task?.createdAt ?? new Date().toISOString(),
 			isMultiStep: isMultiStep && steps.length > 0,
@@ -217,6 +237,8 @@ export function TaskModal({
 				const instances = expandRepeatTasks(baseTask);
 				instances.forEach((inst) => addTask(inst));
 			}
+			// 调用新任务创建回调
+			onTaskCreated?.(baseTask);
 		}
 		onClose();
 	}
@@ -226,6 +248,21 @@ export function TaskModal({
 			const idsToDelete = getTaskIdsToDelete(task, state.tasks, option);
 			deleteTasks(idsToDelete);
 			onClose();
+		}
+	}
+
+	function handleNotesSyncConfirm(option: NotesSyncOption) {
+		if (task) {
+			const idsToSync = getTaskIdsToSyncNotes(task, state.tasks, option);
+			idsToSync.forEach((id) => {
+				if (id === task.id) {
+					performSave(pendingNotes);
+				} else {
+					updateTask(id, { notes: pendingNotes || undefined });
+				}
+			});
+			setShowNotesSyncConfirm(false);
+			setPendingNotes("");
 		}
 	}
 
@@ -337,7 +374,10 @@ export function TaskModal({
 				<div className="flex flex-col gap-4">
 					{/* Title */}
 					<div className="flex flex-col gap-1.5">
-						<Label htmlFor="task-title">{t.task.title} *</Label>
+						<Label htmlFor="task-title" className="flex items-center gap-1">
+							{t.task.title}
+							<span className="text-destructive font-bold">*</span>
+						</Label>
 						<Input
 							id="task-title"
 							value={title}
@@ -347,22 +387,39 @@ export function TaskModal({
 						/>
 					</div>
 
-					{/* 截止日期 - 独立分组 */}
+					{/* 截止日期与计划时间 - 二选一必填区域 */}
 					<div className="flex flex-col gap-1.5">
-						<Label htmlFor="task-due-date">{t.task.dueDate}</Label>
-						<Input
-							id="task-due-date"
-							type="date"
-							value={dueDate}
-							onChange={(e) => setDueDate(e.target.value)}
-						/>
+						<div className="flex items-center gap-2 mb-1">
+							<div className="flex items-center gap-1">
+								<span className="text-sm font-semibold text-foreground">
+									{t.task.dateOrDueDateRequired}
+								</span>
+								<span className="text-sm font-bold text-destructive">*</span>
+							</div>
+							<span className="text-xs text-muted-foreground">
+								({lang === "zh" ? "至少填写一项" : "At least one required"})
+							</span>
+						</div>
+
+						{/* 截止日期 */}
+						<div className="flex flex-col gap-1.5">
+							<Label htmlFor="task-due-date" className="text-sm">
+								{t.task.dueDate}
+							</Label>
+							<Input
+								id="task-due-date"
+								type="date"
+								value={dueDate}
+								onChange={(e) => setDueDate(e.target.value)}
+							/>
+						</div>
 					</div>
 
 					{/* 计划日期与时间设置区域 */}
 					<div className="flex flex-col gap-3 p-3 bg-muted/30 rounded-lg">
 						<div className="flex items-center gap-2">
 							<Label className="text-sm font-semibold text-foreground">
-								计划时间
+								{t.task.date}
 							</Label>
 						</div>
 
@@ -714,7 +771,10 @@ export function TaskModal({
 
 					{/* Repeat */}
 					<div className="flex flex-col gap-1.5">
-						<Label>{t.task.repeatRule}</Label>
+						<Label className="flex items-center gap-1">
+							{t.task.repeatRule}
+							<span className="text-destructive font-bold">*</span>
+						</Label>
 						<Select
 							value={frequency}
 							onValueChange={(v) => setFrequency(v as RepeatFrequency)}
@@ -882,7 +942,10 @@ export function TaskModal({
 
 					{/* Status */}
 					<div className="flex flex-col gap-1.5">
-						<Label>{t.task.status}</Label>
+						<Label className="flex items-center gap-1">
+							{t.task.status}
+							<span className="text-destructive font-bold">*</span>
+						</Label>
 						<Select
 							value={status}
 							onValueChange={(v) => setStatus(v as TaskStatus)}
@@ -939,6 +1002,14 @@ export function TaskModal({
 					open={showDeleteConfirm}
 					onClose={() => setShowDeleteConfirm(false)}
 					onConfirm={handleDeleteConfirm}
+					isRecurring={isRecurring}
+				/>
+
+				{/* Notes Sync Confirmation Dialog */}
+				<TaskNotesSyncDialog
+					open={showNotesSyncConfirm}
+					onClose={() => setShowNotesSyncConfirm(false)}
+					onConfirm={handleNotesSyncConfirm}
 					isRecurring={isRecurring}
 				/>
 

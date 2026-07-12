@@ -252,86 +252,139 @@ export function TestPanel({
 				</CardHeader>
 				<CardContent className="px-4 pb-4">
 					<div className="flex flex-col gap-3">
-						<WeightSlider
-							label="名称语义权重"
-							value={config.weights.nameSimilarity}
-							onChange={(v) => handleWeightChange("nameSimilarity", v)}
-							description="基于字符n-gram的Jaccard相似度"
-						/>
-						<WeightSlider
-							label="时间模式权重"
-							value={config.weights.timePattern}
-							onChange={(v) => handleWeightChange("timePattern", v)}
-							description="基于创建时间和当前时段的匹配度"
-						/>
-						<WeightSlider
-							label="标签关联权重"
-							value={config.weights.tagCorrelation}
-							onChange={(v) => handleWeightChange("tagCorrelation", v)}
-							description="基于标签共现和近期偏好"
-						/>
-						<WeightSlider
-							label="时长统计权重"
-							value={config.weights.durationStats}
-							onChange={(v) => handleWeightChange("durationStats", v)}
-							description="基于相似任务的历史时长分布"
-						/>
-						<WeightSlider
-							label="调度模式权重"
-							value={config.weights.schedulingPattern}
-							onChange={(v) => handleWeightChange("schedulingPattern", v)}
-							description="基于调度习惯与提前量模式"
-						/>
-						<WeightSlider
-							label="截止日期权重"
-							value={config.weights.dueDatePattern}
-							onChange={(v) => handleWeightChange("dueDatePattern", v)}
-							description="基于截止日期偏好与周期模式"
-						/>
+							<WeightSlider
+								label="名称语义权重"
+								value={config.weights.nameSimilarity}
+								onChange={(v) => handleWeightChange("nameSimilarity", v)}
+								description="基于字符bigram的Jaccard相似度"
+							/>
+							<WeightSlider
+								label="时间模式权重"
+								value={config.weights.timePattern}
+								onChange={(v) => handleWeightChange("timePattern", v)}
+								description="基于创建时间和当前时段的匹配度"
+							/>
+							<WeightSlider
+								label="标签关联权重"
+								value={config.weights.tagCorrelation}
+								onChange={(v) => handleWeightChange("tagCorrelation", v)}
+								description="基于标签共现和近期偏好"
+							/>
+							<WeightSlider
+								label="时长统计权重"
+								value={config.weights.durationStats}
+								onChange={(v) => handleWeightChange("durationStats", v)}
+								description="基于相似任务的历史时长分布"
+							/>
+							<WeightSlider
+								label="时间关系权重"
+								value={config.weights.timeRelation}
+								onChange={(v) => handleWeightChange("timeRelation", v)}
+								description="基于任务创建/计划/截止日期关系"
+							/>
+							<WeightSlider
+								label="周期模式权重"
+								value={config.weights.periodicPattern}
+								onChange={(v) => handleWeightChange("periodicPattern", v)}
+								description="基于日/周/月周期性任务检测"
+							/>
+							<WeightSlider
+								label="情境匹配权重"
+								value={config.weights.contextMatch}
+								onChange={(v) => handleWeightChange("contextMatch", v)}
+								description="基于贝叶斯条件概率的情境匹配"
+							/>
+							<WeightSlider
+								label="序列预测权重"
+								value={config.weights.sequenceMatch}
+								onChange={(v) => handleWeightChange("sequenceMatch", v)}
+								description="基于马尔可夫链的任务序列转移概率"
+							/>
+							<WeightSlider
+								label="频率因子权重"
+								value={config.weights.frequencyScore}
+								onChange={(v) => handleWeightChange("frequencyScore", v)}
+								description="任务标题历史出现频率，惩罚一次性任务"
+							/>
 
-						<div className="border-t pt-3 mt-1">
-							<div className="flex items-center gap-2 mb-2">
-								<Label className="text-xs">最大推荐数</Label>
-								<Select
-									value={String(config.maxRecommendations)}
-									onValueChange={(v) => onConfigChange({ ...config, maxRecommendations: Number(v) })}
-								>
-									<SelectTrigger className="h-7 text-xs w-20">
-										<SelectValue />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="3">3</SelectItem>
-										<SelectItem value="5">5</SelectItem>
-										<SelectItem value="8">8</SelectItem>
-										<SelectItem value="10">10</SelectItem>
-									</SelectContent>
-								</Select>
+							<div className="border-t pt-3 mt-1">
+								<div className="flex items-center gap-2 mb-2">
+									<Label className="text-xs">最大推荐数</Label>
+									<Select
+										value={String(config.maxRecommendations)}
+										onValueChange={(v) => onConfigChange({ ...config, maxRecommendations: Number(v) })}
+									>
+										<SelectTrigger className="h-7 text-xs w-20">
+											<SelectValue />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="3">3</SelectItem>
+											<SelectItem value="5">5</SelectItem>
+											<SelectItem value="8">8</SelectItem>
+											<SelectItem value="10">10</SelectItem>
+										</SelectContent>
+									</Select>
+								</div>
+								<div className="flex items-center gap-2 mb-2">
+									<Label className="text-xs">最低置信度</Label>
+									<Slider
+										value={[config.minConfidence]}
+										min={0}
+										max={0.5}
+										step={0.05}
+										onValueChange={([v]) => onConfigChange({ ...config, minConfidence: v })}
+										className="flex-1"
+									/>
+									<span className="text-xs font-medium w-10 text-right">{(config.minConfidence * 100).toFixed(0)}%</span>
+								</div>
+								<div className="flex items-center gap-2 mb-2">
+									<Label className="text-xs">学习率</Label>
+									<Slider
+										value={[config.learningRate]}
+										min={0.01}
+										max={0.2}
+										step={0.01}
+										onValueChange={([v]) => onConfigChange({ ...config, learningRate: v })}
+										className="flex-1"
+									/>
+									<span className="text-xs font-medium w-10 text-right">{config.learningRate.toFixed(2)}</span>
+								</div>
+								<div className="flex items-center gap-2 mb-2">
+									<Label className="text-xs">多样性 λ</Label>
+									<Slider
+										value={[config.diversityLambda ?? 0.3]}
+										min={0}
+										max={1}
+										step={0.05}
+										onValueChange={([v]) => onConfigChange({ ...config, diversityLambda: v })}
+										className="flex-1"
+									/>
+									<span className="text-xs font-medium w-10 text-right">{(config.diversityLambda ?? 0.3).toFixed(2)}</span>
+								</div>
+								<div className="flex items-center gap-2">
+									<Label className="text-xs">自动学习</Label>
+									<button
+										type="button"
+										role="switch"
+										aria-checked={config.autoLearning ?? true}
+										onClick={() => onConfigChange({ ...config, autoLearning: !(config.autoLearning ?? true) })}
+										className={cn(
+											"relative inline-flex h-5 w-9 items-center rounded-full transition-colors",
+											(config.autoLearning ?? true) ? "bg-primary" : "bg-muted"
+										)}
+									>
+										<span
+											className={cn(
+												"inline-block h-4 w-4 rounded-full bg-white transition-transform shadow",
+												(config.autoLearning ?? true) ? "translate-x-4" : "translate-x-0.5"
+											)}
+										/>
+									</button>
+									<span className="text-[10px] text-muted-foreground">
+										{(config.autoLearning ?? true) ? "接受/拒绝后自动调整权重" : "手动调整权重"}
+									</span>
+								</div>
 							</div>
-							<div className="flex items-center gap-2 mb-2">
-								<Label className="text-xs">最低置信度</Label>
-								<Slider
-									value={[config.minConfidence]}
-									min={0}
-									max={0.5}
-									step={0.05}
-									onValueChange={([v]) => onConfigChange({ ...config, minConfidence: v })}
-									className="flex-1"
-								/>
-								<span className="text-xs font-medium w-10 text-right">{(config.minConfidence * 100).toFixed(0)}%</span>
-							</div>
-							<div className="flex items-center gap-2">
-								<Label className="text-xs">学习率</Label>
-								<Slider
-									value={[config.learningRate]}
-									min={0.01}
-									max={0.2}
-									step={0.01}
-									onValueChange={([v]) => onConfigChange({ ...config, learningRate: v })}
-									className="flex-1"
-								/>
-								<span className="text-xs font-medium w-10 text-right">{config.learningRate.toFixed(2)}</span>
-							</div>
-						</div>
 					</div>
 				</CardContent>
 			</Card>

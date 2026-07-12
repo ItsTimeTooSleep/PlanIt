@@ -39,9 +39,31 @@ export function calculateAccuracy(feedbacks: FeedbackRecord[]): AccuracyStats & 
   const rejected = total - accepted;
   const accuracy = total > 0 ? accepted / total : 0;
 
-  const recentFeedbacks = feedbacks.slice(0, 10);
+  const recentCount = Math.min(10, total);
+  const recentFeedbacks = feedbacks.slice(-recentCount);
   const recentAccepted = recentFeedbacks.filter(f => f.accepted).length;
   const recentAccuracy = recentFeedbacks.length > 0 ? recentAccepted / recentFeedbacks.length : 0;
+
+  let trend: "improving" | "declining" | "stable" = "stable";
+  const factorAccuracy: Record<string, number> = {};
+
+  if (total >= 10) {
+    const firstHalf = feedbacks.slice(0, Math.floor(total / 2));
+    const secondHalf = feedbacks.slice(Math.floor(total / 2));
+    const firstRate = firstHalf.filter(f => f.accepted).length / firstHalf.length;
+    const secondRate = secondHalf.filter(f => f.accepted).length / secondHalf.length;
+    const diff = secondRate - firstRate;
+    if (diff > 0.1) trend = "improving";
+    else if (diff < -0.1) trend = "declining";
+  }
+
+  const factorKeys = ["nameSimilarity", "timePattern", "tagCorrelation", "durationStats", "timeRelation", "periodicPattern", "contextMatch", "sequenceMatch", "frequencyScore"] as const;
+  for (const key of factorKeys) {
+    const withHighScore = feedbacks.filter(f => f.scores[key] >= 0.5);
+    if (withHighScore.length > 0) {
+      factorAccuracy[key] = withHighScore.filter(f => f.accepted).length / withHighScore.length;
+    }
+  }
 
   return {
     totalRecommendations: total,
@@ -49,8 +71,8 @@ export function calculateAccuracy(feedbacks: FeedbackRecord[]): AccuracyStats & 
     rejected,
     accuracy,
     recentAccuracy: recentAccuracy,
-    trend: "stable",
-    factorAccuracy: {},
+    trend,
+    factorAccuracy,
     overall: accuracy,
     recent: recentAccuracy,
   };

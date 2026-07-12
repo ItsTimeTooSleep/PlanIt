@@ -52,6 +52,7 @@ export function RecommendPanel({
 			const newDate = parseISO(`${dateInput}T${timeInput}`);
 			if (!Number.isNaN(newDate.getTime())) {
 				onContextTimeChange(newDate);
+				setCalendarOpen(false);
 			}
 		} catch {
 			// invalid date

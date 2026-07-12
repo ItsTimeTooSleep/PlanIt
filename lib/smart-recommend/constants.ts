@@ -14,24 +14,25 @@ export const DEFAULT_SCHEDULING_PATTERN: SchedulingPattern = {
 
 export const DEFAULT_CONFIG: AlgorithmConfig = {
   weights: {
-    nameSimilarity: 0.12,
-    timePattern: 0.12,
+    nameSimilarity: 0.10,
+    timePattern: 0.10,
     tagCorrelation: 0.12,
-    durationStats: 0.10,
-    schedulingPattern: 0.10,
-    dueDatePattern: 0.10,
-    timeRelation: 0.12,
-    behaviorPrediction: 0.10,
-    periodicPattern: 0.10,
-    contextAdaptation: 0.12,
+    durationStats: 0.12,
+    timeRelation: 0.08,
+    periodicPattern: 0.14,
+    contextMatch: 0.12,
+    sequenceMatch: 0.10,
+    frequencyScore: 0.12,
   },
   maxRecommendations: 8,
-  minConfidence: 0.15,
+  minConfidence: 0.35,
   timeWindowHours: 2,
   learningRate: 0.05,
   noveltyThreshold: 0.3,
   explorationRate: 0.25,
   adaptationSpeed: 0.1,
+  diversityLambda: 0.3,
+  autoLearning: true,
 };
 
 export const PRESET_TAGS: RecommendTag[] = [

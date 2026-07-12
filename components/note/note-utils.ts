@@ -135,20 +135,8 @@ export function findNonOverlappingPosition(
 export function getNextZIndex(notes: Note[]): number {
 	if (notes.length === 0) return 1;
 	const maxZIndex = Math.max(...notes.map((n) => n.zIndex || 1));
-	const MAX_ALLOWED_ZINDEX = 40;
-	if (maxZIndex >= MAX_ALLOWED_ZINDEX) {
-		const allZIndices = notes.map((n) => n.zIndex || 1).sort((a, b) => a - b);
-		let newZIndex = 1;
-		for (const z of allZIndices) {
-			if (z === newZIndex) {
-				newZIndex++;
-			} else {
-				break;
-			}
-		}
-		return Math.min(newZIndex, MAX_ALLOWED_ZINDEX);
-	}
-	return maxZIndex + 1;
+	// 限制笔记卡片的 zIndex 范围在 1-40 之间
+	return Math.min(maxZIndex + 1, 40);
 }
 
 export function clampToBounds(

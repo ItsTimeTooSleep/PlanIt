@@ -403,6 +403,7 @@ export function DateRangePicker({
 		}
 	};
 
+	const isEditMode = !!(initialStartTime && initialEndTime);
 	const isInteracting = interactionMode !== null;
 	const displayDate = ghost?.dateStr ?? selectedDate;
 	const displayStartMin = ghost?.startMin ?? selectedStartMin;
@@ -538,14 +539,20 @@ export function DateRangePicker({
 									? now.getHours() * 60 + now.getMinutes()
 									: null;
 								const dayTasks = sortTasksByTime(
-									tasks.filter(
-										(t) =>
-											t.date === dateStr &&
-											!t.isAllDay &&
-											t.startTime &&
-											t.endTime,
-									),
-								);
+										tasks.filter((t) => {
+											if (t.date !== dateStr || t.isAllDay || !t.startTime || !t.endTime)
+												return false;
+											if (isEditMode && initialDate === t.date) {
+												const tStartMin = timeToMinutes(t.startTime);
+												const tEndMin = timeToMinutes(t.endTime);
+												const initStartMin = timeToMinutes(initialStartTime!);
+												const initEndMin = timeToMinutes(initialEndTime!);
+												if (tStartMin === initStartMin && tEndMin === initEndMin)
+													return false;
+											}
+											return true;
+										}),
+									);
 
 								const taskLayouts = calculateTaskLayoutsGrouped(
 									dayTasks,

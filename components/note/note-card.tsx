@@ -26,6 +26,7 @@ interface NoteCardProps {
 	onShowConnections?: (id: string) => void;
 	hasConnections?: boolean;
 	isConnecting?: boolean;
+	isAnyDragging?: boolean;
 	onDragStateChange?: (isDragging: boolean, mouseY: number) => void;
 }
 
@@ -39,6 +40,7 @@ export function NoteCard({
 	onShowConnections,
 	hasConnections = false,
 	isConnecting = false,
+	isAnyDragging = false,
 	onDragStateChange,
 }: NoteCardProps) {
 	const [isHovered, setIsHovered] = useState(false);
@@ -49,6 +51,9 @@ export function NoteCard({
 	const cardRef = useRef<HTMLDivElement>(null);
 	const lang = useLanguage();
 	const t = useTranslations(lang);
+	
+	// 当有任何卡片在拖拽时，强制取消本卡片的悬停效果
+	const effectiveIsHovered = isAnyDragging ? false : isHovered;
 
 	const colorClasses = NOTE_COLORS[note.color];
 
@@ -57,12 +62,15 @@ export function NoteCard({
 			if (isConnecting) return;
 			if ((e.target as HTMLElement).closest("button")) return;
 			if ((e.target as HTMLElement).closest(".content-selectable")) return;
+			
+			// 无论是否拖拽，都先置顶笔记
+			onBringToFront(note.id);
+			
 			setIsDragging(true);
 			setDragOffset({
 				x: e.clientX - note.x,
 				y: e.clientY - note.y,
 			});
-			onBringToFront(note.id);
 			onDragStateChange?.(true, e.clientY);
 		},
 		[note.id, note.x, note.y, onBringToFront, isConnecting, onDragStateChange],
@@ -140,7 +148,7 @@ export function NoteCard({
 				colorClasses.border,
 				colorClasses.text,
 				"border-2",
-				isHovered && !isDragging && !isResizing && !isConnecting && "shadow-lg scale-[1.02]",
+				effectiveIsHovered && !isDragging && !isResizing && !isConnecting && "shadow-lg scale-[1.02]",
 				isDragging && "shadow-2xl scale-[1.03] opacity-90",
 				isResizing && "shadow-2xl opacity-90",
 				note.status === "completed" && "opacity-60",
@@ -159,7 +167,7 @@ export function NoteCard({
 			onMouseLeave={() => setIsHovered(false)}
 			onMouseDown={handleMouseDown}
 		>
-			{isHovered && onStartConnection && (
+			{effectiveIsHovered && onStartConnection && (
 				<div
 					className="absolute -top-4 left-1/2 -translate-x-1/2 z-50"
 					onMouseDown={handleConnectionStart}
@@ -210,7 +218,7 @@ export function NoteCard({
 							</h3>
 						)}
 					</div>
-					{isHovered && (
+					{effectiveIsHovered && (
 						<div className="flex items-center gap-1">
 							{hasConnections && onShowConnections && (
 								<Button
@@ -260,7 +268,11 @@ export function NoteCard({
 							note.status === "completed" && "line-through",
 						)}
 						dangerouslySetInnerHTML={{ __html: note.content }}
-						onMouseDown={(e) => e.stopPropagation()}
+						onMouseDown={(e) => {
+							// 点击内容区域时也置顶笔记
+							onBringToFront(note.id);
+							e.stopPropagation();
+						}}
 					/>
 				</div>
 				<div className="px-3 pb-2 text-xs opacity-60">
@@ -275,7 +287,7 @@ export function NoteCard({
 			</div>
 
 			{/* Resize Handle */}
-			{isHovered && (
+			{effectiveIsHovered && (
 				<div
 					className="absolute bottom-0 right-0 w-5 h-5 cursor-se-resize flex items-center justify-center"
 					onMouseDown={handleResizeMouseDown}

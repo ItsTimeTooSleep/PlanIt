@@ -19,6 +19,10 @@ import { TimeRelationAnalyzer } from "../analyzers/TimeRelationAnalyzer";
 import { PeriodicTaskDetector } from "../analyzers/PeriodicTaskDetector";
 import { BehaviorPredictor } from "../analyzers/BehaviorPredictor";
 import { DynamicRuleGenerator } from "./DynamicRuleGenerator";
+import { calculateNameSimilarityScore } from "../utils/string";
+
+type TimeOfDay = "morning" | "afternoon" | "evening" | "night";
+type DayType = "workday" | "weekend" | "holiday";
 
 export class HybridRecommendationEngine {
   private timeAnalyzer: TimeRelationAnalyzer;
@@ -41,13 +45,9 @@ export class HybridRecommendationEngine {
 
   public generateContextInfo(currentTime: Date): ContextInfo {
     const hour = getHours(currentTime);
-    let timeOfDay: ContextInfo["timeOfDay"] = 'morning';
-    if (hour >= 12 && hour < 17) timeOfDay = 'afternoon';
-    else if (hour >= 17 && hour < 21) timeOfDay = 'evening';
-    else if (hour >= 21 || hour < 6) timeOfDay = 'night';
-
+    const timeOfDay = this.getTimeOfDay(hour);
     const dow = getDay(currentTime);
-    const dayType: ContextInfo["dayType"] = (dow === 0 || dow === 6) ? 'weekend' : 'workday';
+    const dayType: DayType = (dow === 0 || dow === 6) ? 'weekend' : 'workday';
 
     const recentTasks = this.tasks.filter(t => {
       try {
@@ -96,11 +96,8 @@ export class HybridRecommendationEngine {
     const historicalRecs = this.generateHistoricalRecommendations(context, timePatterns, periodicPatterns, behaviorPatterns);
     rawRecommendations.push(...historicalRecs);
 
-    const predictedRecs = this.generatePredictedRecommendations(context, periodicPatterns, behaviorPatterns);
+    const predictedRecs = this.generatePredictedRecommendations(context, timePatterns, periodicPatterns, behaviorPatterns);
     rawRecommendations.push(...predictedRecs);
-
-    const novelRecs = this.generateNovelRecommendations(context, behaviorPatterns);
-    rawRecommendations.push(...novelRecs);
 
     const recommendations = this.postProcessRecommendations(rawRecommendations, context);
 
@@ -168,8 +165,9 @@ export class HybridRecommendationEngine {
 
   private generatePredictedRecommendations(
     context: ContextInfo,
+    timePatterns: TimeRelationPattern[],
     periodicPatterns: PeriodicTaskPattern[],
-    _behaviorPatterns: BehaviorPattern
+    behaviorPatterns: BehaviorPattern
   ): Recommendation[] {
     const recommendations: Recommendation[] = [];
 
@@ -189,24 +187,13 @@ export class HybridRecommendationEngine {
           createdAt: new Date().toISOString(),
         };
 
-        const scores: FactorScores = {
-          nameSimilarity: 0.5,
-          timePattern: 0.6,
-          tagCorrelation: 0.5,
-          durationStats: 0.5,
-          schedulingPattern: 0.6,
-          dueDatePattern: 0.5,
-          timeRelation: 0.7,
-          behaviorPrediction: 0.8,
-          periodicPattern: pattern.confidence,
-          contextAdaptation: 0.6,
-          total: 0.65,
-        };
+        const scores = this.calculateScores(task, context, timePatterns, periodicPatterns, behaviorPatterns);
+        const confidence = Math.round(scores.total * pattern.confidence * 1000) / 1000;
 
         recommendations.push({
           task,
           scores,
-          confidence: predicted.confidence * 0.9,
+          confidence,
           reason: `基于${pattern.frequency}周期性任务模式预测`,
           recommendationType: 'predicted',
         });
@@ -214,14 +201,6 @@ export class HybridRecommendationEngine {
     }
 
     return recommendations;
-  }
-
-  private generateNovelRecommendations(
-    _context: ContextInfo,
-    _behaviorPatterns: BehaviorPattern
-  ): Recommendation[] {
-    // 不再生成探索性推荐，避免编造新标题
-    return [];
   }
 
   private calculateScores(
@@ -235,46 +214,59 @@ export class HybridRecommendationEngine {
     const timePattern = this.calculateTimePatternScore(task, context);
     const tagCorrelation = this.calculateTagCorrelation(task);
     const durationStats = this.calculateDurationStats(task);
-    const schedulingPattern = this.calculateSchedulingPattern(task);
-    const dueDatePattern = this.calculateDueDatePattern(task);
     const timeRelation = this.timeAnalyzer.calculateTimeRelationScore(task, context, timePatterns);
-    const behaviorPrediction = this.behaviorPredictor.calculateBehaviorPredictionScore(task, context, behaviorPatterns);
     const periodicPattern = this.periodicDetector.calculatePeriodicScore(task, periodicPatterns);
-    const contextAdaptation = this.calculateContextAdaptation(task, context);
+    const contextMatch = this.calculateContextMatch(task, context);
+    const sequenceMatch = this.behaviorPredictor.calculateSequenceScore(task, context, behaviorPatterns);
+    const frequencyScore = this.calculateFrequencyScore(task);
 
     const total =
       nameSimilarity * this.config.weights.nameSimilarity +
       timePattern * this.config.weights.timePattern +
       tagCorrelation * this.config.weights.tagCorrelation +
       durationStats * this.config.weights.durationStats +
-      schedulingPattern * this.config.weights.schedulingPattern +
-      dueDatePattern * this.config.weights.dueDatePattern +
       timeRelation * this.config.weights.timeRelation +
-      behaviorPrediction * this.config.weights.behaviorPrediction +
       periodicPattern * this.config.weights.periodicPattern +
-      contextAdaptation * this.config.weights.contextAdaptation;
+      contextMatch * this.config.weights.contextMatch +
+      sequenceMatch * this.config.weights.sequenceMatch +
+      frequencyScore * this.config.weights.frequencyScore;
+
+    const round3 = (v: number) => Math.round(v * 1000) / 1000;
 
     return {
-      nameSimilarity: Math.round(nameSimilarity * 1000) / 1000,
-      timePattern: Math.round(timePattern * 1000) / 1000,
-      tagCorrelation: Math.round(tagCorrelation * 1000) / 1000,
-      durationStats: Math.round(durationStats * 1000) / 1000,
-      schedulingPattern: Math.round(schedulingPattern * 1000) / 1000,
-      dueDatePattern: Math.round(dueDatePattern * 1000) / 1000,
-      timeRelation: Math.round(timeRelation * 1000) / 1000,
-      behaviorPrediction: Math.round(behaviorPrediction * 1000) / 1000,
-      periodicPattern: Math.round(periodicPattern * 1000) / 1000,
-      contextAdaptation: Math.round(contextAdaptation * 1000) / 1000,
-      total: Math.round(total * 1000) / 1000,
+      nameSimilarity: round3(nameSimilarity),
+      timePattern: round3(timePattern),
+      tagCorrelation: round3(tagCorrelation),
+      durationStats: round3(durationStats),
+      timeRelation: round3(timeRelation),
+      periodicPattern: round3(periodicPattern),
+      contextMatch: round3(contextMatch),
+      sequenceMatch: round3(sequenceMatch),
+      frequencyScore: round3(frequencyScore),
+      total: round3(total),
     };
   }
 
-  private calculateNameSimilarity(task: RecommendTask): number {
-    const similarTasks = this.tasks.filter(t => 
-      t.title.toLowerCase().includes(task.title.toLowerCase()) ||
-      task.title.toLowerCase().includes(t.title.toLowerCase())
+  private calculateFrequencyScore(task: RecommendTask): number {
+    const normalizedTitle = this.normalizeTitle(task.title);
+    const count = this.tasks.filter(t => this.normalizeTitle(t.title) === normalizedTitle).length;
+    const maxCount = Math.max(
+      ...Array.from(new Set(this.tasks.map(t => this.normalizeTitle(t.title)))).map(title =>
+        this.tasks.filter(t => this.normalizeTitle(t.title) === title).length
+      ),
+      1
     );
-    return Math.min(1, similarTasks.length / Math.max(this.tasks.length, 1));
+    return count / maxCount;
+  }
+
+  private calculateNameSimilarity(task: RecommendTask): number {
+    if (this.tasks.length === 0) return 0.3;
+    let totalSimilarity = 0;
+    for (const t of this.tasks) {
+      if (t.id === task.id) continue;
+      totalSimilarity += calculateNameSimilarityScore(task.title, t.title);
+    }
+    return Math.min(1, totalSimilarity / Math.max(this.tasks.length - 1, 1));
   }
 
   private calculateTimePatternScore(task: RecommendTask, context: ContextInfo): number {
@@ -301,80 +293,46 @@ export class HybridRecommendationEngine {
     return Math.min(1, similarDurationTasks.length / Math.max(this.tasks.length, 10));
   }
 
-  private calculateSchedulingPattern(_task: RecommendTask): number {
-    return 0.5;
-  }
+  private calculateContextMatch(task: RecommendTask, context: ContextInfo): number {
+    if (task.tagIds.length === 0 || this.tasks.length === 0) return 0.3;
 
-  private calculateDueDatePattern(_task: RecommendTask): number {
-    return 0.5;
-  }
+    const contextKey = `${context.timeOfDay}:${context.dayType}`;
+    const contextTagCounts: Record<string, number> = {};
+    const tagTotalCounts: Record<string, number> = {};
 
-  private calculateContextAdaptation(task: RecommendTask, context: ContextInfo): number {
-    let score = 0.5;
-
-    // 从历史数据中学习标签在不同时间段的使用模式，而不是使用硬编码
-    const tagTimePatterns: Record<string, { timeOfDay: Record<string, number>; dayType: Record<string, number> }> = {};
-
-    // 收集统计数据
     for (const histTask of this.tasks) {
-      for (const tagId of histTask.tagIds) {
-        if (!tagTimePatterns[tagId]) {
-          tagTimePatterns[tagId] = {
-            timeOfDay: { morning: 0, afternoon: 0, evening: 0, night: 0 },
-            dayType: { workday: 0, weekend: 0, holiday: 0 }
-          };
-        }
+      if (!histTask.date) continue;
+      try {
+        const taskDate = parseISO(histTask.date);
+        const taskHour = getHours(taskDate);
+        const taskTimeOfDay = this.getTimeOfDay(taskHour);
+        const taskDow = getDay(taskDate);
+        const taskDayType: DayType = (taskDow === 0 || taskDow === 6) ? 'weekend' : 'workday';
+        const taskContextKey = `${taskTimeOfDay}:${taskDayType}`;
 
-        // 获取该任务的上下文
-        if (histTask.date) {
-          try {
-            const taskDate = parseISO(histTask.date);
-            const taskHour = getHours(taskDate);
-            const taskDayOfWeek = getDay(taskDate);
-
-            // 确定时间段
-            let timeOfDay = 'morning';
-            if (taskHour >= 12 && taskHour < 17) timeOfDay = 'afternoon';
-            else if (taskHour >= 17 && taskHour < 21) timeOfDay = 'evening';
-            else if (taskHour >= 21 || taskHour < 6) timeOfDay = 'night';
-
-            // 确定工作日/周末
-            const isWeekend = taskDayOfWeek === 0 || taskDayOfWeek === 6;
-            const dayType = isWeekend ? 'weekend' : 'workday';
-
-            tagTimePatterns[tagId].timeOfDay[timeOfDay]++;
-            tagTimePatterns[tagId].dayType[dayType]++;
-          } catch {
-            continue;
+        for (const tagId of histTask.tagIds) {
+          tagTotalCounts[tagId] = (tagTotalCounts[tagId] || 0) + 1;
+          if (taskContextKey === contextKey) {
+            const tagContextKey = `${contextKey}:${tagId}`;
+            contextTagCounts[tagContextKey] = (contextTagCounts[tagContextKey] || 0) + 1;
           }
         }
+      } catch {
+        continue;
       }
     }
 
-    // 根据统计数据给分
+    let score = 0;
+    const numContexts = 8;
     for (const tagId of task.tagIds) {
-      if (tagTimePatterns[tagId]) {
-        const patterns = tagTimePatterns[tagId];
-        const timeOfDayCounts = patterns.timeOfDay;
-        const dayTypeCounts = patterns.dayType;
-
-        // 时间段匹配得分
-        const totalTimeOfDay = Object.values(timeOfDayCounts).reduce((a, b) => a + b, 0);
-        if (totalTimeOfDay > 0) {
-          const currentTimeOfDayRatio = timeOfDayCounts[context.timeOfDay] / totalTimeOfDay;
-          score += currentTimeOfDayRatio * 0.15;
-        }
-
-        // 工作日/周末匹配得分
-        const totalDayType = Object.values(dayTypeCounts).reduce((a, b) => a + b, 0);
-        if (totalDayType > 0) {
-          const currentDayTypeRatio = dayTypeCounts[context.dayType] / totalDayType;
-          score += currentDayTypeRatio * 0.15;
-        }
-      }
+      const tagContextKey = `${contextKey}:${tagId}`;
+      const countInContext = contextTagCounts[tagContextKey] || 0;
+      const totalCount = tagTotalCounts[tagId] || 0;
+      const probability = (countInContext + 1) / (totalCount + numContexts);
+      score += probability;
     }
 
-    return Math.min(1, score);
+    return Math.min(1, score / Math.max(task.tagIds.length, 1));
   }
 
   private calculateTotalScore(scores: FactorScores): number {
@@ -434,9 +392,63 @@ export class HybridRecommendationEngine {
       }
     }
 
-    return Array.from(deduplicated.values())
-      .sort((a, b) => b.confidence - a.confidence)
-      .slice(0, this.config.maxRecommendations);
+    const sorted = Array.from(deduplicated.values())
+      .sort((a, b) => b.confidence - a.confidence);
+
+    return this.applyMMR(sorted, this.config.diversityLambda);
+  }
+
+  private applyMMR(candidates: Recommendation[], lambda: number): Recommendation[] {
+    if (candidates.length === 0 || lambda <= 0) {
+      return candidates.slice(0, this.config.maxRecommendations);
+    }
+
+    const selected: Recommendation[] = [candidates[0]];
+    const remaining = candidates.slice(1);
+
+    while (selected.length < this.config.maxRecommendations && remaining.length > 0) {
+      let bestIdx = -1;
+      let bestMMR = -Infinity;
+
+      for (let i = 0; i < remaining.length; i++) {
+        const candidate = remaining[i];
+        const relevance = candidate.confidence;
+
+        let maxSimilarity = 0;
+        for (const sel of selected) {
+          const sim = this.calculateTaskSimilarity(candidate, sel);
+          if (sim > maxSimilarity) maxSimilarity = sim;
+        }
+
+        const mmr = lambda * relevance - (1 - lambda) * maxSimilarity;
+        if (mmr > bestMMR) {
+          bestMMR = mmr;
+          bestIdx = i;
+        }
+      }
+
+      if (bestIdx >= 0) {
+        selected.push(remaining[bestIdx]);
+        remaining.splice(bestIdx, 1);
+      } else {
+        break;
+      }
+    }
+
+    return selected;
+  }
+
+  private calculateTaskSimilarity(a: Recommendation, b: Recommendation): number {
+    const tagsA = new Set(a.task.tagIds);
+    const tagsB = new Set(b.task.tagIds);
+    const intersection = new Set([...tagsA].filter(t => tagsB.has(t)));
+    const union = new Set([...tagsA, ...tagsB]);
+
+    const jaccard = union.size === 0 ? 0 : intersection.size / union.size;
+
+    const titleSim = calculateNameSimilarityScore(a.task.title, b.task.title);
+
+    return jaccard * 0.6 + titleSim * 0.4;
   }
 
   private isRecommendationPlausible(recommendation: Recommendation, context: ContextInfo): boolean {
@@ -453,14 +465,15 @@ export class HybridRecommendationEngine {
       return false;
     }
 
-    const strongSignals = [
-      recommendation.scores.periodicPattern >= 0.55,
-      recommendation.scores.timeRelation >= 0.55,
-      recommendation.scores.contextAdaptation >= 0.6,
-      recommendation.scores.behaviorPrediction >= 0.6,
-    ].filter(Boolean).length;
+    const hasStrongSignal =
+      recommendation.scores.periodicPattern >= 0.5 ||
+      recommendation.scores.sequenceMatch >= 0.5;
 
-    if (strongSignals === 0 && recommendation.confidence < 0.5) {
+    if (!hasStrongSignal && recommendation.confidence < 0.5) {
+      return false;
+    }
+
+    if (!hasStrongSignal && recommendation.scores.frequencyScore < 0.1) {
       return false;
     }
 
@@ -499,12 +512,11 @@ export class HybridRecommendationEngine {
       { key: "timePattern", label: "时间模式" },
       { key: "tagCorrelation", label: "标签关联" },
       { key: "durationStats", label: "时长统计" },
-      { key: "schedulingPattern", label: "调度模式" },
-      { key: "dueDatePattern", label: "截止日期" },
       { key: "timeRelation", label: "时间关系" },
-      { key: "behaviorPrediction", label: "行为预测" },
       { key: "periodicPattern", label: "周期模式" },
-      { key: "contextAdaptation", label: "上下文适配" },
+      { key: "contextMatch", label: "情境匹配" },
+      { key: "sequenceMatch", label: "序列预测" },
+      { key: "frequencyScore", label: "频率因子" },
     ];
 
     return factorLabels.map(({ key, label }) => ({
@@ -518,6 +530,13 @@ export class HybridRecommendationEngine {
 
   private normalizeTitle(title: string): string {
     return title.trim().toLowerCase().replace(/\s+/g, " ");
+  }
+
+  private getTimeOfDay(hour: number): TimeOfDay {
+    if (hour >= 12 && hour < 17) return 'afternoon';
+    if (hour >= 17 && hour < 21) return 'evening';
+    if (hour >= 21 || hour < 6) return 'night';
+    return 'morning';
   }
 
   private getTaskRecencyValue(task: RecommendTask): number {
@@ -666,8 +685,8 @@ export class HybridRecommendationEngine {
     const reasons: string[] = [];
     if (scores.timeRelation > 0.5) reasons.push('时间关系模式匹配');
     if (scores.periodicPattern > 0.5) reasons.push('周期性任务模式');
-    if (scores.behaviorPrediction > 0.5) reasons.push('行为模式预测');
-    if (scores.contextAdaptation > 0.5) reasons.push('上下文适配良好');
+    if (scores.sequenceMatch > 0.5) reasons.push('序列模式预测');
+    if (scores.contextMatch > 0.5) reasons.push('情境匹配度高');
     if (scores.tagCorrelation > 0.5) reasons.push('标签关联度高');
     if (reasons.length === 0) reasons.push('综合推荐');
     return reasons;

@@ -27,33 +27,34 @@ function validateTasks(data: unknown): RecommendTask[] {
 }
 
 function validateConfig(data: unknown): AlgorithmConfig {
-	if (!data || typeof data !== "object") return DEFAULT_CONFIG;
-	const cfg = data as Record<string, unknown>;
-	const w = cfg.weights as Record<string, unknown> | undefined;
-	if (!w) return DEFAULT_CONFIG;
-	const weights = {
-		nameSimilarity: typeof w.nameSimilarity === "number" ? w.nameSimilarity : DEFAULT_CONFIG.weights.nameSimilarity,
-		timePattern: typeof w.timePattern === "number" ? w.timePattern : DEFAULT_CONFIG.weights.timePattern,
-		tagCorrelation: typeof w.tagCorrelation === "number" ? w.tagCorrelation : DEFAULT_CONFIG.weights.tagCorrelation,
-		durationStats: typeof w.durationStats === "number" ? w.durationStats : DEFAULT_CONFIG.weights.durationStats,
-		schedulingPattern: typeof w.schedulingPattern === "number" ? w.schedulingPattern : DEFAULT_CONFIG.weights.schedulingPattern,
-		dueDatePattern: typeof w.dueDatePattern === "number" ? w.dueDatePattern : DEFAULT_CONFIG.weights.dueDatePattern,
-		timeRelation: typeof w.timeRelation === "number" ? w.timeRelation : DEFAULT_CONFIG.weights.timeRelation,
-		behaviorPrediction: typeof w.behaviorPrediction === "number" ? w.behaviorPrediction : DEFAULT_CONFIG.weights.behaviorPrediction,
-		periodicPattern: typeof w.periodicPattern === "number" ? w.periodicPattern : DEFAULT_CONFIG.weights.periodicPattern,
-		contextAdaptation: typeof w.contextAdaptation === "number" ? w.contextAdaptation : DEFAULT_CONFIG.weights.contextAdaptation,
-	};
-	return {
-		weights,
-		maxRecommendations: typeof cfg.maxRecommendations === "number" ? cfg.maxRecommendations : DEFAULT_CONFIG.maxRecommendations,
-		minConfidence: typeof cfg.minConfidence === "number" ? cfg.minConfidence : DEFAULT_CONFIG.minConfidence,
-		timeWindowHours: typeof cfg.timeWindowHours === "number" ? cfg.timeWindowHours : DEFAULT_CONFIG.timeWindowHours,
-		learningRate: typeof cfg.learningRate === "number" ? cfg.learningRate : DEFAULT_CONFIG.learningRate,
-		noveltyThreshold: typeof cfg.noveltyThreshold === "number" ? cfg.noveltyThreshold : DEFAULT_CONFIG.noveltyThreshold,
-		explorationRate: typeof cfg.explorationRate === "number" ? cfg.explorationRate : DEFAULT_CONFIG.explorationRate,
-		adaptationSpeed: typeof cfg.adaptationSpeed === "number" ? cfg.adaptationSpeed : DEFAULT_CONFIG.adaptationSpeed,
-	};
-}
+		if (!data || typeof data !== "object") return DEFAULT_CONFIG;
+		const cfg = data as Record<string, unknown>;
+		const w = cfg.weights as Record<string, unknown> | undefined;
+		if (!w) return DEFAULT_CONFIG;
+		const weights = {
+			nameSimilarity: typeof w.nameSimilarity === "number" ? w.nameSimilarity : DEFAULT_CONFIG.weights.nameSimilarity,
+			timePattern: typeof w.timePattern === "number" ? w.timePattern : DEFAULT_CONFIG.weights.timePattern,
+			tagCorrelation: typeof w.tagCorrelation === "number" ? w.tagCorrelation : DEFAULT_CONFIG.weights.tagCorrelation,
+			durationStats: typeof w.durationStats === "number" ? w.durationStats : DEFAULT_CONFIG.weights.durationStats,
+			timeRelation: typeof w.timeRelation === "number" ? w.timeRelation : DEFAULT_CONFIG.weights.timeRelation,
+			periodicPattern: typeof w.periodicPattern === "number" ? w.periodicPattern : DEFAULT_CONFIG.weights.periodicPattern,
+			contextMatch: typeof w.contextMatch === "number" ? w.contextMatch : DEFAULT_CONFIG.weights.contextMatch,
+			sequenceMatch: typeof w.sequenceMatch === "number" ? w.sequenceMatch : DEFAULT_CONFIG.weights.sequenceMatch,
+			frequencyScore: typeof w.frequencyScore === "number" ? w.frequencyScore : DEFAULT_CONFIG.weights.frequencyScore,
+		};
+		return {
+			weights,
+			maxRecommendations: typeof cfg.maxRecommendations === "number" ? cfg.maxRecommendations : DEFAULT_CONFIG.maxRecommendations,
+			minConfidence: typeof cfg.minConfidence === "number" ? cfg.minConfidence : DEFAULT_CONFIG.minConfidence,
+			timeWindowHours: typeof cfg.timeWindowHours === "number" ? cfg.timeWindowHours : DEFAULT_CONFIG.timeWindowHours,
+			learningRate: typeof cfg.learningRate === "number" ? cfg.learningRate : DEFAULT_CONFIG.learningRate,
+			noveltyThreshold: typeof cfg.noveltyThreshold === "number" ? cfg.noveltyThreshold : DEFAULT_CONFIG.noveltyThreshold,
+			explorationRate: typeof cfg.explorationRate === "number" ? cfg.explorationRate : DEFAULT_CONFIG.explorationRate,
+			adaptationSpeed: typeof cfg.adaptationSpeed === "number" ? cfg.adaptationSpeed : DEFAULT_CONFIG.adaptationSpeed,
+			diversityLambda: typeof cfg.diversityLambda === "number" ? cfg.diversityLambda : DEFAULT_CONFIG.diversityLambda,
+			autoLearning: typeof cfg.autoLearning === "boolean" ? cfg.autoLearning : DEFAULT_CONFIG.autoLearning,
+		};
+	}
 
 function validateLogs(data: unknown): DecisionLog[] {
 	if (!Array.isArray(data)) return [];

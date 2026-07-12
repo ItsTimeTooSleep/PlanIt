@@ -1,10 +1,11 @@
 "use client";
 
 import { addDays, format, isToday, startOfWeek } from "date-fns";
-import { AlertCircle, Edit3, StickyNote } from "lucide-react";
+import { Edit3, StickyNote } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { DEFAULT_TAG_COLOR } from "@/lib/colors";
 import { useTranslations } from "@/lib/i18n";
+import { DueTasksBadge } from "@/components/calendar/due-tasks-badge";
 import { playSound } from "@/lib/sound";
 import { useLanguage, useStore } from "@/lib/store";
 import {
@@ -114,7 +115,6 @@ export function WeekView({
 
 	const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
 	const [gridWidth, setGridWidth] = useState(0);
-	const [hoveredDueDate, setHoveredDueDate] = useState<string | null>(null);
 	const [currentTime, setCurrentTime] = useState(new Date());
 
 	useEffect(() => {
@@ -748,12 +748,8 @@ export function WeekView({
 					const _allDayForDay = tasks.filter(
 						(t) => t.date === dateStr && t.isAllDay,
 					);
-					const dueTasksForDay = tasks.filter(
-						(t) => t.dueDate === dateStr && t.status !== "completed",
-					);
 					const dateNote = dateNotes.find((n) => n.date === dateStr);
 					const _isToday = isToday(day);
-					const isHoveredDue = hoveredDueDate === dateStr;
 					return (
 						<div
 							key={dateStr}
@@ -796,62 +792,16 @@ export function WeekView({
 											{format(day, "d")}
 										</span>
 									</button>
-									{dueTasksForDay.length > 0 && (
-										<div
-											className="relative"
-											onMouseEnter={() => setHoveredDueDate(dateStr)}
-											onMouseLeave={() => setHoveredDueDate(null)}
-										>
-											<span className="text-[10px] font-bold bg-gradient-to-br from-red-500 to-red-600 text-white rounded-md px-1.5 py-0.5 cursor-help shadow-sm hover:shadow-md transition-all">
-												{dueTasksForDay.length}
-											</span>
-											{isHoveredDue && (
-												<div className="absolute top-7 right-0 z-50 bg-popover border border-border rounded-xl shadow-xl p-3 min-w-[150px] max-w-[220px]">
-													<p className="text-xs font-semibold text-red-600 dark:text-red-400 mb-2 flex items-center gap-1.5">
-														<AlertCircle className="w-3.5 h-3.5" />
-														{lang === "zh" ? "即将截止" : "Due soon"}
-													</p>
-													{dueTasksForDay.slice(0, 6).map((task) => {
-														const tag = tags.find(
-															(tg) => task.tagIds[0] === tg.id,
-														);
-														const color = tag?.color ?? DEFAULT_TAG_COLOR;
-														return (
-															<div
-																key={task.id}
-																className="flex items-center gap-1.5 py-1.5 px-2 cursor-pointer hover:bg-muted/60 rounded-lg transition-all min-w-0"
-																onClick={(e) => {
-																	e.stopPropagation();
-																	onOpenTask(task);
-																}}
-																style={{ overflow: "hidden" }}
-															>
-																<div
-																	className="w-2.5 h-2.5 rounded-full shrink-0"
-																	style={{ backgroundColor: color }}
-																/>
-																<span
-																	className="text-[11px] flex-1 min-w-0 font-medium"
-																	style={{
-																		overflow: "hidden",
-																		textOverflow: "ellipsis",
-																		whiteSpace: "nowrap",
-																	}}
-																>
-																	{task.title}
-																</span>
-															</div>
-														);
-													})}
-													{dueTasksForDay.length > 6 && (
-														<p className="text-[10px] text-muted-foreground mt-1.5 text-center">
-															+{dueTasksForDay.length - 6} more
-														</p>
-													)}
-												</div>
-											)}
-										</div>
-									)}
+									<DueTasksBadge
+										dateStr={dateStr}
+										tasks={tasks}
+										tags={tags}
+										onOpenTask={onOpenTask}
+										translations={{
+											overdue: _t.calendar.overdue,
+											dueSoon: _t.calendar.dueSoon,
+										}}
+									/>
 								</div>
 								{dateNote && (
 									<div

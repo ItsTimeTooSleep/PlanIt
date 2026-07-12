@@ -44,6 +44,10 @@ export interface StoreContextValue {
 	updateNote: (id: string, updates: Partial<Note>) => void;
 	deleteNote: (id: string) => void;
 	getNotesByDate: (date: string) => Note[];
+	/**
+	 * 将笔记置顶，同时合理管理zIndex避免无限增长
+	 */
+	bringNoteToFront: (noteId: string) => void;
 	addNoteLine: (line: NoteLine) => void;
 	updateNoteLine: (id: string, updates: Partial<NoteLine>) => void;
 	deleteNoteLine: (id: string) => void;

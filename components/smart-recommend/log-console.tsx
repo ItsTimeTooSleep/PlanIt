@@ -36,14 +36,17 @@ export function LogConsole({ logs, feedbacks }: LogConsoleProps) {
 	}, [feedbacks]);
 
 	const factorChartData = useMemo(() => {
-		const factors = [
-			{ key: "nameSimilarity", name: "名称语义" },
-			{ key: "timePattern", name: "时间模式" },
-			{ key: "tagCorrelation", name: "标签关联" },
-			{ key: "durationStats", name: "时长统计" },
-			{ key: "schedulingPattern", name: "调度模式" },
-			{ key: "dueDatePattern", name: "截止日期" },
-		];
+			const factors = [
+				{ key: "nameSimilarity", name: "名称语义" },
+				{ key: "timePattern", name: "时间模式" },
+				{ key: "tagCorrelation", name: "标签关联" },
+				{ key: "durationStats", name: "时长统计" },
+				{ key: "timeRelation", name: "时间关系" },
+				{ key: "periodicPattern", name: "周期模式" },
+				{ key: "contextMatch", name: "情境匹配" },
+				{ key: "sequenceMatch", name: "序列预测" },
+				{ key: "frequencyScore", name: "频率因子" },
+			];
 		return factors.map((f) => ({
 			name: f.name,
 			accuracy: Math.round((accuracy.factorAccuracy[f.key] ?? 0) * 100),

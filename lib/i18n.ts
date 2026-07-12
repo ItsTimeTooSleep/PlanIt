@@ -103,6 +103,13 @@ const zh = {
 		viewFutureTasks: "查看未来任务",
 		today: "今天",
 		tomorrow: "明天",
+		notesSyncTitle: "备注同步",
+		notesSyncConfirm: "此任务是重复任务,是否将备注修改同步到其他实例？",
+		notesSyncOptions: "同步选项",
+		notesSyncOnlyThis: "仅修改此任务",
+		notesSyncAll: "应用到全部",
+		notesSyncFuture: "应用到以后(不包含之前)",
+		notesSyncPending: "仅应用到未完成任务",
 	},
 
 	status: {
@@ -168,6 +175,7 @@ const zh = {
 		nextMonth: "下个月",
 		today: "今天",
 		thisWeek: "本周",
+		thisMonth: "本月",
 		undo: "撤销",
 		redo: "重做",
 		selectMode: "选择模式",
@@ -181,10 +189,11 @@ const zh = {
 		weekOf: (d: string) => `${d} 所在周`,
 		smartReminder: "智能提醒",
 		smartReminderTooltip: (count: number) =>
-			`明天有 ${count} 个任务即将截止但未规划`,
+			`今天和明天有 ${count} 个任务未完成且未规划`,
 		noPendingDueTasks: "暂无即将截止的任务",
 		dueTasksCount: (count: number) => `${count} 个任务`,
 		dueSoon: "即将截止",
+		overdue: "已过期",
 	},
 
 	dateNote: {
@@ -408,6 +417,23 @@ const zh = {
 		continue: "继续",
 		break: "休息",
 		phase: "阶段",
+		bindTaskToFocus: "绑定任务到本次专注",
+		selectTask: "选择任务",
+		createNewTask: "创建新任务",
+		noTaskBinding: "不绑定任务",
+		taskBindingComplete: "本次专注已绑定任务,数据已自动填写",
+		manualStop: "手动终止",
+		manualStopDesc: "本次专注被手动终止",
+		writeToTask: "写入绑定任务",
+		skipWriteToTask: "不写入",
+		searchTask: "搜索任务",
+		filterByTag: "按标签筛选",
+		noDate: "无日期",
+		today: "今天",
+		tomorrow: "明天",
+		thisWeek: "本周",
+		future: "未来",
+		noMatchingTask: "没有匹配的任务",
 	},
 
 	todo: {
@@ -667,6 +693,176 @@ const zh = {
 		textWidget: "文本",
 		lineWidget: "线条",
 	},
+
+	smartRecommendTest: {
+		title: "智能推荐测试",
+		description: "优化的混合推荐算法 - 包含近期重复任务降权",
+		acceptRate: "接受率",
+		avgConfidence: "平均置信度",
+		noveltyRate: "探索性推荐占比",
+		historicalTasks: "历史任务数",
+		forPatternLearning: "用于模式学习",
+		analysisOverview: "智能分析概览",
+		timeRelationPatterns: "时间关系模式",
+		periodicPatterns: "周期性模式",
+		predictedTasks: "预测任务",
+		dynamicRules: "动态规则",
+		tabRecommend: "推荐结果",
+		tabTest: "参数测试",
+		tabLogs: "日志记录",
+		createTask: "创建任务",
+		resetData: "重置数据",
+		exportData: "导出数据",
+		exportDataDesc: "导出当前学习数据为 JSON 文件",
+		importData: "导入数据",
+		importDataDesc: "导入之前的学习数据",
+		exportSuccess: "数据导出成功",
+		importSuccess: "导入成功",
+		importError: "导入失败，文件格式不正确",
+		selectImportMode: "选择导入模式",
+		importMerge: "合并",
+		importMergeDesc: "保留现有数据，添加新数据",
+		importOverwrite: "覆盖",
+		importOverwriteDesc: "替换所有现有数据",
+		importFileVersion: "文件版本",
+		importFileDate: "导出时间",
+		importConfirm: "确认导入",
+		importItems: "导入内容",
+		importTasksCount: (n: number) => `${n} 个任务`,
+		importFeedbacksCount: (n: number) => `${n} 条反馈`,
+		importLogsCount: (n: number) => `${n} 条日志`,
+		noDataToExport: "没有数据可导出",
+	},
+
+	duplicateTest: {
+		title: "行为预测重复检测",
+		description: "验证任务创建后系统是否会重复推荐与已创建任务相同或近重复的任务",
+		runAll: "运行全部测试",
+		reset: "重置",
+		runSingle: "运行",
+		rerun: "重新运行",
+		statusPending: "未执行",
+		statusPassed: "通过",
+		statusFailed: "失败",
+		catAll: "全部类别",
+		catExact: "完全重复",
+		catNear: "近重复",
+		catBehavior: "行为模式",
+		catPeriodic: "周期模式",
+		catBoundary: "边界条件",
+		expected: "预期结果",
+		actual: "实际结果",
+		diff: "差异对比",
+		anomalyAnalysis: "异常分析",
+		optimizationSuggestion: "优化方向",
+		passRate: "通过率",
+		summary: "测试概览",
+		scenarioList: "测试场景列表",
+		report: "聚合报告",
+		flaggedCount: "命中数",
+		noRecommendations: "无推荐产生",
+		matchedCriteria: "命中条件",
+		initialTasks: "初始任务",
+		contextTimeLabel: "上下文时间",
+		createdTask: "新建任务",
+		commonPatterns: "常见异常模式",
+		prioritizedSuggestions: "优先优化建议",
+		noReport: "尚未运行测试，点击「运行全部测试」生成报告",
+		noResults: "暂无测试结果",
+		runHint: "选择类别过滤后点击运行",
+		scenarios: {
+			"exact-same-time": {
+				name: "完全相同时间槽",
+				desc: "创建与已有任务同标题、同日期、同开始时间的任务，系统应过滤重复推荐",
+				anomaly: "若失败：hasExactDuplicateScheduledTask 未正确识别完全时间碰撞",
+				suggestion: "确认 isExactTimeCollision 对同 date + 同 startTime 的判定路径",
+			},
+			"exact-all-day": {
+				name: "全天事件完全重复",
+				desc: "创建与已有全天任务同标题、同日期的全天任务，系统应过滤",
+				anomaly: "若失败：bothAllDay 分支未正确触发过滤",
+				suggestion: "校验 isExactTimeCollision 中 isAllDay 与 date 的组合判定",
+			},
+			"exact-multiple": {
+				name: "多条历史相同任务",
+				desc: "已有 3 条相同任务后创建第 4 条同日期同时段任务，不应产生重复推荐",
+				anomaly: "若失败：多历史任务场景下重复检测被稀释",
+				suggestion: "确保重复检测对全部历史任务遍历，而非仅最近一条",
+			},
+			"near-diff-time": {
+				name: "同标题同日期不同时间",
+				desc: "新任务 14:00 与已有 09:00 同标题同日期，系统不应再推荐同日同标题任务",
+				anomaly: "近重复泄漏：calculateDuplicatePenalty 仅对完全碰撞返回 0，同日期仅 0.6 不足以压低置信度",
+				suggestion: "将同标题+同日期的近重复判定扩展为：title 相似度>=0.9 且 date 相同即视为重复，无需 startTime 相等",
+			},
+			"near-diff-date": {
+				name: "同标题同时间不同日期",
+				desc: "新任务与已有任务同标题同 startTime 但日期不同，系统不应在邻近日期推荐同标题同时间任务",
+				anomaly: "近重复泄漏：不同日期无任何惩罚，置信度不受影响",
+				suggestion: "对同标题+同 startTime 且日期邻近（如 3 天内）的推荐施加惩罚或过滤",
+			},
+			"near-whitespace-case": {
+				name: "标题空格大小写变体",
+				desc: "标题「  Math  Exercise 」与已有「math exercise」应视为相同任务",
+				anomaly: "normalizeTitle 仅 trim+lowercase+单空格压缩，无法处理多空格；calculateNameSimilarityScore 也仅 trim",
+				suggestion: "在 normalizeTitle 中增加 /\\s+/g → 单空格的归一化，并在重复检测中使用归一化标题比较",
+			},
+			"near-missing-time": {
+				name: "新建任务缺失开始时间",
+				desc: "新任务无 startTime，已有任务有 09:00；行为预测会填充 09:00，导致推荐与已创建任务高度相似",
+				anomaly: "enhanceTaskWithPredictions 用 behaviorPredictor.predictTime 填充时间，使推荐时间撞上已有槽位",
+				suggestion: "推荐生成后比对已有任务，若仅 startTime 缺失而被填充至已有槽位，应降权或过滤",
+			},
+			"behavior-just-created": {
+				name: "刚创建任务不应被回显",
+				desc: "用户刚创建任务 T，推荐列表不应再包含 T 本身",
+				anomaly: "若失败：uniqueTitles 选取最新任务作为推荐源，且时间增强后未与新建任务碰撞",
+				suggestion: "对刚创建任务（createdAt 接近 contextTime）的标题在推荐源中排除或大幅降权",
+			},
+			"behavior-repeated-creation": {
+				name: "重复创建不应保留同槽位",
+				desc: "同任务同槽位已创建 3 次，第 4 次推荐列表不应保留相同时间槽",
+				anomaly: "若失败：周期或历史推荐未避开已多次出现的时间槽",
+				suggestion: "推荐生成时统计同标题已有出现次数，超过阈值后下次推荐应跳到新时间槽",
+			},
+			"behavior-accepted-rec": {
+				name: "已接受推荐不应再次出现",
+				desc: "用户接受推荐（追加到任务列表）后，再次生成推荐时同一推荐不应再次出现",
+				anomaly: "若失败：接受后任务进入历史，但仍被作为推荐源重新生成",
+				suggestion: "推荐后处理阶段排除最近 N 分钟内被接受/创建的任务标题",
+			},
+			"periodic-daily-existing-date": {
+				name: "日度预测避开已有日期",
+				desc: "已有 4 条日度早晨任务，预测下次出现日期不应是已存在的日期",
+				anomaly: "PeriodicTaskDetector.generateNextOccurrence 不检查预测日期是否已存在出现记录",
+				suggestion: "在 generateNextOccurrence 中跳过已有 occurrences 的日期，向未来推进直到找到新日期",
+			},
+			"periodic-weekly-existing-date": {
+				name: "周度预测避开已有日期",
+				desc: "已有 4 条周一任务，预测下次出现不应落在已存在的周一",
+				anomaly: "generateNextOccurrence 的 weekly 分支 daysToAdd<=0 +=7 可能落在已存在的下一个周一",
+				suggestion: "weekly 分支同样需要过滤已有出现日期",
+			},
+			"boundary-empty": {
+				name: "空任务列表边界",
+				desc: "无初始任务，创建第一条任务后不应崩溃且无重复推荐",
+				anomaly: "若失败：空列表导致除零或 undefined 访问",
+				suggestion: "对 tasks.length===0 的边界显式返回空推荐",
+			},
+			"boundary-single-task": {
+				name: "单任务列表边界",
+				desc: "一条初始任务，创建同标题不同日期任务，不应产生同日期碰撞",
+				anomaly: "若失败：单任务统计不足以形成模式但仍产生推荐",
+				suggestion: "样本量不足时降低置信度或跳过历史推荐生成",
+			},
+			"boundary-past-due": {
+				name: "截止日期在过去",
+				desc: "新任务 dueDate 在过去，引擎不应崩溃且不应推荐重复",
+				anomaly: "若失败：dueDate 在过去导致 differenceInDays 异常或推荐时间倒置",
+				suggestion: "对 dueDate < contextTime 的任务在推荐前显式过滤或归一化",
+			},
+		},
+	},
 } as const;
 
 const en = {
@@ -773,6 +969,14 @@ const en = {
 		viewFutureTasks: "View Future Tasks",
 		today: "Today",
 		tomorrow: "Tomorrow",
+		notesSyncTitle: "Notes Sync",
+		notesSyncConfirm:
+			"This is a recurring task. Would you like to sync the notes changes to other instances?",
+		notesSyncOptions: "Sync Options",
+		notesSyncOnlyThis: "Only this task",
+		notesSyncAll: "Apply to all",
+		notesSyncFuture: "Apply to future (excluding past)",
+		notesSyncPending: "Apply to pending tasks only",
 	},
 
 	status: {
@@ -838,6 +1042,7 @@ const en = {
 		nextMonth: "Next Month",
 		today: "Today",
 		thisWeek: "This Week",
+		thisMonth: "This Month",
 		undo: "Undo",
 		redo: "Redo",
 		selectMode: "Select",
@@ -851,10 +1056,11 @@ const en = {
 		weekOf: (d: string) => `Week of ${d}`,
 		smartReminder: "Smart Reminder",
 		smartReminderTooltip: (count: number) =>
-			`You have ${count} task${count > 1 ? "s" : ""} due tomorrow but not scheduled`,
+			`You have ${count} task${count > 1 ? "s" : ""} due today or tomorrow but not scheduled`,
 		noPendingDueTasks: "No pending due tasks",
 		dueTasksCount: (count: number) => `${count} task${count > 1 ? "s" : ""}`,
 		dueSoon: "Due soon",
+		overdue: "Overdue",
 	},
 
 	dateNote: {
@@ -1084,6 +1290,23 @@ const en = {
 		continue: "Continue",
 		break: "Break",
 		phase: "Phase",
+		bindTaskToFocus: "Bind task to focus session",
+		selectTask: "Select task",
+		createNewTask: "Create new task",
+		noTaskBinding: "No task binding",
+		taskBindingComplete: "Task binding complete, data auto-filled",
+		manualStop: "Manual Stop",
+		manualStopDesc: "This focus session was manually stopped",
+		writeToTask: "Write to bound task",
+		skipWriteToTask: "Skip",
+		searchTask: "Search task",
+		filterByTag: "Filter by tag",
+		noDate: "No date",
+		today: "Today",
+		tomorrow: "Tomorrow",
+		thisWeek: "This week",
+		future: "Future",
+		noMatchingTask: "No matching task",
 	},
 
 	todo: {
@@ -1344,6 +1567,176 @@ const en = {
 		textWidget: "Text",
 		lineWidget: "Line",
 	},
+
+	smartRecommendTest: {
+		title: "Smart Recommendation Test",
+		description: "Optimized hybrid recommendation algorithm - includes recent duplicate task downweighting",
+		acceptRate: "Acceptance Rate",
+		avgConfidence: "Avg Confidence",
+		noveltyRate: "Exploration Rate",
+		historicalTasks: "Historical Tasks",
+		forPatternLearning: "for pattern learning",
+		analysisOverview: "Smart Analysis Overview",
+		timeRelationPatterns: "Time Relation Patterns",
+		periodicPatterns: "Periodic Patterns",
+		predictedTasks: "Predicted Tasks",
+		dynamicRules: "Dynamic Rules",
+		tabRecommend: "Recommendations",
+		tabTest: "Parameter Test",
+		tabLogs: "Logs",
+		createTask: "Create Task",
+		resetData: "Reset Data",
+		exportData: "Export Data",
+		exportDataDesc: "Export current learning data as JSON file",
+		importData: "Import Data",
+		importDataDesc: "Import previous learning data",
+		exportSuccess: "Data exported successfully",
+		importSuccess: "Import successful",
+		importError: "Import failed — invalid file format",
+		selectImportMode: "Select Import Mode",
+		importMerge: "Merge",
+		importMergeDesc: "Keep existing data, add new data",
+		importOverwrite: "Overwrite",
+		importOverwriteDesc: "Replace all existing data",
+		importFileVersion: "File Version",
+		importFileDate: "Export Date",
+		importConfirm: "Confirm Import",
+		importItems: "Import Items",
+		importTasksCount: (n: number) => `${n} tasks`,
+		importFeedbacksCount: (n: number) => `${n} feedbacks`,
+		importLogsCount: (n: number) => `${n} logs`,
+		noDataToExport: "No data to export",
+	},
+
+	duplicateTest: {
+		title: "Behavior Prediction Duplication",
+		description: "Verifies that the engine does not re-recommend tasks identical or near-identical to ones the user just created",
+		runAll: "Run All Tests",
+		reset: "Reset",
+		runSingle: "Run",
+		rerun: "Rerun",
+		statusPending: "Pending",
+		statusPassed: "Passed",
+		statusFailed: "Failed",
+		catAll: "All Categories",
+		catExact: "Exact Duplicate",
+		catNear: "Near Duplicate",
+		catBehavior: "Behavior Pattern",
+		catPeriodic: "Periodic Pattern",
+		catBoundary: "Boundary",
+		expected: "Expected",
+		actual: "Actual",
+		diff: "Diff",
+		anomalyAnalysis: "Anomaly Analysis",
+		optimizationSuggestion: "Optimization Suggestion",
+		passRate: "Pass Rate",
+		summary: "Summary",
+		scenarioList: "Scenario List",
+		report: "Aggregate Report",
+		flaggedCount: "Flagged",
+		noRecommendations: "No recommendations produced",
+		matchedCriteria: "Matched Criteria",
+		initialTasks: "Initial Tasks",
+		contextTimeLabel: "Context Time",
+		createdTask: "Created Task",
+		commonPatterns: "Common Anomaly Patterns",
+		prioritizedSuggestions: "Prioritized Suggestions",
+		noReport: "No tests have been run yet. Click \"Run All Tests\" to generate a report.",
+		noResults: "No test results yet",
+		runHint: "Filter by category then click Run",
+		scenarios: {
+			"exact-same-time": {
+				name: "Identical Time Slot",
+				desc: "Create a task identical to an existing one (same title, date, 09:00). The engine should filter the duplicate.",
+				anomaly: "If failed: hasExactDuplicateScheduledTask failed to detect the exact time collision.",
+				suggestion: "Verify isExactTimeCollision path for same date + same startTime.",
+			},
+			"exact-all-day": {
+				name: "All-Day Duplicate",
+				desc: "Create an all-day task identical to an existing all-day task. The engine should filter it.",
+				anomaly: "If failed: the bothAllDay branch did not trigger filtering.",
+				suggestion: "Verify the isAllDay + date combination in isExactTimeCollision.",
+			},
+			"exact-multiple": {
+				name: "Multiple Historical Duplicates",
+				desc: "With 3 existing identical tasks, creating a 4th at the same slot must not yield a duplicate rec.",
+				anomaly: "If failed: duplicate detection is diluted across multiple historical tasks.",
+				suggestion: "Ensure duplicate detection iterates all historical tasks, not only the most recent.",
+			},
+			"near-diff-time": {
+				name: "Same Title + Same Date, Different Time",
+				desc: "New task at 14:00 vs existing 09:00 (same title, same date). Engine should not recommend the same-title same-date task.",
+				anomaly: "Near-duplicate leak: calculateDuplicatePenalty returns 0 only for exact collision; same-date yields only 0.6, insufficient to push confidence below threshold.",
+				suggestion: "Treat title similarity>=0.9 AND same date as a duplicate, regardless of startTime.",
+			},
+			"near-diff-date": {
+				name: "Same Title + Same Time, Different Date",
+				desc: "New task and existing task share title and startTime but on different dates. Engine should not recommend same-title same-time task on a nearby date.",
+				anomaly: "Near-duplicate leak: different dates receive no penalty, confidence unaffected.",
+				suggestion: "Apply penalty or filter for same-title + same-startTime recommendations within a date proximity window (e.g., 3 days).",
+			},
+			"near-whitespace-case": {
+				name: "Title Whitespace/Case Variants",
+				desc: "Title \"  Math  Exercise \" vs existing \"math exercise\" should be treated as the same task.",
+				anomaly: "normalizeTitle only trims+lowercases+collapses single spaces; multi-space not handled. calculateNameSimilarityScore only trims.",
+				suggestion: "Normalize whitespace with /\\s+/g -> single space in normalizeTitle and use normalized comparison in duplicate detection.",
+			},
+			"near-missing-time": {
+				name: "Created Task Missing Start Time",
+				desc: "New task has no startTime; existing task has 09:00. Behavior prediction fills 09:00, making the recommendation match an existing slot.",
+				anomaly: "enhanceTaskWithPredictions uses behaviorPredictor.predictTime to fill startTime, colliding with existing slot.",
+				suggestion: "After generating recommendations, compare against existing tasks; if startTime was filled and matches an existing slot, downweight or filter.",
+			},
+			"behavior-just-created": {
+				name: "Just-Created Task Should Not Echo",
+				desc: "After creating task T, the recommendation list should not include T itself.",
+				anomaly: "If failed: uniqueTitles picks the most recent task as rec source and time enhancement did not collide with the new task.",
+				suggestion: "Exclude or heavily downweight task titles whose createdAt is within a small window of contextTime.",
+			},
+			"behavior-repeated-creation": {
+				name: "Repeated Creation Should Not Keep Same Slot",
+				desc: "After creating the same task at the same slot 3 times, the 4th recommendation list should not retain that slot.",
+				anomaly: "If failed: periodic or historical recommendation did not avoid the slot already used multiple times.",
+				suggestion: "Count existing occurrences per title; once a threshold is reached, the next recommendation should move to a new slot.",
+			},
+			"behavior-accepted-rec": {
+				name: "Accepted Recommendation Should Not Reappear",
+				desc: "After accepting a recommendation (appended to tasks), regenerating recommendations should not include the same rec.",
+				anomaly: "If failed: accepted task enters history but is still used as a recommendation source.",
+				suggestion: "In post-processing, exclude titles accepted/created within the last N minutes.",
+			},
+			"periodic-daily-existing-date": {
+				name: "Daily Prediction Avoids Existing Date",
+				desc: "With 4 daily morning occurrences, the next predicted date should not be one already scheduled.",
+				anomaly: "PeriodicTaskDetector.generateNextOccurrence does not check whether the predicted date already exists as an occurrence.",
+				suggestion: "In generateNextOccurrence, skip dates already in occurrences and advance forward until a new date is found.",
+			},
+			"periodic-weekly-existing-date": {
+				name: "Weekly Prediction Avoids Existing Date",
+				desc: "With 4 Monday occurrences, the next prediction should not land on an existing Monday.",
+				anomaly: "The weekly branch's daysToAdd<=0 +=7 may land on the next Monday that already exists.",
+				suggestion: "The weekly branch also needs to filter out existing occurrence dates.",
+			},
+			"boundary-empty": {
+				name: "Empty Task List Boundary",
+				desc: "With no initial tasks, creating the first task should not crash and should produce no duplicate rec.",
+				anomaly: "If failed: empty list caused divide-by-zero or undefined access.",
+				suggestion: "Explicitly return empty recommendations when tasks.length===0.",
+			},
+			"boundary-single-task": {
+				name: "Single Task List Boundary",
+				desc: "With one initial task, creating a same-title different-date task should not produce a same-date collision.",
+				anomaly: "If failed: insufficient samples still produce a recommendation.",
+				suggestion: "Reduce confidence or skip historical recommendation generation when sample size is insufficient.",
+			},
+			"boundary-past-due": {
+				name: "Past Due Date",
+				desc: "New task has dueDate in the past. Engine should not crash and should not recommend a duplicate.",
+				anomaly: "If failed: past dueDate caused differenceInDays anomaly or inverted recommendation time.",
+				suggestion: "Explicitly filter or normalize tasks whose dueDate < contextTime before recommendation.",
+			},
+		},
+	},
 } as const;
 
 export type Translations = {
@@ -1434,6 +1827,7 @@ export type Translations = {
 		readonly deleteOptionAll: string;
 		readonly deleteOptionFuture: string;
 		readonly deleteOptionPending: string;
+		readonly minutesLeft: string;
 		readonly unscheduled: string;
 		readonly untagged: string;
 		readonly multiStep: string;
@@ -1443,6 +1837,13 @@ export type Translations = {
 		readonly viewFutureTasks: string;
 		readonly today: string;
 		readonly tomorrow: string;
+		readonly notesSyncTitle: string;
+		readonly notesSyncConfirm: string;
+		readonly notesSyncOptions: string;
+		readonly notesSyncOnlyThis: string;
+		readonly notesSyncAll: string;
+		readonly notesSyncFuture: string;
+		readonly notesSyncPending: string;
 	};
 	readonly status: {
 		readonly pending: string;
@@ -1504,6 +1905,7 @@ export type Translations = {
 		readonly nextMonth: string;
 		readonly today: string;
 		readonly thisWeek: string;
+		readonly thisMonth: string;
 		readonly undo: string;
 		readonly redo: string;
 		readonly selectMode: string;
@@ -1520,6 +1922,7 @@ export type Translations = {
 		readonly noPendingDueTasks: string;
 		readonly dueTasksCount: (count: number) => string;
 		readonly dueSoon: string;
+		readonly overdue: string;
 	};
 	readonly dateNote: {
 		readonly title: string;
@@ -1737,6 +2140,23 @@ export type Translations = {
 		readonly continue: string;
 		readonly break: string;
 		readonly phase: string;
+		readonly bindTaskToFocus: string;
+		readonly selectTask: string;
+		readonly createNewTask: string;
+		readonly noTaskBinding: string;
+		readonly taskBindingComplete: string;
+		readonly manualStop: string;
+		readonly manualStopDesc: string;
+		readonly writeToTask: string;
+		readonly skipWriteToTask: string;
+		readonly searchTask: string;
+		readonly filterByTag: string;
+		readonly noDate: string;
+		readonly today: string;
+		readonly tomorrow: string;
+		readonly thisWeek: string;
+		readonly future: string;
+		readonly noMatchingTask: string;
 	};
 	readonly todo: {
 		readonly title: string;
@@ -1986,6 +2406,101 @@ export type Translations = {
 		readonly daysLeft: string;
 		readonly textWidget: string;
 		readonly lineWidget: string;
+	};
+
+	readonly smartRecommendTest: {
+		readonly title: string;
+		readonly description: string;
+		readonly acceptRate: string;
+		readonly avgConfidence: string;
+		readonly noveltyRate: string;
+		readonly historicalTasks: string;
+		readonly forPatternLearning: string;
+		readonly analysisOverview: string;
+		readonly timeRelationPatterns: string;
+		readonly periodicPatterns: string;
+		readonly predictedTasks: string;
+		readonly dynamicRules: string;
+		readonly tabRecommend: string;
+		readonly tabTest: string;
+		readonly tabLogs: string;
+		readonly createTask: string;
+		readonly resetData: string;
+		readonly exportData: string;
+		readonly exportDataDesc: string;
+		readonly importData: string;
+		readonly importDataDesc: string;
+		readonly exportSuccess: string;
+		readonly importSuccess: string;
+		readonly importError: string;
+		readonly selectImportMode: string;
+		readonly importMerge: string;
+		readonly importMergeDesc: string;
+		readonly importOverwrite: string;
+		readonly importOverwriteDesc: string;
+		readonly importFileVersion: string;
+		readonly importFileDate: string;
+		readonly importConfirm: string;
+		readonly importItems: string;
+		readonly importTasksCount: (n: number) => string;
+		readonly importFeedbacksCount: (n: number) => string;
+		readonly importLogsCount: (n: number) => string;
+		readonly noDataToExport: string;
+	};
+
+	readonly duplicateTest: {
+		readonly title: string;
+		readonly description: string;
+		readonly runAll: string;
+		readonly reset: string;
+		readonly runSingle: string;
+		readonly rerun: string;
+		readonly statusPending: string;
+		readonly statusPassed: string;
+		readonly statusFailed: string;
+		readonly catAll: string;
+		readonly catExact: string;
+		readonly catNear: string;
+		readonly catBehavior: string;
+		readonly catPeriodic: string;
+		readonly catBoundary: string;
+		readonly expected: string;
+		readonly actual: string;
+		readonly diff: string;
+		readonly anomalyAnalysis: string;
+		readonly optimizationSuggestion: string;
+		readonly passRate: string;
+		readonly summary: string;
+		readonly scenarioList: string;
+		readonly report: string;
+		readonly flaggedCount: string;
+		readonly noRecommendations: string;
+		readonly matchedCriteria: string;
+		readonly initialTasks: string;
+		readonly contextTimeLabel: string;
+		readonly createdTask: string;
+		readonly commonPatterns: string;
+		readonly prioritizedSuggestions: string;
+		readonly noReport: string;
+		readonly noResults: string;
+		readonly runHint: string;
+		readonly scenarios: {
+			readonly "exact-same-time": { readonly name: string; readonly desc: string; readonly anomaly: string; readonly suggestion: string };
+			readonly "exact-all-day": { readonly name: string; readonly desc: string; readonly anomaly: string; readonly suggestion: string };
+			readonly "exact-multiple": { readonly name: string; readonly desc: string; readonly anomaly: string; readonly suggestion: string };
+			readonly "near-diff-time": { readonly name: string; readonly desc: string; readonly anomaly: string; readonly suggestion: string };
+			readonly "near-diff-date": { readonly name: string; readonly desc: string; readonly anomaly: string; readonly suggestion: string };
+			readonly "near-whitespace-case": { readonly name: string; readonly desc: string; readonly anomaly: string; readonly suggestion: string };
+			readonly "near-missing-time": { readonly name: string; readonly desc: string; readonly anomaly: string; readonly suggestion: string };
+			readonly "behavior-just-created": { readonly name: string; readonly desc: string; readonly anomaly: string; readonly suggestion: string };
+			readonly "behavior-repeated-creation": { readonly name: string; readonly desc: string; readonly anomaly: string; readonly suggestion: string };
+			readonly "behavior-accepted-rec": { readonly name: string; readonly desc: string; readonly anomaly: string; readonly suggestion: string };
+			readonly "periodic-daily-existing-date": { readonly name: string; readonly desc: string; readonly anomaly: string; readonly suggestion: string };
+			readonly "periodic-weekly-existing-date": { readonly name: string; readonly desc: string; readonly anomaly: string; readonly suggestion: string };
+			readonly "boundary-empty": { readonly name: string; readonly desc: string; readonly anomaly: string; readonly suggestion: string };
+			readonly "boundary-single-task": { readonly name: string; readonly desc: string; readonly anomaly: string; readonly suggestion: string };
+			readonly "boundary-past-due": { readonly name: string; readonly desc: string; readonly anomaly: string; readonly suggestion: string };
+		};
 	};
 };
 

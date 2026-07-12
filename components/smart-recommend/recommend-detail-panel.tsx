@@ -23,18 +23,17 @@ const factorLabels = {
 	timePattern: { zh: "时间模式", en: "Time Pattern", icon: Clock },
 	tagCorrelation: { zh: "标签关联", en: "Tag Correlation", icon: Tag },
 	durationStats: { zh: "时长统计", en: "Duration Stats", icon: Timer },
-	schedulingPattern: { zh: "调度模式", en: "Scheduling Pattern", icon: ChevronRight },
-	dueDatePattern: { zh: "截止日期", en: "Due Date Pattern", icon: CalendarClock },
 	timeRelation: { zh: "时间关系", en: "Time Relation", icon: ChevronLeft },
-	behaviorPrediction: { zh: "行为预测", en: "Behavior Prediction", icon: Sparkles },
 	periodicPattern: { zh: "周期性模式", en: "Periodic Pattern", icon: BarChart2 },
-	contextAdaptation: { zh: "上下文适配", en: "Context Adaptation", icon: Lightbulb },
+	contextMatch: { zh: "情境匹配", en: "Context Match", icon: Sparkles },
+	sequenceMatch: { zh: "序列预测", en: "Sequence Prediction", icon: ChevronRight },
+	frequencyScore: { zh: "频率因子", en: "Frequency Factor", icon: BarChart2 },
 };
 
 const factorDescriptions = {
 	nameSimilarity: {
-		zh: "基于任务名称的字符相似度和语义匹配",
-		en: "Based on character similarity and semantic matching of task names"
+		zh: "基于任务名称的字符 bigram 相似度匹配",
+		en: "Based on character bigram similarity matching of task names"
 	},
 	timePattern: {
 		zh: "根据历史任务的创建时间和当前时段的匹配度",
@@ -48,29 +47,25 @@ const factorDescriptions = {
 		zh: "基于相似任务的历史时长分布统计",
 		en: "Based on historical duration distribution statistics of similar tasks"
 	},
-	schedulingPattern: {
-		zh: "根据用户的调度习惯和提前量模式",
-		en: "Based on user's scheduling habits and lead time patterns"
-	},
-	dueDatePattern: {
-		zh: "考虑截止日期的偏好和周期性模式",
-		en: "Considers due date preferences and periodic patterns"
-	},
 	timeRelation: {
 		zh: "分析任务创建、计划和截止日期之间的关系模式",
 		en: "Analyzes the relationship patterns between task creation, planning, and due dates"
-	},
-	behaviorPrediction: {
-		zh: "基于用户行为模式的预测分析",
-		en: "Predictive analysis based on user behavior patterns"
 	},
 	periodicPattern: {
 		zh: "识别每日、每周、每月的周期性任务模式",
 		en: "Identifies daily, weekly, monthly periodic task patterns"
 	},
-	contextAdaptation: {
-		zh: "根据当前时间、日期类型等上下文因素调整推荐",
-		en: "Adjusts recommendations based on contextual factors like current time and day type"
+	contextMatch: {
+		zh: "基于贝叶斯平滑的条件概率：当前情境(时间段×星期类型)下同类任务出现的概率",
+		en: "Bayesian-smoothed conditional probability of similar tasks appearing in the current context"
+	},
+	sequenceMatch: {
+		zh: "基于马尔可夫链的任务序列转移概率预测",
+		en: "Markov chain-based transition probability prediction from recent task sequences"
+	},
+	frequencyScore: {
+		zh: "任务标题的历史出现频率：出现次数/最大出现次数，一次性任务会被显著降权",
+		en: "Historical frequency of task title: count/maxCount, one-time tasks are significantly penalized"
 	},
 };
 

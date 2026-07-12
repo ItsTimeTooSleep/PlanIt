@@ -55,6 +55,7 @@ const DEFAULT_POMODORO: PomodoroState = {
 	actualEndTime: null,
 	shortBreakCount: 0,
 	longBreakCount: 0,
+	manualStop: false,
 };
 
 const DEFAULT_STATE: AppState = {
@@ -135,6 +136,23 @@ function load(): AppState {
 			migratedSettings.startupPage = "/home";
 		}
 
+		// 处理pomodoro时间字段的反序列化
+		const loadedPomodoro: Partial<PomodoroState> = parsed.pomodoro ?? {};
+		const pomodoroWithDates: PomodoroState = {
+			...DEFAULT_POMODORO,
+			...loadedPomodoro,
+			// 将字符串时间转换为Date对象
+			startTime: loadedPomodoro.startTime
+				? new Date(loadedPomodoro.startTime as any)
+				: null,
+			scheduledEndTime: loadedPomodoro.scheduledEndTime
+				? new Date(loadedPomodoro.scheduledEndTime as any)
+				: null,
+			actualEndTime: loadedPomodoro.actualEndTime
+				? new Date(loadedPomodoro.actualEndTime as any)
+				: null,
+		};
+
 		return {
 			tasks: parsed.tasks ?? [],
 			tags: parsed.tags ?? DEFAULT_TAGS,
@@ -160,7 +178,7 @@ function load(): AppState {
 					...(migratedSettings.sound ?? {}),
 				},
 			},
-			pomodoro: { ...DEFAULT_POMODORO, ...(parsed.pomodoro ?? {}) },
+			pomodoro: pomodoroWithDates,
 		};
 	} catch {
 		return {
@@ -660,6 +678,49 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 		[state.notes],
 	);
 
+	const bringNoteToFront = useCallback(
+		(noteId: string) => {
+			set((prev) => {
+				const note = prev.notes.find((n) => n.id === noteId);
+				if (!note) return prev;
+
+				const dateNotes = prev.notes.filter((n) => n.date === note.date);
+				
+				// 按照现有zIndex排序
+				const sortedDateNotes = [...dateNotes].sort(
+					(a, b) => (a.zIndex || 1) - (b.zIndex || 1)
+				);
+
+				// 创建zIndex映射，每次都重新计算
+				const zIndexMap = new Map<string, number>();
+				// 限制笔记卡片的 zIndex 范围在 1-40 之间，确保系统组件 (z-50) 始终在上方
+				const maxNoteZIndex = Math.min(40, dateNotes.length);
+				
+				sortedDateNotes.forEach((n, index) => {
+					let newZIndex = Math.min(index + 1, maxNoteZIndex);
+					// 置顶的笔记设置为最高层
+					if (n.id === noteId) {
+						newZIndex = maxNoteZIndex;
+					}
+					zIndexMap.set(n.id, newZIndex);
+				});
+
+				// 更新所有笔记
+				return {
+					...prev,
+					notes: prev.notes.map((n) => {
+						const newZIndex = zIndexMap.get(n.id);
+						if (newZIndex !== undefined) {
+							return { ...n, zIndex: newZIndex };
+						}
+						return n;
+					}),
+				};
+			});
+		},
+		[set],
+	);
+
 	const addNoteLine = useCallback(
 		(line: NoteLine) => {
 			set((prev) => ({ ...prev, noteLines: [...prev.noteLines, line] }));
@@ -915,6 +976,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 		updateNote,
 		deleteNote,
 		getNotesByDate,
+		bringNoteToFront,
 		addNoteLine,
 		updateNoteLine,
 		deleteNoteLine,

@@ -179,7 +179,7 @@ export class PeriodicTaskDetector {
   }
 
   public calculatePeriodicScore(task: RecommendTask, patterns: PeriodicTaskPattern[]): number {
-    if (patterns.length === 0) return 0.3;
+    if (patterns.length === 0) return 0.1;
 
     const baseTitle = this.extractBaseTitle(task.title);
     const matchingPattern = patterns.find(p => p.titlePattern === baseTitle);
@@ -188,7 +188,7 @@ export class PeriodicTaskDetector {
       return 0.5 + matchingPattern.confidence * 0.5;
     }
 
-    return 0.3;
+    return 0.1;
   }
 
   public generateNextOccurrence(pattern: PeriodicTaskPattern, context: ContextInfo): PredictedTask | null {

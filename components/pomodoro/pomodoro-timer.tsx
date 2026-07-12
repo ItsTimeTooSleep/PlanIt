@@ -1,5 +1,6 @@
 "use client";
 
+import { format } from "date-fns";
 import {
 	Battery,
 	CheckCircle,
@@ -19,12 +20,14 @@ import { FocusMode } from "@/components/desktop/focus-mode";
 import { useDesktopOnly } from "@/components/platform-provider";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { TaskModal } from "@/components/task-modal";
 import { POMODORO_COLORS } from "@/lib/colors";
 import { useTranslations } from "@/lib/i18n";
 import { usePomodoroDialog } from "@/lib/pomodoro-context";
 import { useFullscreen, usePomodoro } from "@/lib/pomodoro-hooks";
-import { useLanguage } from "@/lib/store";
+import { useLanguage, useStore } from "@/lib/store";
 import { PomodoroSummary } from "./pomodoro-summary";
+import { PomodoroTaskSelector } from "./pomodoro-task-selector";
 
 interface AnimatedBlob {
 	x: number;
@@ -46,6 +49,8 @@ export function PomodoroTimer() {
 	const t = useTranslations(lang);
 	const { isTaskMode, close } = usePomodoroDialog();
 	const isDesktop = useDesktopOnly();
+	const { state } = useStore();
+	const { tasks } = state;
 	const {
 		pomodoro,
 		currentTask,
@@ -62,11 +67,14 @@ export function PomodoroTimer() {
 		calculateBreakCount,
 		switchToNextPhase,
 		getUpcomingPhaseInfo,
+		startPomodoro,
 	} = usePomodoro();
 	const { isFullscreen, toggleFullscreen } = useFullscreen();
 	const [showFocusMode, setShowFocusMode] = useState(false);
 	const [isEditingTime, setIsEditingTime] = useState(false);
 	const [tempMinutes, setTempMinutes] = useState('');
+	const [boundTaskId, setBoundTaskId] = useState<string | null>(null);
+	const [showQuickCreateTask, setShowQuickCreateTask] = useState(false);
 	const animationRef = useRef<number | null>(null);
 	const timeRef = useRef(0);
 
@@ -157,6 +165,7 @@ export function PomodoroTimer() {
 	}, []);
 
 	const { shortBreakCount, longBreakCount } = calculateBreakCount();
+	const shouldShowSkipBreakSwitch = shortBreakCount > 0 || longBreakCount > 0;
 
 	const isWorkPhase = pomodoro.phase === "work";
 	const focusTimeElapsed = pomodoro.startTime
@@ -166,7 +175,7 @@ export function PomodoroTimer() {
 
 	const handleStop = useCallback(() => {
 		if (isWorkPhase && hasFocusedOneMinute) {
-			stopTimerWithSummary();
+			stopTimerWithSummary(true);
 		} else {
 			stopTimer();
 		}
@@ -178,7 +187,7 @@ export function PomodoroTimer() {
 
 	useEffect(() => {
 		if (pomodoro.status === "finished" && isWorkPhase && hasFocusedOneMinute) {
-			stopTimerWithSummary();
+			stopTimerWithSummary(false);
 		}
 	}, [pomodoro.status, isWorkPhase, hasFocusedOneMinute, stopTimerWithSummary]);
 
@@ -317,16 +326,20 @@ export function PomodoroTimer() {
 						</Button>
 
 						<Button
-							size="icon"
-							className="w-10 h-10 rounded-full"
-							variant="ghost"
-							onClick={() => {
-								handleStop();
-								close();
-							}}
-						>
-							<Square className="w-4 h-4" />
-						</Button>
+								size="icon"
+								className="w-10 h-10 rounded-full"
+								variant="ghost"
+								onClick={() => {
+									if (isWorkPhase && hasFocusedOneMinute) {
+										stopTimerWithSummary(true);
+									} else {
+										stopTimer();
+										close();
+									}
+								}}
+							>
+								<Square className="w-4 h-4" />
+							</Button>
 					</div>
 				</div>
 			</div>
@@ -336,34 +349,37 @@ export function PomodoroTimer() {
 	const currentMinutes = Math.floor(pomodoro.totalSeconds / 60);
 
 	return (
-		<div className="flex flex-col items-center justify-center w-full h-full relative overflow-hidden">
-			{blobs.map((blob, index) => {
-				const size = 350;
-				const blur = 80;
+		<div className="flex flex-col items-center justify-center w-full h-full relative">
+			{/* Blob背景层 - 单独裁剪 */}
+			<div className="absolute inset-0 overflow-hidden pointer-events-none">
+				{blobs.map((blob, index) => {
+					const size = 350;
+					const blur = 80;
 
-				return (
-					<div
-						key={index}
-						className="absolute rounded-full transition-all duration-500 ease-out"
-						style={{
-							backgroundColor:
-								currentColorVariants[
-									blob.colorIndex % currentColorVariants.length
-								],
-							width: `${size}px`,
-							height: `${size}px`,
-							left: `calc(50% - ${size / 2}px + ${blob.x}px)`,
-							top: `calc(50% - ${size / 2}px + ${blob.y}px)`,
-							opacity: blob.opacity,
-							transform: `scale(${blob.scale})`,
-							filter: `blur(${blur}px)`,
-						}}
-					/>
-				);
-			})}
+					return (
+						<div
+							key={index}
+							className="absolute rounded-full transition-all duration-500 ease-out"
+							style={{
+								backgroundColor:
+									currentColorVariants[
+										blob.colorIndex % currentColorVariants.length
+									],
+								width: `${size}px`,
+								height: `${size}px`,
+								left: `calc(50% - ${size / 2}px + ${blob.x}px)`,
+								top: `calc(50% - ${size / 2}px + ${blob.y}px)`,
+								opacity: blob.opacity,
+								transform: `scale(${blob.scale})`,
+								filter: `blur(${blur}px)`,
+							}}
+						/>
+					);
+				})}
+			</div>
 
 			{pomodoro.status === "idle" && (
-				<div className="relative z-10 flex flex-col items-center gap-10">
+				<div className="relative z-10 flex flex-col items-center gap-10 overflow-y-auto max-h-full w-full py-8">
 					<div className="relative w-96 h-96">
 						<div className="absolute inset-0 flex flex-col items-center justify-center">
 							<div
@@ -448,40 +464,60 @@ export function PomodoroTimer() {
 						</div>
 					</div>
 
-					<div className="flex flex-col items-center gap-3">
-						<div className="flex items-center gap-3 px-4 py-2 rounded-full bg-muted/30">
-							<Switch
-								checked={skipBreaks}
-								onCheckedChange={setSkipBreaks}
-								className="data-[state=checked]:bg-primary"
-							/>
-							<span className="text-sm text-muted-foreground">
-								{t.pomodoro.skipBreaks || "跳过休息时间"}
-							</span>
-						</div>
-
-						{!skipBreaks && (
-							<div className="flex items-center gap-3 text-sm">
-								{shortBreakCount > 0 && (
-									<div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-										<Coffee className="w-3.5 h-3.5" />
-										<span>{shortBreakCount}</span>
-									</div>
-								)}
-								{longBreakCount > 0 && (
-									<div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">
-										<Battery className="w-3.5 h-3.5" />
-										<span>{longBreakCount}</span>
-									</div>
-								)}
-							</div>
-						)}
+					{/* 任务绑定选择器 */}
+					<div className="w-full max-w-sm">
+						<PomodoroTaskSelector
+							selectedTaskId={boundTaskId}
+							onTaskSelect={setBoundTaskId}
+							onCreateTask={() => setShowQuickCreateTask(true)}
+						/>
 					</div>
+
+					{/* 跳过休息开关 - 仅在时长足够触发休息时显示 */}
+					{shouldShowSkipBreakSwitch && (
+						<div className="flex flex-col items-center gap-3">
+							<div className="flex items-center gap-3 px-4 py-2 rounded-full bg-muted/30">
+								<Switch
+									checked={skipBreaks}
+									onCheckedChange={setSkipBreaks}
+									className="data-[state=checked]:bg-primary"
+								/>
+								<span className="text-sm text-muted-foreground">
+									{t.pomodoro.skipBreaks || "跳过休息时间"}
+								</span>
+							</div>
+
+							{!skipBreaks && (
+								<div className="flex items-center gap-3 text-sm">
+									{shortBreakCount > 0 && (
+										<div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+											<Coffee className="w-3.5 h-3.5" />
+											<span>{shortBreakCount}</span>
+										</div>
+									)}
+									{longBreakCount > 0 && (
+										<div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">
+											<Battery className="w-3.5 h-3.5" />
+											<span>{longBreakCount}</span>
+										</div>
+									)}
+								</div>
+							)}
+						</div>
+					)}
 
 					<Button
 						size="icon"
 						className="w-12 h-12 rounded-full"
-						onClick={startTimer}
+						onClick={() => {
+							if (boundTaskId) {
+								// 如果绑定了任务,启动Task Mode并强制启动计时器
+								startPomodoro(boundTaskId, true);
+							} else {
+								// 否则启动Tool Mode
+								startTimer();
+							}
+						}}
 					>
 						<Play className="w-5 h-5 ml-0.5" />
 					</Button>
@@ -747,6 +783,18 @@ export function PomodoroTimer() {
 					onStop={stopTimer}
 				/>
 			)}
+
+			{/* 快速创建任务模态框 */}
+			<TaskModal
+				open={showQuickCreateTask}
+				onClose={() => setShowQuickCreateTask(false)}
+				defaultDate={format(new Date(), "yyyy-MM-dd")}
+				defaultStatus="pending"
+				onTaskCreated={(task) => {
+					setBoundTaskId(task.id);
+					setShowQuickCreateTask(false);
+				}}
+			/>
 		</div>
 	);
 }

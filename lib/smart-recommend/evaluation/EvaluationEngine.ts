@@ -25,14 +25,22 @@ export class EvaluationEngine {
       };
     }
 
-    const accepted = this.feedbacks.filter(f => f.accepted).length;
+    const accepted = this.feedbacks.filter(f => f.accepted);
     const total = this.feedbacks.length;
-    const acceptanceRate = accepted / total;
+    const acceptanceRate = accepted.length / total;
+
+    const completedAccepted = accepted.filter(f => f.task?.status === "completed").length;
+    const precision = accepted.length > 0 ? completedAccepted / accepted.length : acceptanceRate;
+
+    const uniqueRecommendedTitles = new Set(this.feedbacks.map(f => f.taskTitle));
+    const acceptedTitles = new Set(accepted.map(f => f.taskTitle));
+    const recall = uniqueRecommendedTitles.size > 0 ? acceptedTitles.size / uniqueRecommendedTitles.size : 0;
+
+    const f1Score = (precision + recall) > 0 ? 2 * precision * recall / (precision + recall) : 0;
 
     const recentCount = Math.min(20, total);
     const recentFeedbacks = this.feedbacks.slice(-recentCount);
     const recentAccepted = recentFeedbacks.filter(f => f.accepted).length;
-    const recentRate = recentAccepted / recentCount;
 
     const avgConfidence = this.feedbacks.reduce((sum, f) => sum + f.scores.total, 0) / total;
 
@@ -56,11 +64,11 @@ export class EvaluationEngine {
     }
 
     return {
-      precision: acceptanceRate,
-      recall: acceptanceRate,
-      f1Score: acceptanceRate,
+      precision,
+      recall,
+      f1Score,
       acceptanceRate,
-      taskCompletionRate: acceptanceRate * 0.8,
+      taskCompletionRate: completedAccepted / Math.max(total, 1),
       averageConfidence: avgConfidence,
       noveltyScore,
       adaptationSpeed: Math.abs(trendRate),

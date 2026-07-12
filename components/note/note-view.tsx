@@ -51,7 +51,6 @@ import {
 	clampToBounds,
 	createEmptyNote,
 	formatDate,
-	getNextZIndex,
 	getRelativeDateStr,
 	getUpdatedCardSize,
 	NOTE_COLORS,
@@ -92,6 +91,7 @@ export function NoteView() {
 		updateNote,
 		deleteNote,
 		getNotesByDate,
+		bringNoteToFront,
 		addNoteLine,
 		updateNoteLine,
 		deleteNoteLine,
@@ -375,10 +375,9 @@ export function NoteView() {
 
 	const handleBringToFront = useCallback(
 		(id: string) => {
-			const nextZIndex = getNextZIndex(notes);
-			updateNote(id, { zIndex: nextZIndex });
+			bringNoteToFront(id);
 		},
-		[notes, updateNote],
+		[bringNoteToFront],
 	);
 
 	const handleUpdateNote = useCallback(
@@ -568,6 +567,7 @@ export function NoteView() {
 								onEdit={handleEditNote}
 								onBringToFront={handleBringToFront}
 								isConnecting={connectingFrom !== null}
+								isAnyDragging={isDragging}
 								onStartConnection={
 									!connectingFrom ? handleStartConnection : undefined
 								}

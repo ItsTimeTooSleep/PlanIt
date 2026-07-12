@@ -87,6 +87,7 @@ export function PomodoroDialogProvider({ children }: { children: ReactNode }) {
 			remainingSeconds: pomodoro.settings.workDuration * 60,
 			totalSeconds: pomodoro.settings.workDuration * 60,
 			completedSessions: 0,
+			manualStop: false,
 		});
 		setIsOpen(false);
 		setIsTaskMode(false);

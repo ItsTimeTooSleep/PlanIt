@@ -142,13 +142,15 @@ export function usePomodoro() {
 			actualEndTime: null,
 			shortBreakCount: 0,
 			longBreakCount: 0,
+			manualStop: false,
 		});
 	}, [pomodoro.settings.workDuration, updatePomodoro]);
 
-	const stopTimerWithSummary = useCallback(() => {
+	const stopTimerWithSummary = useCallback((manual: boolean = true) => {
 		updatePomodoro({
 			actualEndTime: new Date(),
 			status: "summary",
+			manualStop: manual,
 		});
 	}, [updatePomodoro]);
 
@@ -176,7 +178,8 @@ export function usePomodoro() {
 	}, [pomodoro.totalSeconds, setWorkDuration]);
 
 	const startPomodoro = useCallback(
-		(taskId?: string) => {
+		(taskId?: string, forceStart?: boolean) => {
+			const now = new Date();
 			let duration: number;
 			const targetTaskId: string | null = taskId ?? null;
 			let initialStatus: "idle" | "running" = "idle";
@@ -190,41 +193,70 @@ export function usePomodoro() {
 						0,
 						remainingDuration ??
 							fullDuration ??
-							getPhaseDuration("work", pomodoro.settings),
+							pomodoro.totalSeconds, // 使用用户设置的时间,而不是默认设置
 					);
 
-					if (isTaskStarted(task) && duration > 0) {
+					// 如果用户主动点击开始(forceStart=true)或任务已经开始且有剩余时间,则启动计时器
+					if ((forceStart || isTaskStarted(task)) && duration > 0) {
 						initialStatus = "running";
 					}
 				} else {
-					duration = customWorkMinutes * 60;
+					// 任务不存在时,使用用户设置的时间
+					duration = pomodoro.totalSeconds;
+					// 如果任务不存在但用户强制启动,则使用Tool Mode的逻辑
+					if (forceStart) {
+						initialStatus = "running";
+					}
 				}
 			} else {
-				duration = customWorkMinutes * 60;
+				// 没有绑定任务时,使用用户设置的时间
+				duration = pomodoro.totalSeconds;
+				// Tool Mode默认启动
+				initialStatus = "running";
 			}
 
-			updatePomodoro({
-				taskId: targetTaskId,
-				status: initialStatus,
-				phase: "work",
-				remainingSeconds: duration,
-				totalSeconds: duration,
-				completedSessions: 0,
-			});
+			// 如果状态是running,需要设置时间字段
+			if (initialStatus === "running") {
+					const scheduledEnd = new Date(now.getTime() + duration * 1000);
+					updatePomodoro({
+						taskId: targetTaskId,
+						status: initialStatus,
+						phase: "work",
+						remainingSeconds: duration,
+						totalSeconds: duration,
+						completedSessions: 0,
+						startTime: now,
+						scheduledEndTime: scheduledEnd,
+						actualEndTime: null,
+						manualStop: false,
+					});
+				} else {
+					// 如果状态是idle,不设置时间字段
+					updatePomodoro({
+						taskId: targetTaskId,
+						status: initialStatus,
+						phase: "work",
+						remainingSeconds: duration,
+						totalSeconds: duration,
+						completedSessions: 0,
+						manualStop: false,
+					});
+				}
 		},
-		[tasks, pomodoro.settings, customWorkMinutes, updatePomodoro],
+		[tasks, pomodoro.totalSeconds, pomodoro.settings, updatePomodoro],
 	);
 
 	const resetToToolMode = useCallback(() => {
-		updatePomodoro({
-			taskId: null,
-			status: "idle",
-			phase: "work",
-			remainingSeconds: customWorkMinutes * 60,
-			totalSeconds: customWorkMinutes * 60,
-			completedSessions: 0,
-		});
-	}, [customWorkMinutes, updatePomodoro]);
+			updatePomodoro({
+				taskId: null,
+				status: "idle",
+				phase: "work",
+				remainingSeconds: customWorkMinutes * 60,
+				totalSeconds: customWorkMinutes * 60,
+				completedSessions: 0,
+				manualStop: false,
+			});
+		}, [customWorkMinutes, updatePomodoro]);
 
 	const getUpcomingPhaseInfo = useCallback(() => {
 		if (pomodoro.phase !== "work") {
@@ -281,15 +313,16 @@ export function usePomodoro() {
 				nextDuration = customWorkMinutes * 60;
 			}
 			updatePomodoro({
-				phase: nextPhase,
-				remainingSeconds: nextDuration,
-				totalSeconds: nextDuration,
-				completedSessions: isFullSession
-					? newCompletedSessions
-					: pomodoro.completedSessions,
-				status: "idle",
-			});
-			return;
+					phase: nextPhase,
+					remainingSeconds: nextDuration,
+					totalSeconds: nextDuration,
+					completedSessions: isFullSession
+						? newCompletedSessions
+						: pomodoro.completedSessions,
+					status: "idle",
+					manualStop: false,
+				});
+				return;
 		}
 
 		const nextPhase = getNextPhase(
@@ -310,12 +343,13 @@ export function usePomodoro() {
 		}
 
 		updatePomodoro({
-			phase: nextPhase,
-			remainingSeconds: nextDuration,
-			totalSeconds: nextDuration,
-			completedSessions: newCompletedSessions,
-			status: "idle",
-		});
+				phase: nextPhase,
+				remainingSeconds: nextDuration,
+				totalSeconds: nextDuration,
+				completedSessions: newCompletedSessions,
+				status: "idle",
+				manualStop: false,
+			});
 	}, [
 		pomodoro.phase,
 		pomodoro.totalSeconds,

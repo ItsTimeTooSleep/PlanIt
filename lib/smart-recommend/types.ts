@@ -25,12 +25,11 @@ export interface FactorWeights {
 	timePattern: number;
 	tagCorrelation: number;
 	durationStats: number;
-	schedulingPattern: number;
-	dueDatePattern: number;
 	timeRelation: number;
-	behaviorPrediction: number;
 	periodicPattern: number;
-	contextAdaptation: number;
+	contextMatch: number;
+	sequenceMatch: number;
+	frequencyScore: number;
 }
 
 export interface FactorScores {
@@ -38,12 +37,11 @@ export interface FactorScores {
 	timePattern: number;
 	tagCorrelation: number;
 	durationStats: number;
-	schedulingPattern: number;
-	dueDatePattern: number;
 	timeRelation: number;
-	behaviorPrediction: number;
 	periodicPattern: number;
-	contextAdaptation: number;
+	contextMatch: number;
+	sequenceMatch: number;
+	frequencyScore: number;
 	total: number;
 }
 
@@ -94,6 +92,8 @@ export interface AlgorithmConfig {
 	noveltyThreshold: number;
 	explorationRate: number;
 	adaptationSpeed: number;
+	diversityLambda: number;
+	autoLearning: boolean;
 }
 
 export interface AccuracyStats {

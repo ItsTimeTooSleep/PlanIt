@@ -1,13 +1,13 @@
 "use client";
 
 import { format } from "date-fns";
-import { Battery, CheckCircle, Coffee, Plus } from "lucide-react";
-import { useState } from "react";
+import { Battery, CheckCircle, Coffee, Plus, XCircle } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { TaskModal } from "@/components/task-modal";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/lib/i18n";
 import { usePomodoro } from "@/lib/pomodoro-hooks";
-import { useLanguage } from "@/lib/store";
+import { useLanguage, useStore } from "@/lib/store";
 
 interface PomodoroSummaryProps {
 	onClose: () => void;
@@ -17,7 +17,58 @@ export function PomodoroSummary({ onClose }: PomodoroSummaryProps) {
 	const lang = useLanguage();
 	const t = useTranslations(lang);
 	const { pomodoro, stopTimer, calculateBreakCount } = usePomodoro();
+	const { updateTask, state } = useStore();
+	const { tasks } = state;
 	const [showTaskModal, setShowTaskModal] = useState(false);
+	const hasUpdatedTask = useRef(false);
+
+	const isManualStop = pomodoro.manualStop;
+
+	// 自然完成时自动更新绑定任务的时间数据
+	useEffect(() => {
+		if (hasUpdatedTask.current) return;
+
+		if (!isManualStop && pomodoro.taskId && pomodoro.startTime && pomodoro.actualEndTime) {
+			const task = tasks.find((t) => t.id === pomodoro.taskId);
+			if (task) {
+				if (!task.startTime || !task.endTime || task.status !== "completed") {
+					const actualStartTime = format(pomodoro.startTime, "HH:mm");
+					const actualEndTime = format(pomodoro.actualEndTime, "HH:mm");
+					const actualDate = format(pomodoro.startTime, "yyyy-MM-dd");
+
+					updateTask(task.id, {
+						date: task.date || actualDate,
+						startTime: actualStartTime,
+						endTime: actualEndTime,
+						status: "completed",
+					});
+
+					hasUpdatedTask.current = true;
+				}
+			}
+		}
+	}, []);
+
+	const handleWriteToTask = () => {
+		if (hasUpdatedTask.current) return;
+		if (pomodoro.taskId && pomodoro.startTime && pomodoro.actualEndTime) {
+			const task = tasks.find((t) => t.id === pomodoro.taskId);
+			if (task) {
+				const actualStartTime = format(pomodoro.startTime, "HH:mm");
+				const actualEndTime = format(pomodoro.actualEndTime, "HH:mm");
+				const actualDate = format(pomodoro.startTime, "yyyy-MM-dd");
+
+				updateTask(task.id, {
+					date: task.date || actualDate,
+					startTime: actualStartTime,
+					endTime: actualEndTime,
+					status: "completed",
+				});
+
+				hasUpdatedTask.current = true;
+			}
+		}
+	};
 
 	const { shortBreakCount, longBreakCount } = calculateBreakCount();
 
@@ -61,18 +112,27 @@ export function PomodoroSummary({ onClose }: PomodoroSummaryProps) {
 		<>
 			<div className="relative z-10 flex flex-col items-center gap-10">
 				<div className="flex flex-col items-center gap-6">
-					<div className="w-32 h-32 rounded-full bg-primary/10 flex items-center justify-center">
-						<CheckCircle className="w-16 h-16 text-primary" />
+					<div className={`w-32 h-32 rounded-full ${isManualStop ? "bg-orange-500/10" : "bg-primary/10"} flex items-center justify-center`}>
+						{isManualStop ? (
+							<XCircle className="w-16 h-16 text-orange-500" />
+						) : (
+							<CheckCircle className="w-16 h-16 text-primary" />
+						)}
 					</div>
 
 					<div className="text-center space-y-2">
 						<h2 className="text-3xl font-bold">
-							{lang === "zh" ? "专注完成！" : "Focus Complete!"}
+							{isManualStop ? t.pomodoro.manualStop : t.pomodoro.focusComplete}
 						</h2>
+						{isManualStop && (
+							<p className="text-muted-foreground">{t.pomodoro.manualStopDesc}</p>
+						)}
 						<div className="text-2xl font-semibold text-primary">
-							{totalFocusMinutes} {t.settings.minutes}
+							{totalFocusMinutes} {t.pomodoro.minutes}
 						</div>
-						<p className="text-muted-foreground">{t.pomodoro.focusDuration}</p>
+						{!isManualStop && (
+							<p className="text-muted-foreground">{t.pomodoro.focusDuration}</p>
+						)}
 					</div>
 				</div>
 
@@ -89,7 +149,7 @@ export function PomodoroSummary({ onClose }: PomodoroSummaryProps) {
 							</div>
 							<div className="flex flex-col gap-1.5">
 								<span className="text-xs text-muted-foreground uppercase tracking-wider">
-									{lang === "zh" ? "计划结束时间" : "Scheduled End"}
+									{t.pomodoro.scheduledEnd}
 								</span>
 								<span className="text-lg font-medium">
 									{formatDateTime(pomodoro.scheduledEndTime)}
@@ -97,7 +157,7 @@ export function PomodoroSummary({ onClose }: PomodoroSummaryProps) {
 							</div>
 							<div className="flex flex-col gap-1.5">
 								<span className="text-xs text-muted-foreground uppercase tracking-wider">
-									{lang === "zh" ? "实际结束时间" : "Actual End"}
+									{t.pomodoro.actualEnd}
 								</span>
 								<span className="text-lg font-medium">
 									{formatDateTime(pomodoro.actualEndTime)}
@@ -134,22 +194,46 @@ export function PomodoroSummary({ onClose }: PomodoroSummaryProps) {
 				</div>
 
 				<div className="flex flex-col items-center gap-3 w-full max-w-sm">
-					<Button
-						onClick={() => setShowTaskModal(true)}
-						className="rounded-full w-full py-6 text-lg"
-					>
-						<Plus className="w-5 h-5 mr-2" />
-						{lang === "zh" ? "快捷创建任务" : "Quick Create Task"}
-					</Button>
+					{isManualStop && pomodoro.taskId && !hasUpdatedTask.current ? (
+						<>
+							<Button
+								onClick={handleWriteToTask}
+								className="rounded-full w-full py-6 text-lg"
+							>
+								{t.pomodoro.writeToTask}
+							</Button>
+							<Button
+								variant="outline"
+								onClick={onClose}
+								className="rounded-full w-full py-4"
+							>
+								{t.pomodoro.skipWriteToTask}
+							</Button>
+						</>
+					) : pomodoro.taskId ? (
+						<div className="text-center text-sm text-muted-foreground p-4 bg-muted/30 rounded-lg w-full">
+							{t.pomodoro.taskBindingComplete}
+						</div>
+					) : (
+						<Button
+							onClick={() => setShowTaskModal(true)}
+							className="rounded-full w-full py-6 text-lg"
+						>
+							<Plus className="w-5 h-5 mr-2" />
+							{t.pomodoro.quickCreateTask}
+						</Button>
+					)}
 
-					<Button
-						variant="ghost"
-						size="sm"
-						onClick={onClose}
-						className="rounded-full"
-					>
-						{t.common.close}
-					</Button>
+					{!(isManualStop && pomodoro.taskId && !hasUpdatedTask.current) && (
+						<Button
+							variant="ghost"
+							size="sm"
+							onClick={onClose}
+							className="rounded-full"
+						>
+							{t.common.close}
+						</Button>
+					)}
 				</div>
 			</div>
 

@@ -19,9 +19,9 @@ export function PomodoroDialog() {
 			}}
 		>
 			<DialogContent
-				className="w-full max-w-5xl h-[90vh] p-0 overflow-hidden"
-				showCloseButton={false}
-			>
+					className="w-full max-w-5xl h-[90vh] p-0 overflow-y-auto"
+					showCloseButton={false}
+				>
 				<DialogTitle className="absolute -m-px h-px w-px overflow-hidden whitespace-nowrap border-0 p-0">
 					{t.pomodoro.title}
 				</DialogTitle>

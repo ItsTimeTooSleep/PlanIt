@@ -7,7 +7,7 @@ import {
 	isAfter,
 	parseISO,
 } from "date-fns";
-import type { DeleteRecurringOption, Task } from "./types";
+import type { DeleteRecurringOption, NotesSyncOption, Task } from "./types";
 
 export function generateId(): string {
 	return Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -218,6 +218,62 @@ export function getTaskIdsToDelete(
 	currentTask: Task,
 	allTasks: Task[],
 	option: DeleteRecurringOption,
+): string[] {
+	if (option === "only_this") {
+		return [currentTask.id];
+	}
+
+	const allRecurringIds = getRecurringTaskIds(currentTask, allTasks);
+	const today = format(new Date(), "yyyy-MM-dd");
+
+	// 如果只有当前任务一个（是原始重复任务），直接根据选项判断
+	if (allRecurringIds.length === 1) {
+		switch (option) {
+			case "all":
+				return [currentTask.id];
+			case "future": {
+				const taskDate = currentTask.date || currentTask.dueDate;
+				if (!taskDate) return [currentTask.id];
+				return taskDate >= today ? [currentTask.id] : [];
+			}
+			case "pending":
+				return currentTask.status === "pending" ? [currentTask.id] : [];
+			default:
+				return [currentTask.id];
+		}
+	}
+
+	return allRecurringIds.filter((id) => {
+		const task = allTasks.find((t) => t.id === id);
+		if (!task) return false;
+
+		switch (option) {
+			case "all":
+				return true;
+			case "future": {
+				const taskDate = task.date || task.dueDate;
+				if (!taskDate) return true;
+				return taskDate >= today;
+			}
+			case "pending":
+				return task.status === "pending";
+			default:
+				return false;
+		}
+	});
+}
+
+/**
+ * 根据备注同步选项筛选需要同步备注的任务ID
+ * @param currentTask - 当前任务对象
+ * @param allTasks - 所有任务数组
+ * @param option - 备注同步选项
+ * @returns 需要同步备注的任务ID数组
+ */
+export function getTaskIdsToSyncNotes(
+	currentTask: Task,
+	allTasks: Task[],
+	option: NotesSyncOption,
 ): string[] {
 	if (option === "only_this") {
 		return [currentTask.id];
