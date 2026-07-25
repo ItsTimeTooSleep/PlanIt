@@ -65,9 +65,9 @@ export function getDueBadgeColorClass(
 
 /**
  * 获取截止任务悬停菜单标题的颜色类名
- * @param isOverdue - 是否过期
+ * @param _isOverdue - 是否过期（当前未使用，统一接口保留）
  * @returns 颜色类名
  */
-export function getDueHoverTitleColorClass(isOverdue: boolean): string {
+export function getDueHoverTitleColorClass(_isOverdue: boolean): string {
 	return "text-red-600 dark:text-red-400";
 }

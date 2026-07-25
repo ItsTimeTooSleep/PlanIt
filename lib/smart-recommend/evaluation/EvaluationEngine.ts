@@ -38,10 +38,6 @@ export class EvaluationEngine {
 
     const f1Score = (precision + recall) > 0 ? 2 * precision * recall / (precision + recall) : 0;
 
-    const recentCount = Math.min(20, total);
-    const recentFeedbacks = this.feedbacks.slice(-recentCount);
-    const recentAccepted = recentFeedbacks.filter(f => f.accepted).length;
-
     const avgConfidence = this.feedbacks.reduce((sum, f) => sum + f.scores.total, 0) / total;
 
     const noveltyAcceptance = this.feedbacks.filter(

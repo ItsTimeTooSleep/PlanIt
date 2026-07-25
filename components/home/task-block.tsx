@@ -5,7 +5,7 @@ import { useState } from "react";
 import { DEFAULT_TAG_COLOR, POMODORO_COLORS } from "@/lib/colors";
 import { useTranslations } from "@/lib/i18n";
 import { usePomodoro } from "@/lib/pomodoro-hooks";
-import { useLanguage, useStore } from "@/lib/store";
+import { useLanguage } from "@/lib/store";
 import { timeToMinutes } from "@/lib/task-utils";
 import type { Tag, Task } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -71,7 +71,7 @@ export function TaskBlock({
 	task,
 	tags,
 	hourHeight,
-	timelineLeft,
+	timelineLeft: _timelineLeft,
 	onClick,
 	onToggle,
 	onOpenPomodoro,

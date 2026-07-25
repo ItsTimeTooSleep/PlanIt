@@ -1,6 +1,8 @@
 "use client";
 
 import {
+	ArrowDown,
+	ArrowUp,
 	ArrowUpDown,
 	Calendar,
 	Check,
@@ -34,6 +36,7 @@ export type TimeFilter =
 	| "upcoming";
 export type StatusFilter = "all" | "pending" | "completed" | "skipped";
 export type SortBy = "date" | "time" | "title" | "status";
+export type SortOrder = "asc" | "desc";
 export type GroupBy = "none" | "date" | "status" | "tag";
 export type ViewMode = "byDate" | "byDueDate";
 
@@ -42,6 +45,7 @@ interface FilterBarProps {
 	statusFilter: StatusFilter;
 	tagFilter: string | null;
 	sortBy: SortBy;
+	sortOrder: SortOrder;
 	groupBy: GroupBy;
 	viewMode: ViewMode;
 	tags: Tag[];
@@ -51,6 +55,7 @@ interface FilterBarProps {
 	onStatusFilterChange: (filter: StatusFilter) => void;
 	onTagFilterChange: (tagId: string | null) => void;
 	onSortByChange: (sort: SortBy) => void;
+	onSortOrderChange: (order: SortOrder) => void;
 	onGroupByChange: (group: GroupBy) => void;
 	onViewModeChange: (mode: ViewMode) => void;
 	onAddTask: () => void;
@@ -61,6 +66,7 @@ export function FilterBar({
 	statusFilter,
 	tagFilter,
 	sortBy,
+	sortOrder,
 	groupBy,
 	viewMode,
 	tags,
@@ -70,6 +76,7 @@ export function FilterBar({
 	onStatusFilterChange,
 	onTagFilterChange,
 	onSortByChange,
+	onSortOrderChange,
 	onGroupByChange,
 	onViewModeChange,
 	onAddTask,
@@ -357,6 +364,26 @@ export function FilterBar({
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
+
+					<Button
+						variant="outline"
+						size="sm"
+						className="h-7 shadow-sm"
+						onClick={() =>
+							onSortOrderChange(sortOrder === "asc" ? "desc" : "asc")
+						}
+						title={
+							sortOrder === "asc"
+								? t.todo.sortOrder.asc
+								: t.todo.sortOrder.desc
+						}
+					>
+						{sortOrder === "asc" ? (
+							<ArrowUp className="w-3.5 h-3.5" />
+						) : (
+							<ArrowDown className="w-3.5 h-3.5" />
+						)}
+					</Button>
 
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>

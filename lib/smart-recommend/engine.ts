@@ -1,4 +1,4 @@
-import { addDays, format } from "date-fns";
+import { format } from "date-fns";
 import { generateId } from "@/lib/task-utils";
 import type {
   AlgorithmConfig,
@@ -13,7 +13,6 @@ import type {
 import {
   DEFAULT_CONFIG,
   DEFAULT_SCHEDULING_PATTERN,
-  BATCH_TEMPLATES,
 } from "./constants";
 import { HybridRecommendationEngine } from "./engines";
 
@@ -29,7 +28,7 @@ export function generateRecommendations(
   return engine.generateRecommendations(contextTime);
 }
 
-export function analyzeSchedulingPatterns(tasks: RecommendTask[]): SchedulingPattern {
+export function analyzeSchedulingPatterns(_tasks: RecommendTask[]): SchedulingPattern {
   return DEFAULT_SCHEDULING_PATTERN;
 }
 

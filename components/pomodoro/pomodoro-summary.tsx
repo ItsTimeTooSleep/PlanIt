@@ -16,7 +16,7 @@ interface PomodoroSummaryProps {
 export function PomodoroSummary({ onClose }: PomodoroSummaryProps) {
 	const lang = useLanguage();
 	const t = useTranslations(lang);
-	const { pomodoro, stopTimer, calculateBreakCount } = usePomodoro();
+	const { pomodoro, calculateBreakCount } = usePomodoro();
 	const { updateTask, state } = useStore();
 	const { tasks } = state;
 	const [showTaskModal, setShowTaskModal] = useState(false);

@@ -1,4 +1,4 @@
-import { addDays, format, getDay, parseISO, differenceInDays } from "date-fns";
+import { addDays, format, getDay, parseISO } from "date-fns";
 import type { RecommendTask, PeriodicTaskPattern, ContextInfo, PredictedTask } from "../types";
 
 export class PeriodicTaskDetector {

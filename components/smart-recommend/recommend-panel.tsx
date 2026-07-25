@@ -40,7 +40,6 @@ export function RecommendPanel({
 	const [dateInput, setDateInput] = useState(format(contextTime, "yyyy-MM-dd"));
 	const [timeInput, setTimeInput] = useState(format(contextTime, "HH:mm"));
 	const [calendarOpen, setCalendarOpen] = useState(false);
-	const [selectedRecIndex, setSelectedRecIndex] = useState(0);
 
 	useEffect(() => {
 		setDateInput(format(contextTime, "yyyy-MM-dd"));

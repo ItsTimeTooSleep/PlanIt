@@ -11,10 +11,9 @@ import {
 	startOfWeek,
 } from "date-fns";
 import { StickyNote } from "lucide-react";
-import { useCallback, useRef, useState } from "react";
+import { useState } from "react";
 import { DEFAULT_TAG_COLOR, STATUS_COLORS } from "@/lib/colors";
 import { useTranslations } from "@/lib/i18n";
-import { filterDueTasksForDay } from "@/lib/calendar-utils";
 import { DueTasksBadge } from "@/components/calendar/due-tasks-badge";
 import { useLanguage, useStore } from "@/lib/store";
 import type { DateNote, Tag, Task } from "@/lib/types";

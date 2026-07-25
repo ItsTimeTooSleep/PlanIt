@@ -46,7 +46,7 @@ export function buildScenarios(now: Date = new Date()): TestScenario[] {
 	const inThreeDays = isoDate(addDays(now, 3));
 	const lastWeek = isoDate(subDays(now, 7));
 	const twoWeeksAgo = isoDate(subDays(now, 14));
-	const threeWeeksAgo = isoDate(subDays(now, 21));
+	const _threeWeeksAgo = isoDate(subDays(now, 21));
 
 	// Anchor contextTime to 08:00 today so 09:00 slots remain in the future.
 	const contextTimeToday = new Date(now);

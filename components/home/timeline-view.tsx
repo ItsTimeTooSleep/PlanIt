@@ -33,7 +33,7 @@ interface TimelineViewProps {
  */
 export function TimelineView({
 	now,
-	today,
+	today: _today,
 	tasks,
 	tags,
 	lang,
@@ -45,7 +45,7 @@ export function TimelineView({
 	const t = useTranslations(lang);
 	const _pathname = usePathname();
 	const timelineRef = useRef<HTMLDivElement>(null);
-	const lastScrollRef = useRef<number>(Date.now());
+	const lastScrollRef = useRef<number>(0);
 	const autoScrollTimerRef = useRef<ReturnType<typeof setInterval> | null>(
 		null,
 	);

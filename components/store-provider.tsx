@@ -194,7 +194,9 @@ function load(): AppState {
 function save(state: AppState) {
 	try {
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-	} catch {}
+	} catch {
+		// localStorage 不可用或已满，忽略写入错误
+	}
 }
 
 /**

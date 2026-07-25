@@ -441,8 +441,8 @@ function KpiCard({
 	value,
 	unit,
 	growth,
-	lang,
-	growthLabel,
+	lang: _lang,
+	growthLabel: _growthLabel,
 }: {
 	label: string;
 	value: string;

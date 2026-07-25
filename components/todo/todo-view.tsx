@@ -27,6 +27,7 @@ import {
 	FilterBar,
 	type GroupBy,
 	type SortBy,
+	type SortOrder,
 	type StatusFilter,
 	type TimeFilter,
 	type ViewMode,
@@ -40,6 +41,7 @@ interface TodoFiltersConfig {
 	statusFilter: StatusFilter;
 	tagFilter: string | null;
 	sortBy: SortBy;
+	sortOrder: SortOrder;
 	groupBy: GroupBy;
 	viewMode: ViewMode;
 }
@@ -51,6 +53,7 @@ const DEFAULT_FILTERS: TodoFiltersConfig = {
 	statusFilter: "pending",
 	tagFilter: null,
 	sortBy: "time",
+	sortOrder: "asc",
 	groupBy: "date",
 	viewMode: "byDueDate",
 };
@@ -91,6 +94,7 @@ export function TodoView() {
 	const statusFilter = filters.statusFilter;
 	const tagFilter = filters.tagFilter;
 	const sortBy = filters.sortBy;
+	const sortOrder = filters.sortOrder;
 	const groupBy = filters.groupBy;
 	const viewMode = filters.viewMode;
 
@@ -116,6 +120,10 @@ export function TodoView() {
 	);
 	const setSortBy = useCallback(
 		(value: SortBy) => updateFilter("sortBy", value),
+		[updateFilter],
+	);
+	const setSortOrder = useCallback(
+		(value: SortOrder) => updateFilter("sortOrder", value),
 		[updateFilter],
 	);
 	const setGroupBy = useCallback(
@@ -297,31 +305,35 @@ export function TodoView() {
 		});
 
 		expandedTasks.sort((a, b) => {
+			let result = 0;
+
 			if (sortBy === "date") {
 				const dateA = viewMode === "byDate" ? a.date : a.dueDate;
 				const dateB = viewMode === "byDate" ? b.date : b.dueDate;
 				if (!dateA) return 1;
 				if (!dateB) return -1;
-				return dateA.localeCompare(dateB);
+				result = dateA.localeCompare(dateB);
 			} else if (sortBy === "time") {
 				const dateA = viewMode === "byDate" ? a.date : a.dueDate;
 				const dateB = viewMode === "byDate" ? b.date : b.dueDate;
 				if (!dateA || !dateB || dateA !== dateB) {
 					if (!dateA) return 1;
 					if (!dateB) return -1;
-					return dateA.localeCompare(dateB);
+					result = dateA.localeCompare(dateB);
+				} else {
+					if (a.isAllDay && !b.isAllDay) result = -1;
+					else if (!a.isAllDay && b.isAllDay) result = 1;
+					else if (!a.startTime || !b.startTime) result = 0;
+					else result = a.startTime.localeCompare(b.startTime);
 				}
-				if (a.isAllDay && !b.isAllDay) return -1;
-				if (!a.isAllDay && b.isAllDay) return 1;
-				if (!a.startTime || !b.startTime) return 0;
-				return a.startTime.localeCompare(b.startTime);
 			} else if (sortBy === "title") {
-				return a.title.localeCompare(b.title);
+				result = a.title.localeCompare(b.title);
 			} else if (sortBy === "status") {
 				const statusOrder = { pending: 0, skipped: 1, completed: 2 };
-				return statusOrder[a.status] - statusOrder[b.status];
+				result = statusOrder[a.status] - statusOrder[b.status];
 			}
-			return 0;
+
+			return sortOrder === "asc" ? result : -result;
 		});
 
 		return expandedTasks;
@@ -331,6 +343,7 @@ export function TodoView() {
 		statusFilter,
 		tagFilter,
 		sortBy,
+		sortOrder,
 		today,
 		viewMode,
 		exitingTaskIds,
@@ -451,6 +464,7 @@ export function TodoView() {
 				statusFilter={statusFilter}
 				tagFilter={tagFilter}
 				sortBy={sortBy}
+				sortOrder={sortOrder}
 				groupBy={groupBy}
 				viewMode={viewMode}
 				tags={state.tags}
@@ -460,6 +474,7 @@ export function TodoView() {
 				onStatusFilterChange={setStatusFilter}
 				onTagFilterChange={setTagFilter}
 				onSortByChange={setSortBy}
+				onSortOrderChange={setSortOrder}
 				onGroupByChange={setGroupBy}
 				onViewModeChange={setViewMode}
 				onAddTask={handleAddTask}

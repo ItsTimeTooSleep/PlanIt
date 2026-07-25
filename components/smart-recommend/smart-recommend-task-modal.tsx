@@ -13,7 +13,7 @@ import {
 	BarChart2,
 	RefreshCw,
 } from "lucide-react";
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Collapsible,
@@ -220,6 +220,12 @@ export function SmartRecommendTaskModal({
 		onClose();
 	}, [title, date, dueDate, startTime, endTime, isAllDay, tagIds, frequency, weekdays, repeatEndDate, repeatInterval, repeatUnit, notes, status, onAddTask, onSubmit, onClose, defaultDate]);
 
+	const updateStep = useCallback((id: string, updates: Partial<TaskStep>) => {
+		setSteps((prev) =>
+			prev.map((s) => (s.id === id ? { ...s, ...updates } : s)),
+		);
+	}, []);
+
 	const handleDateRangeSelect = useCallback(
 		(date: string, startTime?: string, endTime?: string) => {
 			if (editingStepId) {
@@ -242,7 +248,7 @@ export function SmartRecommendTaskModal({
 				}
 			}
 		},
-		[editingStepId],
+		[editingStepId, updateStep],
 	);
 
 	function addStep() {
@@ -256,12 +262,6 @@ export function SmartRecommendTaskModal({
 
 	function removeStep(id: string) {
 		setSteps((prev) => prev.filter((s) => s.id !== id));
-	}
-
-	function updateStep(id: string, updates: Partial<TaskStep>) {
-		setSteps((prev) =>
-			prev.map((s) => (s.id === id ? { ...s, ...updates } : s)),
-		);
 	}
 
 	const toggleTag = (tagId: string) => {
@@ -740,10 +740,6 @@ export function SmartRecommendTaskModal({
 											value={newTagName}
 											onChange={(e) => setNewTagName(e.target.value)}
 											placeholder={t.settings.tagNamePlaceholder}
-											onKeyDown={(e) => {
-												if (e.key === "Enter") {
-												}
-											}}
 										/>
 										<Button
 											size="sm"

@@ -40,7 +40,7 @@ function DraggableTagItem({
 	isDragging,
 	onEdit,
 	onDelete,
-	t,
+	t: _t,
 }: DraggableTagItemProps) {
 	return (
 		<div

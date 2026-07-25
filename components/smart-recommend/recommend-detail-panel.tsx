@@ -1,6 +1,6 @@
 "use client";
 
-import { X, ChevronRight, ChevronLeft, Sparkles, Lightbulb, Clock, Tag, Timer, CalendarClock, BarChart2 } from "lucide-react";
+import { X, ChevronRight, ChevronLeft, Sparkles, Lightbulb, Clock, Tag, Timer, BarChart2 } from "lucide-react";
 import { useLanguage } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import type { Recommendation, RecommendTag, FactorScores, FactorWeights } from "@/lib/smart-recommend/types";

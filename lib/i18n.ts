@@ -471,6 +471,11 @@ const zh = {
 			title: "按标题",
 			status: "按状态",
 		},
+		sortOrder: {
+			label: "排序方向",
+			asc: "正向",
+			desc: "逆向",
+		},
 		groupBy: {
 			label: "分组方式",
 			none: "不分组",
@@ -1344,6 +1349,11 @@ const en = {
 			title: "By Title",
 			status: "By Status",
 		},
+		sortOrder: {
+			label: "Sort Order",
+			asc: "Ascending",
+			desc: "Descending",
+		},
 		groupBy: {
 			label: "Group By",
 			none: "No Grouping",
@@ -2192,6 +2202,11 @@ export type Translations = {
 			readonly time: string;
 			readonly title: string;
 			readonly status: string;
+		};
+		readonly sortOrder: {
+			readonly label: string;
+			readonly asc: string;
+			readonly desc: string;
 		};
 		readonly groupBy: {
 			readonly label: string;

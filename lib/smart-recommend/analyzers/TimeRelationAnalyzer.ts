@@ -1,4 +1,4 @@
-import { getDay, getHours, parseISO, differenceInDays } from "date-fns";
+import { getDay, parseISO, differenceInDays } from "date-fns";
 import type { RecommendTask, TimeRelationPattern, ContextInfo } from "../types";
 
 export class TimeRelationAnalyzer {

@@ -96,7 +96,9 @@ export class BehaviorPredictor {
           try {
             const lead = differenceInDays(parseISO(task.dueDate), parseISO(task.date));
             if (lead >= 0) tagLeadTimes[tag].push(lead);
-          } catch { }
+          } catch {
+            // 日期解析失败时跳过该任务
+          }
         }
       });
     }

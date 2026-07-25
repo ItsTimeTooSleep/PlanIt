@@ -6,10 +6,7 @@ import { useCallback, useRef, useState } from "react";
 import { BookmarkTab } from "@/components/home/bookmark-tab";
 import { TaskModal } from "@/components/task-modal";
 import { WidgetDisplay } from "@/components/widget-panel/widget-display";
-import {
-	useWidgetStore,
-	WidgetStoreProvider,
-} from "@/components/widget-store-provider";
+import { WidgetStoreProvider } from "@/components/widget-store-provider";
 import { useTranslations } from "@/lib/i18n";
 import { useLanguage, useStore } from "@/lib/store";
 import { minutesToTime } from "@/lib/task-utils";
@@ -18,8 +15,7 @@ import type { Task, TaskStatus } from "@/lib/types";
 function HomeViewContent() {
 	const lang = useLanguage();
 	const _t = useTranslations(lang);
-	const { state, updateTask } = useStore();
-	const { getWidgets } = useWidgetStore();
+	const { updateTask } = useStore();
 
 	const _today = format(new Date(), "yyyy-MM-dd");
 	const [editTask, setEditTask] = useState<Task | null>(null);
