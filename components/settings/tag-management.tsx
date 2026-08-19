@@ -1,7 +1,15 @@
 "use client";
 
-import { GripVertical, Pencil, Plus, Trash2 } from "lucide-react";
-import { useCallback, useState } from "react";
+import {
+	Archive,
+	ArchiveRestore,
+	ChevronDown,
+	GripVertical,
+	Pencil,
+	Plus,
+	Trash2,
+} from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -28,6 +36,7 @@ interface DraggableTagItemProps {
 	isDragging: boolean;
 	onEdit: (tag: Tag) => void;
 	onDelete: (tag: Tag) => void;
+	onArchive: (tag: Tag) => void;
 	t: ReturnType<typeof useTranslations>;
 }
 
@@ -40,7 +49,8 @@ function DraggableTagItem({
 	isDragging,
 	onEdit,
 	onDelete,
-	t: _t,
+	onArchive,
+	t,
 }: DraggableTagItemProps) {
 	return (
 		<div
@@ -56,18 +66,26 @@ function DraggableTagItem({
 				isDragging && "opacity-50 bg-muted/50",
 			)}
 		>
-			<GripVertical className="w-4 h-4 text-muted-foreground shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+			<GripVertical className="w-4 h-4 text-muted-foreground shrink-0 cursor-move" />
 			<div
 				className="w-2.5 h-2.5 rounded-full shrink-0"
 				style={{ backgroundColor: tag.color }}
 			/>
-			<span className="flex-1 text-sm">{tag.name}</span>
-			<div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+			<span className="flex-1 text-sm truncate">{tag.name}</span>
+			<div className="flex items-center gap-0.5">
 				<button
 					onClick={() => onEdit(tag)}
+					title={t.settings.editTag}
 					className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
 				>
 					<Pencil className="w-3.5 h-3.5" />
+				</button>
+				<button
+					onClick={() => onArchive(tag)}
+					title={t.settings.archiveTag}
+					className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+				>
+					<Archive className="w-3.5 h-3.5" />
 				</button>
 				<button
 					onClick={() => onDelete(tag)}
@@ -94,6 +112,16 @@ export function TagManagement() {
 	const [useCustomColor, setUseCustomColor] = useState(false);
 	const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 	const [localTagOrder, setLocalTagOrder] = useState<string[]>([]);
+	const [showArchived, setShowArchived] = useState(false);
+
+	const activeTags = useMemo(
+		() => state.tags.filter((t) => !t.archived),
+		[state.tags],
+	);
+	const archivedTags = useMemo(
+		() => state.tags.filter((t) => t.archived),
+		[state.tags],
+	);
 
 	function openAddTag() {
 		setTagName("");
@@ -131,10 +159,22 @@ export function TagManagement() {
 		}
 	}
 
+	const handleArchiveTag = useCallback(
+		(tag: Tag) => updateTag(tag.id, { archived: true }),
+		[updateTag],
+	);
+
+	const handleRestoreTag = useCallback(
+		(tag: Tag) => updateTag(tag.id, { archived: false }),
+		[updateTag],
+	);
+
 	const handleDragStart = useCallback(
 		(index: number) => {
 			setDraggedIndex(index);
-			setLocalTagOrder(state.tags.map((t) => t.id));
+			setLocalTagOrder(
+				state.tags.filter((tag) => !tag.archived).map((tag) => tag.id),
+			);
 		},
 		[state.tags],
 	);
@@ -166,37 +206,108 @@ export function TagManagement() {
 			? localTagOrder
 					.map((id) => state.tags.find((t) => t.id === id))
 					.filter((t): t is Tag => t !== undefined)
-			: state.tags;
+			: activeTags;
 
 	return (
-		<div className="space-y-2">
-			{state.tags.length === 0 ? (
-				<p className="text-sm text-muted-foreground py-2">{t.common.noData}</p>
-			) : (
-				<div className="space-y-1">
-					{displayTags.map((tag, index) => (
-						<DraggableTagItem
-							key={tag.id}
-							tag={tag}
-							index={index}
-							onDragStart={handleDragStart}
-							onDragOver={handleDragOver}
-							onDragEnd={handleDragEnd}
-							isDragging={draggedIndex === index}
-							onEdit={openEditTag}
-							onDelete={handleDeleteTag}
-							t={t}
-						/>
-					))}
+		<div className="space-y-4">
+			<div className="space-y-1">
+				<div className="flex items-center justify-between py-1">
+					<span className="text-xs font-medium text-muted-foreground">
+						{t.settings.activeTags}
+					</span>
+					<span className="text-xs text-muted-foreground tabular-nums">
+						{activeTags.length}
+					</span>
+				</div>
+				{activeTags.length === 0 ? (
+					<p className="text-sm text-muted-foreground py-2">
+						{t.common.noData}
+					</p>
+				) : (
+					<div className="space-y-1">
+						{displayTags.map((tag, index) => (
+							<DraggableTagItem
+								key={tag.id}
+								tag={tag}
+								index={index}
+								onDragStart={handleDragStart}
+								onDragOver={handleDragOver}
+								onDragEnd={handleDragEnd}
+								isDragging={draggedIndex === index}
+								onEdit={openEditTag}
+								onDelete={handleDeleteTag}
+								onArchive={handleArchiveTag}
+								t={t}
+							/>
+						))}
+					</div>
+				)}
+				<button
+					onClick={openAddTag}
+					className="w-full flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors py-2 rounded-lg hover:bg-muted/40 px-2 -mx-2"
+				>
+					<Plus className="w-4 h-4" />
+					{t.settings.addTag}
+				</button>
+			</div>
+
+			{archivedTags.length > 0 && (
+				<div className="border-t pt-3 space-y-1">
+					<button
+						onClick={() => setShowArchived((v) => !v)}
+						className="w-full flex items-center justify-between py-1 text-muted-foreground hover:text-foreground transition-colors"
+					>
+						<span className="flex items-center gap-1.5 text-xs font-medium">
+							<ChevronDown
+								className={cn(
+									"w-3.5 h-3.5 transition-transform",
+									!showArchived && "-rotate-90",
+								)}
+							/>
+							{t.settings.archivedTags}
+						</span>
+						<span className="text-xs tabular-nums">
+							{archivedTags.length}
+						</span>
+					</button>
+					<p className="text-xs text-muted-foreground px-1">
+						{t.settings.archivedTagsHint}
+					</p>
+					{showArchived && (
+						<div className="space-y-1">
+							{archivedTags.map((tag) => (
+								<div
+									key={tag.id}
+									className="flex items-center gap-3 py-2 px-2 -mx-2 rounded-lg hover:bg-muted/40 transition-colors"
+								>
+									<div
+										className="w-2.5 h-2.5 rounded-full shrink-0 opacity-60"
+										style={{ backgroundColor: tag.color }}
+									/>
+									<span className="flex-1 text-sm text-muted-foreground truncate line-through decoration-muted-foreground/40">
+										{tag.name}
+									</span>
+									<div className="flex items-center gap-0.5">
+										<button
+											onClick={() => handleRestoreTag(tag)}
+											title={t.settings.restoreTag}
+											className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+										>
+											<ArchiveRestore className="w-3.5 h-3.5" />
+										</button>
+										<button
+											onClick={() => handleDeleteTag(tag)}
+											className="p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+										>
+											<Trash2 className="w-3.5 h-3.5" />
+										</button>
+									</div>
+								</div>
+							))}
+						</div>
+					)}
 				</div>
 			)}
-			<button
-				onClick={openAddTag}
-				className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
-			>
-				<Plus className="w-4 h-4" />
-				{t.settings.addTag}
-			</button>
 
 			<Dialog open={!!tagDialog} onOpenChange={(v) => !v && setTagDialog(null)}>
 				<DialogContent className="max-w-sm">

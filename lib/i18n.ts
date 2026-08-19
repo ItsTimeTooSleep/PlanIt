@@ -110,6 +110,9 @@ const zh = {
 		notesSyncAll: "应用到全部",
 		notesSyncFuture: "应用到以后(不包含之前)",
 		notesSyncPending: "仅应用到未完成任务",
+		historySuggestTitle: "历史任务",
+		historySuggestTabHint: "确认选中",
+		historySuggestCount: (n: number) => `出现过 ${n} 次`,
 	},
 
 	status: {
@@ -249,6 +252,11 @@ const zh = {
 		tagNamePlaceholder: "如：学习、运动",
 		tagColor: "标签颜色",
 		tagDeleteConfirm: "删除标签后，使用该标签的任务将失去此标签，确认删除？",
+		activeTags: "使用中标签",
+		archivedTags: "已归档标签",
+		archivedTagsHint: "已归档标签不会出现在新建任务中，但仍会在使用过它的任务上显示",
+		archiveTag: "归档标签",
+		restoreTag: "恢复标签",
 		notifications: "通知设置",
 		notificationsDesc: "任务开始和结束时发送通知",
 		notificationsDescWeb: "任务开始和结束时发送浏览器通知",
@@ -335,6 +343,8 @@ const zh = {
 		playOnTaskEnd: "任务结束时播放",
 		playOnTaskComplete: "任务完成时播放",
 		playOnTaskDrag: "任务拖拽时播放",
+		taskTitleSuggest: "历史任务推荐",
+		taskTitleSuggestDesc: "新建任务输入标题时，基于历史任务标题进行文字匹配推荐",
 		startupPage: "启动页面",
 		startupPageDesc: "应用启动时显示的页面",
 		startupPageHome: "主页",
@@ -982,6 +992,9 @@ const en = {
 		notesSyncAll: "Apply to all",
 		notesSyncFuture: "Apply to future (excluding past)",
 		notesSyncPending: "Apply to pending tasks only",
+		historySuggestTitle: "History",
+		historySuggestTabHint: "Confirm selection",
+		historySuggestCount: (n: number) => `Used ${n} times`,
 	},
 
 	status: {
@@ -1121,6 +1134,11 @@ const en = {
 		tagNamePlaceholder: "e.g. Study, Exercise",
 		tagColor: "Tag Color",
 		tagDeleteConfirm: "Tasks using this tag will lose it. Delete?",
+		activeTags: "Active Tags",
+		archivedTags: "Archived Tags",
+		archivedTagsHint: "Archived tags won't appear when creating new tasks, but remain visible on tasks that use them",
+		archiveTag: "Archive Tag",
+		restoreTag: "Restore Tag",
 		notifications: "Notifications",
 		notificationsDesc: "Get notified when tasks start and end",
 		notificationsDescWeb: "Get browser notifications when tasks start and end",
@@ -1212,6 +1230,9 @@ const en = {
 		playOnTaskEnd: "Play when task ends",
 		playOnTaskComplete: "Play when task completes",
 		playOnTaskDrag: "Play when task is dragged",
+		taskTitleSuggest: "Task Title Suggestions",
+		taskTitleSuggestDesc:
+			"Suggest matching task titles from history while typing a new task",
 		startupPage: "Startup Page",
 		startupPageDesc: "Page to display when app starts",
 		startupPageHome: "Home",
@@ -1854,6 +1875,9 @@ export type Translations = {
 		readonly notesSyncAll: string;
 		readonly notesSyncFuture: string;
 		readonly notesSyncPending: string;
+		readonly historySuggestTitle: string;
+		readonly historySuggestTabHint: string;
+		readonly historySuggestCount: (n: number) => string;
 	};
 	readonly status: {
 		readonly pending: string;
@@ -1984,6 +2008,11 @@ export type Translations = {
 		readonly tagNamePlaceholder: string;
 		readonly tagColor: string;
 		readonly tagDeleteConfirm: string;
+		readonly activeTags: string;
+		readonly archivedTags: string;
+		readonly archivedTagsHint: string;
+		readonly archiveTag: string;
+		readonly restoreTag: string;
 		readonly notifications: string;
 		readonly notificationsDesc: string;
 		readonly notificationsDescWeb: string;
@@ -2070,6 +2099,8 @@ export type Translations = {
 		readonly playOnTaskEnd: string;
 		readonly playOnTaskComplete: string;
 		readonly playOnTaskDrag: string;
+		readonly taskTitleSuggest: string;
+		readonly taskTitleSuggestDesc: string;
 		readonly startupPage: string;
 		readonly startupPageDesc: string;
 		readonly startupPageHome: string;

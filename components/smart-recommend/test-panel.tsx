@@ -1,7 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
-import { CalendarClock, RotateCcw, Shuffle, Trash2, Plus, Pencil, Trash2 as Trash } from "lucide-react";
+import { CalendarClock, RotateCcw, Shuffle, Plus, Pencil, Trash2 as Trash } from "lucide-react";
 import { useCallback, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -63,7 +63,7 @@ export function TestPanel({
 		setCustomTagColor("#000000");
 		setUseCustomColor(false);
 		setTagDialog({ mode: "add" });
-	}, []);
+	}, [setTagName, setTagColor, setCustomTagColor, setUseCustomColor, setTagDialog]);
 
 	const handleEditTag = useCallback((tag: RecommendTag) => {
 		setTagName(tag.name);
@@ -71,7 +71,7 @@ export function TestPanel({
 		setCustomTagColor(tag.color);
 		setUseCustomColor(!PRESET_TAG_COLORS.includes(tag.color));
 		setTagDialog({ mode: "edit", tag });
-	}, []);
+	}, [setTagName, setTagColor, setCustomTagColor, setUseCustomColor, setTagDialog]);
 
 	const handleDeleteTag = useCallback((tagId: string) => {
 		if (!onTagsChange) return;
@@ -87,7 +87,7 @@ export function TestPanel({
 			onTagsChange([...tags, { id: generateId(), name: tagName.trim(), color: selectedColor }]);
 		}
 		setTagDialog(null);
-	}, [tagName, tagColor, customTagColor, useCustomColor, tagDialog, tags, onTagsChange]);
+	}, [tagName, tagColor, customTagColor, useCustomColor, tagDialog, tags, onTagsChange, setTagDialog]);
 
 	const handleWeightChange = useCallback((key: keyof AlgorithmConfig["weights"], value: number) => {
 		const newWeights = { ...config.weights, [key]: value };

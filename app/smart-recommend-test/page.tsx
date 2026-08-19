@@ -1,13 +1,12 @@
 "use client";
 
 import { format, addDays, differenceInMinutes } from "date-fns";
-import { ArrowLeft, Brain, FlaskConical, ScrollText, Plus, TrendingUp, Calendar, Clock, Sparkles, Check, X, BarChart2, AlertTriangle, Download, Upload, Bug } from "lucide-react";
+import { ArrowLeft, Brain, FlaskConical, ScrollText, Plus, TrendingUp, Calendar, AlertTriangle, Download, Upload, Bug } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState, useRef, useDeferredValue } from "react";
 import { AnimatedTabsList, AnimatedTabsTrigger, Tabs } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -40,7 +39,6 @@ export default function SmartRecommendTestPage() {
 	const [customCreatedAt, setCustomCreatedAt] = useState<string | null>(null);
 	const [activeTab, setActiveTab] = useState("recommend");
 	const [hydrated, setHydrated] = useState(false);
-	const [analysisMetadata, setAnalysisMetadata] = useState<AnalysisMetadata | null>(null);
 
 	const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 	const [isDetailPanelOpen, setIsDetailPanelOpen] = useState(false);
@@ -115,24 +113,16 @@ export default function SmartRecommendTestPage() {
 		}
 	}, [tasks]);
 
-	const effectiveCreatedAt = useMemo(() => {
-		if (customCreatedAt) {
-			try {
-				return new Date(customCreatedAt);
-			} catch {
-				return new Date();
-			}
-		}
-		return new Date();
-	}, [customCreatedAt]);
-
 	// 使用延迟版本的 config，避免参数调整时频繁重新计算推荐
 	const deferredConfig = useDeferredValue(config);
 
-	const { recommendations, currentLog } = useMemo(() => {
+	const { recommendations, currentLog, analysisMetadata } = useMemo(() => {
 		const result = generateRecommendations(tasks, tags, deferredConfig, contextTime);
-		setAnalysisMetadata(result.analysisMetadata);
-		return { recommendations: result.recommendations, currentLog: result.log };
+		return {
+			recommendations: result.recommendations,
+			currentLog: result.log,
+			analysisMetadata: result.analysisMetadata,
+		};
 	}, [tasks, tags, deferredConfig, contextTime]);
 
 	const handleAccept = useCallback((index: number) => {
@@ -278,18 +268,28 @@ export default function SmartRecommendTestPage() {
 				})),
 			})),
 			analysisMetadata: analysisMetadata ? {
-				periodicPatterns: analysisMetadata.periodicPatterns?.map(p => ({
-					titlePattern: p.titlePattern,
-					frequency: p.frequency,
-					occurrences: p.occurrences,
-					confidence: p.confidence,
-					dayOfWeek: p.dayOfWeek,
-					timeOfDay: p.timeOfDay,
-				})) || [],
-				taskSequences: analysisMetadata.behaviorPatterns?.taskSequences?.map(s => ({
-					sequence: s.sequence,
-					frequency: s.frequency,
-				})) || [],
+				periodicPatterns: analysisMetadata.periodicPatterns?.map((p: {
+				titlePattern: string;
+				frequency: string;
+				occurrences: number;
+				confidence: number;
+				dayOfWeek?: number;
+				timeOfDay?: string;
+			}) => ({
+				titlePattern: p.titlePattern,
+				frequency: p.frequency,
+				occurrences: p.occurrences,
+				confidence: p.confidence,
+				dayOfWeek: p.dayOfWeek,
+				timeOfDay: p.timeOfDay,
+			})) || [],
+			taskSequences: analysisMetadata.behaviorPatterns?.taskSequences?.map((s: {
+				sequence: string[];
+				frequency: number;
+			}) => ({
+				sequence: s.sequence,
+				frequency: s.frequency,
+			})) || [],
 			} : null,
 			statistics: {
 				totalTasks: tasks.length,

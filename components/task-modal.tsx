@@ -5,10 +5,11 @@ import {
 	Calendar,
 	ChevronDown,
 	ChevronRight,
+	History,
 	Plus,
 	Trash2,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Collapsible,
@@ -24,6 +25,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Kbd } from "@/components/ui/kbd";
 import { Label } from "@/components/ui/label";
 import {
 	Select,
@@ -70,6 +72,17 @@ interface TaskModalProps {
 const WEEKDAY_LABELS = ["日", "一", "二", "三", "四", "五", "六"];
 const WEEKDAY_LABELS_EN = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
+/** 历史任务标题推荐项（纯文字匹配） */
+interface TitleSuggestion {
+	title: string;
+	/** 该标题在历史任务中出现的次数 */
+	count: number;
+	/** 最近一次创建时间戳 */
+	lastUsed: number;
+	/** 是否为前缀匹配（优先级高于包含匹配） */
+	startsWith: boolean;
+}
+
 export function TaskModal({
 	open,
 	onClose,
@@ -112,6 +125,9 @@ export function TaskModal({
 	const [isMultiStep, setIsMultiStep] = useState(false);
 	const [steps, setSteps] = useState<TaskStep[]>([]);
 	const [editingStepId, setEditingStepId] = useState<string | null>(null);
+	const [showTitleSuggestions, setShowTitleSuggestions] = useState(false);
+	const [highlightedIndex, setHighlightedIndex] = useState(0);
+	const titleInputRef = useRef<HTMLInputElement>(null);
 
 	const { addTag } = useStore();
 
@@ -178,6 +194,7 @@ export function TaskModal({
 		setCustomTagColor("#000000");
 		setUseCustomColor(false);
 		setShowDeleteConfirm(false);
+		setShowTitleSuggestions(false);
 	}, [
 		open,
 		task,
@@ -187,6 +204,106 @@ export function TaskModal({
 		defaultStatus,
 		tomorrow,
 	]);
+
+	/**
+	 * 历史任务标题推荐：基于纯文字匹配（不区分大小写）
+	 * 排序规则：前缀匹配优先 → 使用次数多的优先 → 最近创建的优先
+	 * 仅在新建任务且设置开启时生效
+	 */
+	const titleSuggestions = useMemo<TitleSuggestion[]>(() => {
+		if (!state.settings.taskTitleSuggest || task) return [];
+		const query = title.trim().toLowerCase();
+		if (!query) return [];
+
+		const stats = new Map<string, { count: number; lastUsed: number }>();
+		for (const item of state.tasks) {
+			const key = item.title.trim();
+			if (!key) continue;
+			const created = new Date(item.createdAt).getTime() || 0;
+			const existing = stats.get(key);
+			if (existing) {
+				existing.count += 1;
+				existing.lastUsed = Math.max(existing.lastUsed, created);
+			} else {
+				stats.set(key, { count: 1, lastUsed: created });
+			}
+		}
+
+		const results: TitleSuggestion[] = [];
+		stats.forEach((stat, key) => {
+			const lower = key.toLowerCase();
+			// 与当前输入完全一致的标题无需推荐
+			if (lower === query) return;
+			if (lower.startsWith(query)) {
+				results.push({ title: key, ...stat, startsWith: true });
+			} else if (lower.includes(query)) {
+				results.push({ title: key, ...stat, startsWith: false });
+			}
+		});
+
+		results.sort((a, b) => {
+			if (a.startsWith !== b.startsWith) return a.startsWith ? -1 : 1;
+			if (a.count !== b.count) return b.count - a.count;
+			return b.lastUsed - a.lastUsed;
+		});
+
+		return results.slice(0, 50);
+	}, [title, state.tasks, state.settings.taskTitleSuggest, task]);
+
+	// 推荐下拉框打开时，Escape 仅关闭下拉框而不关闭弹窗
+	// （Radix Dialog 在 document 捕获阶段监听 Escape，需在 window 捕获阶段先行拦截并 preventDefault）
+	useEffect(() => {
+		if (!showTitleSuggestions) return;
+		const handleEscape = (e: KeyboardEvent) => {
+			if (e.key !== "Escape") return;
+			e.preventDefault();
+			setShowTitleSuggestions(false);
+		};
+		window.addEventListener("keydown", handleEscape, true);
+		return () => window.removeEventListener("keydown", handleEscape, true);
+	}, [showTitleSuggestions]);
+
+	/** 选中某条推荐：填充标题并关闭下拉框 */
+	function selectTitleSuggestion(value: string) {
+		setTitle(value);
+		setShowTitleSuggestions(false);
+		setHighlightedIndex(0);
+		titleInputRef.current?.focus();
+	}
+
+	// 标题变化时推荐列表会重新计算，高亮重置为第一条
+	useEffect(() => {
+		setHighlightedIndex(0);
+	}, [title]);
+
+	/**
+	 * 标题输入框键盘事件：
+	 * - ArrowDown / ArrowUp 在推荐列表中循环切换高亮项
+	 * - Tab 确认当前高亮项
+	 * （Shift+Tab 保留原生反向切换焦点行为）
+	 */
+	function handleTitleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+		if (!showTitleSuggestions || titleSuggestions.length === 0) return;
+		if (e.nativeEvent.isComposing) return;
+
+		if (e.key === "ArrowDown") {
+			e.preventDefault();
+			setHighlightedIndex(
+				(i) => (i + 1) % titleSuggestions.length,
+			);
+		} else if (e.key === "ArrowUp") {
+			e.preventDefault();
+			setHighlightedIndex(
+				(i) =>
+					(i - 1 + titleSuggestions.length) % titleSuggestions.length,
+			);
+		} else if (e.key === "Tab" && !e.shiftKey) {
+			e.preventDefault();
+			const target =
+				titleSuggestions[highlightedIndex] ?? titleSuggestions[0];
+			if (target) selectTitleSuggestion(target.title);
+		}
+	}
 
 	function handleSave() {
 		if (!title.trim()) return;
@@ -378,13 +495,72 @@ export function TaskModal({
 							{t.task.title}
 							<span className="text-destructive font-bold">*</span>
 						</Label>
-						<Input
-							id="task-title"
-							value={title}
-							onChange={(e) => setTitle(e.target.value)}
-							placeholder={t.task.titlePlaceholder}
-							autoFocus
-						/>
+						<div className="relative">
+							<Input
+								ref={titleInputRef}
+								id="task-title"
+								value={title}
+								onChange={(e) => {
+									setTitle(e.target.value);
+									setShowTitleSuggestions(true);
+								}}
+								onKeyDown={handleTitleKeyDown}
+								onBlur={() => setShowTitleSuggestions(false)}
+								placeholder={t.task.titlePlaceholder}
+								autoComplete="off"
+								autoFocus
+							/>
+							{showTitleSuggestions && titleSuggestions.length > 0 && (
+								<div className="bg-popover text-popover-foreground absolute inset-x-0 top-full z-50 mt-1 overflow-hidden rounded-md border shadow-md">
+									<div className="flex items-center justify-between gap-2 border-b px-2.5 py-1.5">
+										<span className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
+											<History className="h-3 w-3" />
+											{t.task.historySuggestTitle}
+										</span>
+										<span className="flex items-center gap-1 text-xs text-muted-foreground">
+											{t.task.historySuggestTabHint}
+											<Kbd className="h-4 min-w-4 px-1 text-[10px]">
+												Tab
+											</Kbd>
+										</span>
+									</div>
+									<div className="max-h-48 overflow-y-auto p-1">
+										{titleSuggestions.map((suggestion, index) => (
+											<button
+												key={suggestion.title}
+												type="button"
+												onMouseEnter={() =>
+													setHighlightedIndex(index)
+												}
+												onMouseDown={(e) => {
+													e.preventDefault();
+													selectTitleSuggestion(suggestion.title);
+												}}
+												className={`flex w-full items-center justify-between gap-2 rounded-sm px-2 py-1.5 text-left text-sm ${
+													index === highlightedIndex
+														? "bg-accent text-accent-foreground"
+														: "hover:bg-accent hover:text-accent-foreground"
+												}`}
+											>
+												<span className="min-w-0 flex-1 truncate">
+													{suggestion.title}
+												</span>
+												{suggestion.count > 1 && (
+													<span
+														title={t.task.historySuggestCount(
+															suggestion.count,
+														)}
+														className="bg-muted text-muted-foreground shrink-0 rounded-full px-1.5 py-0.5 text-[10px] leading-none"
+													>
+														×{suggestion.count}
+													</span>
+												)}
+											</button>
+										))}
+									</div>
+								</div>
+							)}
+						</div>
 					</div>
 
 					{/* 截止日期与计划时间 - 二选一必填区域 */}
@@ -659,7 +835,9 @@ export function TaskModal({
 					<div className="flex flex-col gap-1.5">
 						<Label>{t.task.tags}</Label>
 						<div className="flex flex-wrap gap-1.5">
-							{state.tags.map((tag) => {
+							{state.tags
+								.filter((tag) => !tag.archived)
+								.map((tag) => {
 								const selected = tagIds.includes(tag.id);
 								return (
 									<button

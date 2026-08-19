@@ -90,6 +90,7 @@ const DEFAULT_STATE: AppState = {
 			playOnTaskComplete: true,
 			playOnTaskDrag: true,
 		},
+		taskTitleSuggest: false,
 	},
 	pomodoro: DEFAULT_POMODORO,
 };
@@ -551,7 +552,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 				const reorderedTags = tagIds
 					.map((id) => tagMap.get(id))
 					.filter((t): t is Tag => t !== undefined);
-				return { ...prev, tags: reorderedTags };
+				// 保留未在排序列表中的标签（如已归档标签），追加到末尾
+				const movedIds = new Set(reorderedTags.map((t) => t.id));
+				const preserved = prev.tags.filter((t) => !movedIds.has(t.id));
+				return { ...prev, tags: [...reorderedTags, ...preserved] };
 			});
 		},
 		[set],

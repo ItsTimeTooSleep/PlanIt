@@ -83,7 +83,6 @@ export function TaskBlock({
 	const [hovered, setHovered] = useState(false);
 	const lang = useLanguage();
 	const t = useTranslations(lang);
-	const { state } = useStore();
 	const { pomodoro } = usePomodoro();
 
 	if (!task.startTime || !task.endTime) return null;

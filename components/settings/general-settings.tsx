@@ -115,6 +115,18 @@ export function GeneralSettings() {
 				</Select>
 			</SettingRow>
 
+			<SettingRow
+				label={t.settings.taskTitleSuggest}
+				description={t.settings.taskTitleSuggestDesc}
+			>
+				<Switch
+					checked={state.settings.taskTitleSuggest}
+					onCheckedChange={(checked) =>
+						updateSettings({ taskTitleSuggest: checked })
+					}
+				/>
+			</SettingRow>
+
 			<SettingGroup bordered>
 				<SettingRow label={t.settings.sound} description={t.settings.soundDesc}>
 					<Switch

@@ -35,6 +35,9 @@ src-tauri/*.exe
 # Logs
 log.txt
 *.log
+
+# Local debug artifacts
+.dbg/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

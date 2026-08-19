@@ -38,6 +38,7 @@ export interface Tag {
 	id: string;
 	name: string;
 	color: string; // hex color, e.g. "#4F46E5"
+	archived?: boolean; // 归档后新建任务时不再展示
 }
 
 export interface DateNote {
@@ -149,6 +150,8 @@ export interface AppSettings {
 	closeBehavior: CloseBehavior;
 	sound: SoundSettings;
 	startupPage: StartupPage;
+	/** 新建任务时基于历史任务标题的文字匹配推荐 */
+	taskTitleSuggest: boolean;
 	firstLaunchDate?: string;
 }
 
