@@ -64,7 +64,11 @@ export function getNextPhase(
 function calculateTaskDurationInSeconds(task: Task): number | null {
 	if (!task.startTime || !task.endTime) return null;
 	const startMinutes = timeToMinutes(task.startTime);
-	const endMinutes = timeToMinutes(task.endTime);
+	let endMinutes = timeToMinutes(task.endTime);
+	// 跨天任务(结束时间早于开始时间)视为次日结束
+	if (endMinutes <= startMinutes) {
+		endMinutes += 24 * 60;
+	}
 	return (endMinutes - startMinutes) * 60;
 }
 
@@ -72,8 +76,22 @@ function calculateRemainingTimeInSeconds(task: Task): number | null {
 	if (!task.startTime || !task.endTime) return null;
 	const now = new Date();
 	const currentMinutes = now.getHours() * 60 + now.getMinutes();
-	const endMinutes = timeToMinutes(task.endTime);
 	const startMinutes = timeToMinutes(task.startTime);
+	const endMinutes = timeToMinutes(task.endTime);
+	const isCrossDay = endMinutes <= startMinutes;
+	const normalizedEnd = isCrossDay ? endMinutes + 24 * 60 : endMinutes;
+
+	if (isCrossDay) {
+		// 跨天任务:晚上开始后(>=start)或凌晨结束前(<end)视为进行中
+		if (currentMinutes >= startMinutes) {
+			return (normalizedEnd - currentMinutes) * 60;
+		}
+		if (currentMinutes < endMinutes) {
+			return (normalizedEnd - (currentMinutes + 24 * 60)) * 60;
+		}
+		// 白天/下午(尚未开始今晚的任务):返回完整时长
+		return (normalizedEnd - startMinutes) * 60;
+	}
 
 	if (currentMinutes >= endMinutes) {
 		return 0;
@@ -90,6 +108,10 @@ function isTaskStarted(task: Task): boolean {
 	const currentMinutes = now.getHours() * 60 + now.getMinutes();
 	const startMinutes = timeToMinutes(task.startTime);
 	const endMinutes = timeToMinutes(task.endTime);
+	const isCrossDay = endMinutes <= startMinutes;
+	if (isCrossDay) {
+		return currentMinutes >= startMinutes || currentMinutes < endMinutes;
+	}
 	return currentMinutes >= startMinutes && currentMinutes < endMinutes;
 }
 
@@ -104,7 +126,6 @@ export function usePomodoro() {
 	const { state, updatePomodoro } = useStore();
 	const { pomodoro, tasks } = state;
 	const [skipBreaks, setSkipBreaks] = useState(false);
-	const [customWorkMinutes, setCustomWorkMinutes] = useState(25);
 
 	const currentTask = pomodoro.taskId
 		? tasks.find((task) => task.id === pomodoro.taskId)
@@ -156,10 +177,12 @@ export function usePomodoro() {
 
 	const setWorkDuration = useCallback(
 		(minutes: number) => {
-			const duration = Math.max(1, Math.min(240, minutes)) * 60;
+			const validMinutes = Math.max(1, Math.min(240, Math.round(minutes)));
+			const duration = validMinutes * 60;
 			updatePomodoro({
 				remainingSeconds: duration,
 				totalSeconds: duration,
+				customWorkMinutes: validMinutes,
 			});
 		},
 		[updatePomodoro],
@@ -243,20 +266,20 @@ export function usePomodoro() {
 					});
 				}
 		},
-		[tasks, pomodoro.totalSeconds, pomodoro.settings, updatePomodoro],
+		[tasks, pomodoro.totalSeconds, updatePomodoro],
 	);
 
 	const resetToToolMode = useCallback(() => {
-			updatePomodoro({
-				taskId: null,
-				status: "idle",
-				phase: "work",
-				remainingSeconds: customWorkMinutes * 60,
-				totalSeconds: customWorkMinutes * 60,
-				completedSessions: 0,
-				manualStop: false,
-			});
-		}, [customWorkMinutes, updatePomodoro]);
+		updatePomodoro({
+			taskId: null,
+			status: "idle",
+			phase: "work",
+			remainingSeconds: pomodoro.customWorkMinutes * 60,
+			totalSeconds: pomodoro.customWorkMinutes * 60,
+			completedSessions: 0,
+			manualStop: false,
+		});
+	}, [pomodoro.customWorkMinutes, updatePomodoro]);
 
 	const getUpcomingPhaseInfo = useCallback(() => {
 		if (pomodoro.phase !== "work") {
@@ -304,25 +327,22 @@ export function usePomodoro() {
 
 		if (skipBreaks || !isFullSession) {
 			const nextPhase = "work";
-			let nextDuration: number;
-			if (currentTask) {
-				const taskDuration = calculateTaskDurationInSeconds(currentTask);
-				nextDuration =
-					taskDuration ?? getPhaseDuration(nextPhase, pomodoro.settings);
-			} else {
-				nextDuration = customWorkMinutes * 60;
-			}
+			// 回到专注阶段时优先沿用当前自定义时长,避免回退到默认专注时长(设置里的 workDuration)
+			const taskDuration = currentTask
+				? calculateTaskDurationInSeconds(currentTask)
+				: null;
+			const nextDuration = taskDuration ?? pomodoro.customWorkMinutes * 60;
 			updatePomodoro({
-					phase: nextPhase,
-					remainingSeconds: nextDuration,
-					totalSeconds: nextDuration,
-					completedSessions: isFullSession
-						? newCompletedSessions
-						: pomodoro.completedSessions,
-					status: "idle",
-					manualStop: false,
-				});
-				return;
+				phase: nextPhase,
+				remainingSeconds: nextDuration,
+				totalSeconds: nextDuration,
+				completedSessions: isFullSession
+					? newCompletedSessions
+					: pomodoro.completedSessions,
+				status: "idle",
+				manualStop: false,
+			});
+			return;
 		}
 
 		const nextPhase = getNextPhase(
@@ -335,29 +355,32 @@ export function usePomodoro() {
 		if (nextPhase === "work" && currentTask) {
 			const taskDuration = calculateTaskDurationInSeconds(currentTask);
 			nextDuration =
-				taskDuration ?? getPhaseDuration(nextPhase, pomodoro.settings);
+				taskDuration ?? pomodoro.customWorkMinutes * 60;
 		} else if (nextPhase === "work") {
-			nextDuration = customWorkMinutes * 60;
+			nextDuration = pomodoro.customWorkMinutes * 60;
 		} else {
 			nextDuration = getPhaseDuration(nextPhase, pomodoro.settings);
 		}
 
 		updatePomodoro({
-				phase: nextPhase,
-				remainingSeconds: nextDuration,
-				totalSeconds: nextDuration,
-				completedSessions: newCompletedSessions,
-				status: "idle",
-				manualStop: false,
-			});
+			phase: nextPhase,
+			remainingSeconds: nextDuration,
+			totalSeconds: nextDuration,
+			completedSessions: newCompletedSessions,
+			// 进入休息阶段时释放已完成任务的绑定
+			taskId: nextPhase === "work" ? pomodoro.taskId : null,
+			status: "idle",
+			manualStop: false,
+		});
 	}, [
 		pomodoro.phase,
 		pomodoro.totalSeconds,
 		pomodoro.completedSessions,
 		pomodoro.settings,
+		pomodoro.customWorkMinutes,
+		pomodoro.taskId,
 		skipBreaks,
 		currentTask,
-		customWorkMinutes,
 		updatePomodoro,
 	]);
 
@@ -367,8 +390,11 @@ export function usePomodoro() {
 
 	useEffect(() => {
 		if (pomodoro.status === "running") {
-			timerStartTimestamp = Date.now();
-			timerRemainingAtStart = pomodoro.remainingSeconds;
+			// 仅在进入 running 且基线尚未建立时重置基准,避免多组件共享计时器时重复基准化导致进度丢失/半速
+			if (timerStartTimestamp === null) {
+				timerStartTimestamp = Date.now();
+				timerRemainingAtStart = pomodoro.remainingSeconds;
+			}
 
 			if (!globalTimerRef) {
 				globalTimerRef = setInterval(() => {
@@ -408,7 +434,7 @@ export function usePomodoro() {
 		}
 
 		return () => {};
-	}, [pomodoro.status, pomodoro.remainingSeconds]);
+	}, [pomodoro.status]);
 
 	useEffect(() => {
 		const handleVisibilityChange = () => {
@@ -455,7 +481,7 @@ export function usePomodoro() {
 		const longBreakCount = Math.floor(
 			sessionCount / pomodoro.settings.workSessionsBeforeLongBreak,
 		);
-		const shortBreakCount = sessionCount - longBreakCount - 1;
+		const shortBreakCount = sessionCount - longBreakCount;
 		return { shortBreakCount: Math.max(0, shortBreakCount), longBreakCount };
 	}, [pomodoro.totalSeconds, pomodoro.settings]);
 
@@ -479,8 +505,6 @@ export function usePomodoro() {
 			),
 		skipBreaks,
 		setSkipBreaks,
-		customWorkMinutes,
-		setCustomWorkMinutes,
 		setWorkDuration,
 		increaseWorkDuration,
 		decreaseWorkDuration,

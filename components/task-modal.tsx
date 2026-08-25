@@ -128,6 +128,7 @@ export function TaskModal({
 	const [showTitleSuggestions, setShowTitleSuggestions] = useState(false);
 	const [highlightedIndex, setHighlightedIndex] = useState(0);
 	const titleInputRef = useRef<HTMLInputElement>(null);
+	const suggestListRef = useRef<HTMLDivElement>(null);
 
 	const { addTag } = useStore();
 
@@ -275,6 +276,23 @@ export function TaskModal({
 	useEffect(() => {
 		setHighlightedIndex(0);
 	}, [title]);
+
+	// 高亮项若超出下拉框可视范围，自动滚动列表使其可见（如连续按方向键向下）
+	useEffect(() => {
+		const container = suggestListRef.current;
+		if (!container || !showTitleSuggestions) return;
+		const el = container.children[highlightedIndex] as
+			| HTMLElement
+			| undefined;
+		if (!el) return;
+		const containerRect = container.getBoundingClientRect();
+		const elRect = el.getBoundingClientRect();
+		if (elRect.top < containerRect.top) {
+			container.scrollTop -= containerRect.top - elRect.top;
+		} else if (elRect.bottom > containerRect.bottom) {
+			container.scrollTop += elRect.bottom - containerRect.bottom;
+		}
+	}, [highlightedIndex, showTitleSuggestions]);
 
 	/**
 	 * 标题输入框键盘事件：
@@ -524,7 +542,10 @@ export function TaskModal({
 											</Kbd>
 										</span>
 									</div>
-									<div className="max-h-48 overflow-y-auto p-1">
+									<div
+										ref={suggestListRef}
+										className="max-h-48 overflow-y-auto p-1"
+									>
 										{titleSuggestions.map((suggestion, index) => (
 											<button
 												key={suggestion.title}
@@ -850,7 +871,7 @@ export function TaskModal({
 													: [...prev, tag.id],
 											)
 										}
-										className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all border"
+										className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-all border min-w-0 max-w-full"
 										style={
 											selected
 												? {
@@ -865,7 +886,9 @@ export function TaskModal({
 													}
 										}
 									>
-										{tag.name}
+										<span className="truncate min-w-0" title={tag.name}>
+											{tag.name}
+										</span>
 									</button>
 								);
 							})}

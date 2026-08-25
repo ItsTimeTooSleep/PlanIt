@@ -170,6 +170,7 @@ export interface PomodoroState {
 	phase: PomodoroPhase;
 	remainingSeconds: number;
 	totalSeconds: number;
+	customWorkMinutes: number;
 	completedSessions: number;
 	settings: PomodoroSettings;
 	startTime: Date | null;

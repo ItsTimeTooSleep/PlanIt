@@ -9,7 +9,7 @@ import {
 } from "react";
 import { DEFAULT_TAGS } from "@/lib/colors";
 import { historyManager } from "@/lib/history-manager";
-import { translations } from "@/lib/i18n";
+import { translations, type Translations } from "@/lib/i18n";
 import {
 	cancelAllNotifications,
 	cancelTaskNotification,
@@ -41,6 +41,7 @@ const DEFAULT_POMODORO: PomodoroState = {
 	phase: "work",
 	remainingSeconds: 25 * 60,
 	totalSeconds: 25 * 60,
+	customWorkMinutes: 25,
 	completedSessions: 0,
 	settings: {
 		workDuration: 25,
@@ -90,7 +91,7 @@ const DEFAULT_STATE: AppState = {
 			playOnTaskComplete: true,
 			playOnTaskDrag: true,
 		},
-		taskTitleSuggest: false,
+		taskTitleSuggest: true,
 	},
 	pomodoro: DEFAULT_POMODORO,
 };
@@ -153,6 +154,23 @@ function load(): AppState {
 				? new Date(loadedPomodoro.actualEndTime as any)
 				: null,
 		};
+
+		// 刷新/重开应用后，按计划结束时间恢复运行中计时器的剩余进度
+		if (
+			pomodoroWithDates.status === "running" &&
+			pomodoroWithDates.scheduledEndTime
+		) {
+			const remaining = Math.ceil(
+				(pomodoroWithDates.scheduledEndTime.getTime() - Date.now()) / 1000,
+			);
+			if (remaining <= 0) {
+				pomodoroWithDates.status = "finished";
+				pomodoroWithDates.remainingSeconds = 0;
+				pomodoroWithDates.actualEndTime = new Date();
+			} else {
+				pomodoroWithDates.remainingSeconds = remaining;
+			}
+		}
 
 		return {
 			tasks: parsed.tasks ?? [],
@@ -264,6 +282,26 @@ function checkAndPlayTaskTimeSounds(tasks: Task[], settings: AppSettings) {
 	});
 }
 
+/**
+ * 构建任务通知的展示文本
+ * 正文统一携带任务时间范围，标题负责区分开始/即将开始/结束，
+ * 避免正文与标题重复表述"开始/结束"语义。
+ */
+function buildNotificationMessages(t: Translations, task: Task) {
+	const range = task.endTime
+		? `${task.startTime} – ${task.endTime}`
+		: `${task.startTime}`;
+	const body = `${range} · ${task.title}`;
+	return {
+		startTitle: t.settings.notificationTitle,
+		startBody: body,
+		endTitle: t.settings.notificationTitleEnd,
+		endBody: body,
+		advanceTitle: t.settings.notificationTitleAdvance,
+		advanceBody: body,
+	};
+}
+
 export function StoreProvider({ children }: { children: ReactNode }) {
 	const [state, setState] = useState<AppState>(DEFAULT_STATE);
 	const [hydrated, setHydrated] = useState(false);
@@ -308,11 +346,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 			if (taskDate.getTime() > now) {
 				scheduleTaskNotification(
 					task,
-					t.settings.notificationTitle,
-					`${t.settings.notificationBody}: ${task.title}`,
+					buildNotificationMessages(t, task),
 					state.settings.notifications,
-					t.settings.notificationTitleEnd,
-					`${t.settings.notificationBodyEnd}: ${task.title}`,
 				);
 			}
 		});
@@ -348,11 +383,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 					const t = translations[next.settings.language];
 					scheduleTaskNotification(
 						task,
-						t.settings.notificationTitle,
-						`${t.settings.notificationBody}: ${task.title}`,
+						buildNotificationMessages(t, task),
 						next.settings.notifications,
-						t.settings.notificationTitleEnd,
-						`${t.settings.notificationBodyEnd}: ${task.title}`,
 					);
 				}
 				return next;
@@ -400,13 +432,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 						if (updatedTask) {
 							const t = translations[next.settings.language];
 							scheduleTaskNotification(
-								updatedTask,
-								t.settings.notificationTitle,
-								`${t.settings.notificationBody}: ${updatedTask.title}`,
-								next.settings.notifications,
-								t.settings.notificationTitleEnd,
-								`${t.settings.notificationBodyEnd}: ${updatedTask.title}`,
-							);
+							updatedTask,
+							buildNotificationMessages(t, updatedTask),
+							next.settings.notifications,
+						);
 						}
 					}
 					save(next);
@@ -434,13 +463,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 						if (updatedTask) {
 							const t = translations[next.settings.language];
 							scheduleTaskNotification(
-								updatedTask,
-								t.settings.notificationTitle,
-								`${t.settings.notificationBody}: ${updatedTask.title}`,
-								next.settings.notifications,
-								t.settings.notificationTitleEnd,
-								`${t.settings.notificationBodyEnd}: ${updatedTask.title}`,
-							);
+							updatedTask,
+							buildNotificationMessages(t, updatedTask),
+							next.settings.notifications,
+						);
 						}
 					}
 					return next;

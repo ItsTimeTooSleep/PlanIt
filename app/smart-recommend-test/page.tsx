@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { analyzeSchedulingPatterns, generateRecommendations, calculateAccuracy, generateBatchTasks } from "@/lib/smart-recommend/engine";
 import { loadState, saveState, resetState } from "@/lib/smart-recommend/store";
 import { SelfLearningMechanism } from "@/lib/smart-recommend/evaluation";
-import type { AlgorithmConfig, DecisionLog, FeedbackRecord, RecommendTag, RecommendTask, SchedulingPattern, SmartRecommendState, Recommendation, AnalysisMetadata } from "@/lib/smart-recommend/types";
+import type { AlgorithmConfig, DecisionLog, FeedbackRecord, RecommendTag, RecommendTask, SchedulingPattern, SmartRecommendState, Recommendation } from "@/lib/smart-recommend/types";
 import { DEFAULT_CONFIG, DEFAULT_SCHEDULING_PATTERN, PRESET_TAGS } from "@/lib/smart-recommend/constants";
 import { LogConsole } from "@/components/smart-recommend/log-console";
 import { RecommendPanel } from "@/components/smart-recommend/recommend-panel";

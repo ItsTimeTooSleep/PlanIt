@@ -353,7 +353,7 @@ export function PomodoroTaskSelector({
 								<span>{selectedTask.startTime} - {selectedTask.endTime}</span>
 								{selectedTask.isAllDay && (
 									<span className="px-1.5 py-0.5 bg-muted/30 rounded text-xs">
-										{lang === "zh" ? "全天" : "All day"}
+										{t.pomodoro.allDay}
 									</span>
 								)}
 							</div>
@@ -379,9 +379,9 @@ export function PomodoroTaskSelector({
 									isOverdue(selectedTask.dueDate) ? "text-destructive" :
 									isDueSoon(selectedTask.dueDate) ? "text-orange-500" : "text-muted-foreground"
 								)}>
-									{lang === "zh" ? "截止" : "Due"}: {formatDateDisplay(selectedTask.dueDate)}
-									{isOverdue(selectedTask.dueDate) && ` (${lang === "zh" ? "已过期" : "Overdue"})`}
-									{isDueSoon(selectedTask.dueDate) && ` (${lang === "zh" ? "即将到期" : "Due soon"})`}
+									{t.pomodoro.due}: {formatDateDisplay(selectedTask.dueDate)}
+									{isOverdue(selectedTask.dueDate) && ` (${t.pomodoro.overdue})`}
+									{isDueSoon(selectedTask.dueDate) && ` (${t.pomodoro.dueSoon})`}
 								</span>
 							</div>
 						)}
@@ -410,7 +410,7 @@ export function PomodoroTaskSelector({
 						{/* 状态 */}
 						<div className="flex items-center gap-2">
 							<div className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/20 text-blue-600 dark:text-blue-400">
-								{lang === "zh" ? "待办" : "Pending"}
+								{t.pomodoro.pendingStatus}
 							</div>
 						</div>
 					</div>

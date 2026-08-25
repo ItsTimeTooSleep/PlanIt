@@ -232,7 +232,7 @@ export function TitleBar({ className }: TitleBarProps) {
 								<Square
 									className={cn(
 										"h-3 w-3 text-muted-foreground transition-colors duration-150",
-										"group-hover:text-foreground group-hover:scale-110",
+										"group-hover:text-foreground",
 									)}
 								/>
 							)}

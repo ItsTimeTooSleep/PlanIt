@@ -196,7 +196,7 @@ export function FocusMode({
 					<div className="py-4 space-y-4">
 						<div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
 							<p className="text-sm text-center italic text-muted-foreground">
-								"{enterEncouragement}"
+								&ldquo;{enterEncouragement}&rdquo;
 							</p>
 						</div>
 

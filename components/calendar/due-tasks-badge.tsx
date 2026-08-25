@@ -86,7 +86,7 @@ export function DueTasksBadge({
 			{hovered && (
 				<div
 					className={cn(
-						"absolute top-7 right-0 z-50 bg-popover border border-border rounded-xl shadow-xl p-3 min-w-[150px] max-w-[220px]",
+						"absolute top-7 right-0 z-[60] bg-popover border border-border rounded-xl shadow-xl p-3 min-w-[150px] max-w-[220px]",
 						hoverMenuClassName,
 					)}
 					onMouseEnter={handleMouseEnter}
@@ -103,44 +103,39 @@ export function DueTasksBadge({
 						{isOverdue ? translations.overdue : translations.dueSoon}
 					</p>
 
-					{/* 任务列表 */}
-					{dueTasks.slice(0, 6).map((task) => {
-						const tag = tags.find((tg) => task.tagIds[0] === tg.id);
-						const color = tag?.color ?? DEFAULT_TAG_COLOR;
-						return (
-							<div
-								key={task.id}
-								className="flex items-center gap-1.5 py-1.5 px-2 cursor-pointer hover:bg-muted/60 rounded-lg transition-all min-w-0"
-								onClick={(e) => {
-									e.stopPropagation();
-									onOpenTask(task);
-								}}
-								style={{ overflow: "hidden" }}
-							>
+					{/* 任务列表：任务过多时支持滚动查看 */}
+					<div className="max-h-56 overflow-y-auto overscroll-contain pr-1 -mr-1">
+						{dueTasks.map((task) => {
+							const tag = tags.find((tg) => task.tagIds[0] === tg.id);
+							const color = tag?.color ?? DEFAULT_TAG_COLOR;
+							return (
 								<div
-									className="w-2.5 h-2.5 rounded-full shrink-0"
-									style={{ backgroundColor: color }}
-								/>
-								<span
-									className="text-[11px] flex-1 min-w-0 font-medium"
-									style={{
-										overflow: "hidden",
-										textOverflow: "ellipsis",
-										whiteSpace: "nowrap",
+									key={task.id}
+									className="flex items-center gap-1.5 py-1.5 px-2 cursor-pointer hover:bg-muted/60 rounded-lg transition-all min-w-0"
+									onClick={(e) => {
+										e.stopPropagation();
+										onOpenTask(task);
 									}}
+									style={{ overflow: "hidden" }}
 								>
-									{task.title}
-								</span>
-							</div>
-						);
-					})}
-
-					{/* 更多任务提示 */}
-					{dueTasks.length > 6 && (
-						<p className="text-[10px] text-muted-foreground mt-1.5 text-center">
-							+{dueTasks.length - 6} more
-						</p>
-					)}
+									<div
+										className="w-2.5 h-2.5 rounded-full shrink-0"
+										style={{ backgroundColor: color }}
+									/>
+									<span
+										className="text-[11px] flex-1 min-w-0 font-medium"
+										style={{
+											overflow: "hidden",
+											textOverflow: "ellipsis",
+											whiteSpace: "nowrap",
+										}}
+									>
+										{task.title}
+									</span>
+								</div>
+							);
+						})}
+					</div>
 				</div>
 			)}
 		</div>

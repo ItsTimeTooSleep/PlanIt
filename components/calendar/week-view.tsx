@@ -69,7 +69,16 @@ interface DragState {
 	lastY: number;
 	lastTime: number;
 	velocity: number;
+	/** 上一次 pointermove 是否处于磁吸锁定状态 */
+	snapped?: boolean;
+	/** 本次拖拽会话中从磁吸状态扯离的次数 */
+	leaveSnapCount?: number;
+	/** 本次拖拽会话内临时抑制磁吸 */
+	snappingSuppressed?: boolean;
 }
+
+/** 连续扯离磁吸线达到该次数时，判定用户在做微调，临时关闭本次拖拽的磁吸 */
+const SNAP_LEAVE_THRESHOLD = 2;
 
 const SHORT_DAYS_ZH = ["日", "一", "二", "三", "四", "五", "六"];
 const SHORT_DAYS_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -399,7 +408,8 @@ export function WeekView({
 			velocity: number,
 			excludeTaskId?: string,
 		): { snappedMin: number; snapLineY: number | null } => {
-			if (!snapEnabled) {
+			// 会话内用户反复扯离磁吸线，判定为微调意图，临时抑制磁吸
+			if (!snapEnabled || dragRef.current?.snappingSuppressed) {
 				return { snappedMin: targetMin, snapLineY: null };
 			}
 
@@ -467,6 +477,9 @@ export function WeekView({
 			const dateStr = format(days[colIndex], "yyyy-MM-dd");
 			const maxMinutes = dayEndTime === 24 ? 24 * 60 : dayEndTime * 60;
 
+			// 本次移动是否产生了磁吸
+			let snappedThisMove = false;
+
 			if (drag.mode === "create") {
 				const rawStartMin = Math.min(drag.startMin, currentMin);
 				const rawEndMin = Math.max(drag.startMin, currentMin) + timeSnap;
@@ -486,8 +499,10 @@ export function WeekView({
 				setGhost({ dateStr, startMin, endMin });
 
 				if (snapStartLine !== null) {
+					snappedThisMove = true;
 					setSnapLine({ y: snapStartLine, colIndex });
 				} else if (snapEndLine !== null && snappedEnd <= maxMinutes) {
+					snappedThisMove = true;
 					setSnapLine({ y: snapEndLine, colIndex });
 				} else {
 					setSnapLine(null);
@@ -515,6 +530,7 @@ export function WeekView({
 				setGhost({ dateStr, startMin: newStart, endMin: newStart + dur });
 
 				if (snapLineY !== null && snappedStart <= maxMinutes - dur) {
+					snappedThisMove = true;
 					setSnapLine({ y: snapLineY, colIndex });
 				} else {
 					setSnapLine(null);
@@ -540,6 +556,7 @@ export function WeekView({
 				});
 
 				if (snapLineY !== null) {
+					snappedThisMove = true;
 					setSnapLine({ y: snapLineY, colIndex: drag.colIndex });
 				} else {
 					setSnapLine(null);
@@ -568,11 +585,26 @@ export function WeekView({
 				});
 
 				if (snapLineY !== null && snappedEnd <= maxMinutes) {
+					snappedThisMove = true;
 					setSnapLine({ y: snapLineY, colIndex: drag.colIndex });
 				} else {
 					setSnapLine(null);
 				}
 			}
+
+			// 会话状态机：记录「磁吸 -> 扯离」的反复，判定用户在做微调则临时抑制磁吸
+			if (drag.snappingSuppressed) {
+				drag.snapped = snappedThisMove;
+				return;
+			}
+			if (drag.snapped && !snappedThisMove) {
+				drag.leaveSnapCount = (drag.leaveSnapCount ?? 0) + 1;
+				if (drag.leaveSnapCount >= SNAP_LEAVE_THRESHOLD) {
+					drag.snappingSuppressed = true;
+					setSnapLine(null);
+				}
+			}
+			drag.snapped = snappedThisMove;
 		},
 		[
 			days,
@@ -1028,6 +1060,8 @@ export function WeekView({
 											lastY: y,
 											lastTime: now,
 											velocity: 0,
+											snapped: false,
+											leaveSnapCount: 0,
 										};
 										setGhost({
 											dateStr,
@@ -1161,6 +1195,8 @@ export function WeekView({
 													lastY: y,
 													lastTime: now,
 													velocity: 0,
+													snapped: false,
+													leaveSnapCount: 0,
 												};
 												setDraggingTaskId(layout.task.id);
 												setGhost({

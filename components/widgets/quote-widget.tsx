@@ -140,7 +140,6 @@ export function QuoteWidget({
 	}, [currentQuote, t.common.success]);
 
 	useEffect(() => {
-		// eslint-disable-next-line react-hooks/set-state-in-effect
 		setCurrentIndex(Math.floor(Math.random() * availableQuotes.length));
 	}, [availableQuotes.length]);
 

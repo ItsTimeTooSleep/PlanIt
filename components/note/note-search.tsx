@@ -47,7 +47,7 @@ export function NoteSearchPanel({
 			const contentMatch = contentText.toLowerCase().includes(query);
 
 			if (titleMatch || contentMatch) {
-				let matchedText = "";
+				let matchedText: string;
 				if (titleMatch) {
 					matchedText =
 						note.title || (lang === "zh" ? "(无标题)" : "(Untitled)");

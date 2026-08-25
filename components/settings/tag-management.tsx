@@ -224,7 +224,7 @@ export function TagManagement() {
 						{t.common.noData}
 					</p>
 				) : (
-					<div className="space-y-1">
+					<div className="space-y-1 max-h-64 overflow-y-auto pr-1 -mr-1">
 						{displayTags.map((tag, index) => (
 							<DraggableTagItem
 								key={tag.id}
@@ -274,7 +274,7 @@ export function TagManagement() {
 						{t.settings.archivedTagsHint}
 					</p>
 					{showArchived && (
-						<div className="space-y-1">
+						<div className="space-y-1 max-h-64 overflow-y-auto pr-1 -mr-1">
 							{archivedTags.map((tag) => (
 								<div
 									key={tag.id}

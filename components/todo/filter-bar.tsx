@@ -299,12 +299,14 @@ export function FilterBar({
 										onClick={() => onTagFilterChange(tag.id)}
 										className="flex items-center justify-between text-xs"
 									>
-										<span className="flex items-center gap-1.5">
+										<span className="flex items-center gap-1.5 min-w-0">
 											<span
 												className="w-2 h-2 rounded-full shrink-0"
 												style={{ backgroundColor: tag.color }}
 											/>
-											<span className="truncate">{tag.name}</span>
+											<span className="truncate min-w-0" title={tag.name}>
+												{tag.name}
+											</span>
 										</span>
 										{tagFilter === tag.id && (
 											<Check className="w-3.5 h-3.5 shrink-0" />

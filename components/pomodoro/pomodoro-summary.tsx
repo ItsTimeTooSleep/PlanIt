@@ -2,7 +2,7 @@
 
 import { format } from "date-fns";
 import { Battery, CheckCircle, Coffee, Plus, XCircle } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { TaskModal } from "@/components/task-modal";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "@/lib/i18n";
@@ -20,14 +20,11 @@ export function PomodoroSummary({ onClose }: PomodoroSummaryProps) {
 	const { updateTask, state } = useStore();
 	const { tasks } = state;
 	const [showTaskModal, setShowTaskModal] = useState(false);
-	const hasUpdatedTask = useRef(false);
 
 	const isManualStop = pomodoro.manualStop;
 
 	// 自然完成时自动更新绑定任务的时间数据
 	useEffect(() => {
-		if (hasUpdatedTask.current) return;
-
 		if (!isManualStop && pomodoro.taskId && pomodoro.startTime && pomodoro.actualEndTime) {
 			const task = tasks.find((t) => t.id === pomodoro.taskId);
 			if (task) {
@@ -42,43 +39,49 @@ export function PomodoroSummary({ onClose }: PomodoroSummaryProps) {
 						endTime: actualEndTime,
 						status: "completed",
 					});
-
-					hasUpdatedTask.current = true;
 				}
 			}
 		}
-	}, []);
+	}, [
+		isManualStop,
+		pomodoro.taskId,
+		pomodoro.startTime,
+		pomodoro.actualEndTime,
+		tasks,
+		updateTask,
+	]);
+
+	// 绑定任务是否已写入实际起止时间(据此决定是否展示"写入任务"按钮)
+	const boundTask = pomodoro.taskId
+		? tasks.find((t) => t.id === pomodoro.taskId)
+		: null;
+	const taskBindingComplete =
+		!!boundTask && !!boundTask.startTime && !!boundTask.endTime;
+	const showWriteToTask =
+		isManualStop && !!pomodoro.taskId && !taskBindingComplete;
 
 	const handleWriteToTask = () => {
-		if (hasUpdatedTask.current) return;
-		if (pomodoro.taskId && pomodoro.startTime && pomodoro.actualEndTime) {
-			const task = tasks.find((t) => t.id === pomodoro.taskId);
-			if (task) {
-				const actualStartTime = format(pomodoro.startTime, "HH:mm");
-				const actualEndTime = format(pomodoro.actualEndTime, "HH:mm");
-				const actualDate = format(pomodoro.startTime, "yyyy-MM-dd");
+		if (!pomodoro.taskId || !pomodoro.startTime || !pomodoro.actualEndTime) return;
+		const task = tasks.find((t) => t.id === pomodoro.taskId);
+		if (task) {
+			const actualStartTime = format(pomodoro.startTime, "HH:mm");
+			const actualEndTime = format(pomodoro.actualEndTime, "HH:mm");
+			const actualDate = format(pomodoro.startTime, "yyyy-MM-dd");
 
-				updateTask(task.id, {
-					date: task.date || actualDate,
-					startTime: actualStartTime,
-					endTime: actualEndTime,
-					status: "completed",
-				});
-
-				hasUpdatedTask.current = true;
-			}
+			updateTask(task.id, {
+				date: task.date || actualDate,
+				startTime: actualStartTime,
+				endTime: actualEndTime,
+				status: "completed",
+			});
 		}
 	};
 
 	const { shortBreakCount, longBreakCount } = calculateBreakCount();
 
+	// 专注时长按实际计时(排除暂停时间):总时长 - 剩余时长
 	const totalFocusSeconds =
-		pomodoro.startTime && pomodoro.actualEndTime
-			? Math.floor(
-					(pomodoro.actualEndTime.getTime() - pomodoro.startTime.getTime()) /
-						1000,
-				)
-			: pomodoro.totalSeconds - pomodoro.remainingSeconds;
+		pomodoro.totalSeconds - pomodoro.remainingSeconds;
 
 	const totalFocusMinutes = Math.floor(totalFocusSeconds / 60);
 
@@ -194,7 +197,7 @@ export function PomodoroSummary({ onClose }: PomodoroSummaryProps) {
 				</div>
 
 				<div className="flex flex-col items-center gap-3 w-full max-w-sm">
-					{isManualStop && pomodoro.taskId && !hasUpdatedTask.current ? (
+					{showWriteToTask ? (
 						<>
 							<Button
 								onClick={handleWriteToTask}
@@ -224,7 +227,7 @@ export function PomodoroSummary({ onClose }: PomodoroSummaryProps) {
 						</Button>
 					)}
 
-					{!(isManualStop && pomodoro.taskId && !hasUpdatedTask.current) && (
+					{!showWriteToTask && (
 						<Button
 							variant="ghost"
 							size="sm"

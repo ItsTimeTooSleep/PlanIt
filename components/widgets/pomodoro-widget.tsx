@@ -17,69 +17,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { POMODORO_COLORS } from "@/lib/colors";
 import { useTranslations } from "@/lib/i18n";
-import { useLanguage } from "@/lib/store";
+import { formatTime, usePomodoro } from "@/lib/pomodoro-hooks";
+import { useLanguage, useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import type { BaseWidgetProps } from "@/lib/widget-types";
 
 type SizeMode = "compact" | "normal" | "large" | "xlarge";
-type PomodoroPhase = "work" | "shortBreak" | "longBreak";
-type PomodoroStatus = "idle" | "running" | "paused" | "finished";
 
 interface ContainerSize {
 	width: number;
 	height: number;
-}
-
-interface PomodoroSettings {
-	workDuration: number;
-	shortBreakDuration: number;
-	longBreakDuration: number;
-	workSessionsBeforeLongBreak: number;
-}
-
-interface LocalPomodoroState {
-	status: PomodoroStatus;
-	phase: PomodoroPhase;
-	remainingSeconds: number;
-	totalSeconds: number;
-	completedSessions: number;
-	customWorkMinutes: number;
-	settings: PomodoroSettings;
-}
-
-function formatTime(seconds: number): string {
-	const mins = Math.floor(seconds / 60);
-	const secs = seconds % 60;
-	return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-}
-
-function getPhaseDuration(
-	phase: PomodoroPhase,
-	settings: PomodoroSettings,
-): number {
-	switch (phase) {
-		case "work":
-			return settings.workDuration * 60;
-		case "shortBreak":
-			return settings.shortBreakDuration * 60;
-		case "longBreak":
-			return settings.longBreakDuration * 60;
-	}
-}
-
-function getNextPhase(
-	currentPhase: PomodoroPhase,
-	completedSessions: number,
-	settings: PomodoroSettings,
-): PomodoroPhase {
-	if (currentPhase === "work") {
-		const nextSessionNumber = completedSessions + 1;
-		if (nextSessionNumber % settings.workSessionsBeforeLongBreak === 0) {
-			return "longBreak";
-		}
-		return "shortBreak";
-	}
-	return "work";
 }
 
 export function PomodoroWidget({
@@ -88,7 +35,6 @@ export function PomodoroWidget({
 	className,
 }: BaseWidgetProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
-	const timerRef = useRef<NodeJS.Timeout | null>(null);
 	const [sizeMode, setSizeMode] = useState<SizeMode>("normal");
 	const [containerSize, setContainerSize] = useState<ContainerSize>({
 		width: 300,
@@ -97,21 +43,17 @@ export function PomodoroWidget({
 
 	const lang = useLanguage();
 	const t = useTranslations(lang);
-
-	const [pomodoro, setPomodoro] = useState<LocalPomodoroState>({
-		status: "idle",
-		phase: "work",
-		remainingSeconds: 25 * 60,
-		totalSeconds: 25 * 60,
-		completedSessions: 0,
-		customWorkMinutes: 25,
-		settings: {
-			workDuration: 25,
-			shortBreakDuration: 5,
-			longBreakDuration: 15,
-			workSessionsBeforeLongBreak: 4,
-		},
-	});
+	const { state } = useStore();
+	const { pomodoro } = state;
+	const {
+		startTimer,
+		pauseTimer,
+		stopTimer,
+		increaseWorkDuration,
+		decreaseWorkDuration,
+		switchToNextPhase,
+		getUpcomingPhaseInfo,
+	} = usePomodoro();
 
 	const showSessionCount = (config?.showSessionCount as boolean) ?? true;
 
@@ -142,156 +84,6 @@ export function PomodoroWidget({
 		return () => window.removeEventListener("resize", updateSizeMode);
 	}, []);
 
-	useEffect(() => {
-		if (pomodoro.status === "running") {
-			if (!timerRef.current) {
-				timerRef.current = setInterval(() => {
-					setPomodoro((prev) => {
-						if (prev.remainingSeconds <= 1) {
-							clearInterval(timerRef.current!);
-							timerRef.current = null;
-							return { ...prev, status: "finished", remainingSeconds: 0 };
-						}
-						return { ...prev, remainingSeconds: prev.remainingSeconds - 1 };
-					});
-				}, 1000);
-			}
-		} else {
-			if (timerRef.current) {
-				clearInterval(timerRef.current);
-				timerRef.current = null;
-			}
-		}
-
-		return () => {
-			if (timerRef.current) {
-				clearInterval(timerRef.current);
-			}
-		};
-	}, [pomodoro.status]);
-
-	const startTimer = useCallback(() => {
-		setPomodoro((prev) => ({ ...prev, status: "running" }));
-	}, []);
-
-	const pauseTimer = useCallback(() => {
-		setPomodoro((prev) => ({ ...prev, status: "paused" }));
-	}, []);
-
-	const stopTimer = useCallback(() => {
-		setPomodoro({
-			status: "idle",
-			phase: "work",
-			remainingSeconds: pomodoro.customWorkMinutes * 60,
-			totalSeconds: pomodoro.customWorkMinutes * 60,
-			completedSessions: 0,
-			customWorkMinutes: pomodoro.customWorkMinutes,
-			settings: pomodoro.settings,
-		});
-	}, [pomodoro.customWorkMinutes, pomodoro.settings]);
-
-	const setWorkDuration = useCallback((minutes: number) => {
-		const validMinutes = Math.max(1, Math.min(240, minutes));
-		const duration = validMinutes * 60;
-		setPomodoro((prev) => ({
-			...prev,
-			customWorkMinutes: validMinutes,
-			remainingSeconds: duration,
-			totalSeconds: duration,
-		}));
-	}, []);
-
-	const increaseWorkDuration = useCallback(() => {
-		const currentMinutes = Math.ceil(pomodoro.totalSeconds / 60);
-		const newMinutes = Math.min(240, currentMinutes + 5);
-		setWorkDuration(newMinutes);
-	}, [pomodoro.totalSeconds, setWorkDuration]);
-
-	const decreaseWorkDuration = useCallback(() => {
-		const currentMinutes = Math.ceil(pomodoro.totalSeconds / 60);
-		const newMinutes = Math.max(1, currentMinutes - 5);
-		setWorkDuration(newMinutes);
-	}, [pomodoro.totalSeconds, setWorkDuration]);
-
-	const getUpcomingPhaseInfo = useCallback(() => {
-		if (pomodoro.phase !== "work") {
-			return {
-				hasBreak: false,
-				nextPhase: "work" as PomodoroPhase,
-				isFullSession: true,
-			};
-		}
-
-		const workDurationSeconds = pomodoro.settings.workDuration * 60;
-		const isFullSession = pomodoro.totalSeconds >= workDurationSeconds;
-
-		if (!isFullSession) {
-			return {
-				hasBreak: false,
-				nextPhase: "work" as PomodoroPhase,
-				isFullSession,
-			};
-		}
-
-		const nextPhase = getNextPhase(
-			pomodoro.phase,
-			pomodoro.completedSessions,
-			pomodoro.settings,
-		);
-		return { hasBreak: nextPhase !== "work", nextPhase, isFullSession };
-	}, [
-		pomodoro.phase,
-		pomodoro.totalSeconds,
-		pomodoro.settings,
-		pomodoro.completedSessions,
-	]);
-
-	const switchToNextPhase = useCallback(() => {
-		setPomodoro((prev) => {
-			let newCompletedSessions = prev.completedSessions;
-			if (prev.phase === "work") {
-				newCompletedSessions += 1;
-			}
-
-			const workDurationSeconds = prev.settings.workDuration * 60;
-			const isFullSession =
-				prev.phase !== "work" || prev.totalSeconds >= workDurationSeconds;
-
-			if (!isFullSession) {
-				return {
-					...prev,
-					phase: "work",
-					remainingSeconds: prev.customWorkMinutes * 60,
-					totalSeconds: prev.customWorkMinutes * 60,
-					completedSessions: prev.completedSessions,
-					status: "idle",
-				};
-			}
-
-			const nextPhase = getNextPhase(
-				prev.phase,
-				prev.completedSessions,
-				prev.settings,
-			);
-			let nextDuration: number;
-
-			if (nextPhase === "work") {
-				nextDuration = prev.customWorkMinutes * 60;
-			} else {
-				nextDuration = getPhaseDuration(nextPhase, prev.settings);
-			}
-
-			return {
-				...prev,
-				phase: nextPhase,
-				remainingSeconds: nextDuration,
-				totalSeconds: nextDuration,
-				completedSessions: newCompletedSessions,
-				status: "idle",
-			};
-		});
-	}, []);
-
 	const progress = useMemo(() => {
 		return pomodoro.totalSeconds > 0
 			? ((pomodoro.totalSeconds - pomodoro.remainingSeconds) /
@@ -319,16 +111,6 @@ export function PomodoroWidget({
 		};
 		return labels[pomodoro.phase];
 	}, [pomodoro.phase, t]);
-
-	const _getPhaseIcon = useCallback(() => {
-		switch (pomodoro.phase) {
-			case "work":
-				return Brain;
-			case "shortBreak":
-			case "longBreak":
-				return Coffee;
-		}
-	}, [pomodoro.phase]);
 
 	const handleReset = useCallback(() => {
 		stopTimer();
@@ -407,6 +189,9 @@ export function PomodoroWidget({
 		containerSize.width >= 150 &&
 		sizeMode !== "compact";
 
+	const isFinished =
+		pomodoro.status === "finished" || pomodoro.status === "summary";
+
 	return (
 		<div
 			ref={containerRef}
@@ -457,7 +242,7 @@ export function PomodoroWidget({
 			</div>
 
 			<div className="flex-1 flex flex-col items-center justify-center p-4">
-				{pomodoro.status === "finished" ? (
+				{isFinished ? (
 					(() => {
 						const { hasBreak, nextPhase } = getUpcomingPhaseInfo();
 						const completedMinutes = Math.floor(pomodoro.totalSeconds / 60);

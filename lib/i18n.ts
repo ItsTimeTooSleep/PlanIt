@@ -267,9 +267,8 @@ const zh = {
 		notificationsDeniedAlert: "通知权限被拒绝，无法启用通知功能",
 		notificationsDefault: "点击开启后将请求授权",
 		notificationTitle: "任务开始",
-		notificationBody: "即将开始",
+		notificationTitleAdvance: "任务即将开始",
 		notificationTitleEnd: "任务结束",
-		notificationBodyEnd: "已结束",
 		advanceNotification: "提前通知",
 		advanceNotificationDesc: "任务开始前多久发送提醒",
 		never: "永不",
@@ -421,6 +420,7 @@ const zh = {
 		focusComplete: "专注完成",
 		continueFocus: "继续专注",
 		startLongBreak: "开始长休息",
+		summary: "结算",
 		minutes: "分钟",
 		complete: "完成",
 		skip: "跳过",
@@ -444,6 +444,14 @@ const zh = {
 		thisWeek: "本周",
 		future: "未来",
 		noMatchingTask: "没有匹配的任务",
+		focusDurationDetail: (minutes: number, seconds: number) =>
+			`专注时长: ${minutes}分${seconds > 0 ? `${seconds}秒` : ""}`,
+		pomodoroCount: (count: number) => `已完成 ${count} 个番茄钟`,
+		allDay: "全天",
+		due: "截止",
+		overdue: "已过期",
+		dueSoon: "即将到期",
+		pendingStatus: "待办",
 	},
 
 	todo: {
@@ -1150,9 +1158,8 @@ const en = {
 			"Notification permission denied. Cannot enable notifications.",
 		notificationsDefault: "Click to request permission",
 		notificationTitle: "Task Starting",
-		notificationBody: "is about to start",
+		notificationTitleAdvance: "Task Starting Soon",
 		notificationTitleEnd: "Task Ended",
-		notificationBodyEnd: "has ended",
 		advanceNotification: "Advance Notification",
 		advanceNotificationDesc: "How long before task start to send reminder",
 		never: "Never",
@@ -1310,6 +1317,7 @@ const en = {
 		focusComplete: "Focus complete",
 		continueFocus: "Continue focus",
 		startLongBreak: "Start long break",
+		summary: "Finish",
 		minutes: "min",
 		complete: "Complete",
 		skip: "Skip",
@@ -1333,6 +1341,14 @@ const en = {
 		thisWeek: "This week",
 		future: "Future",
 		noMatchingTask: "No matching task",
+		focusDurationDetail: (minutes: number, seconds: number) =>
+			`Focus duration: ${minutes}m${seconds > 0 ? `${seconds}s` : ""}`,
+		pomodoroCount: (count: number) => `${count} pomodoros completed`,
+		allDay: "All day",
+		due: "Due",
+		overdue: "Overdue",
+		dueSoon: "Due soon",
+		pendingStatus: "Pending",
 	},
 
 	todo: {
@@ -2023,9 +2039,8 @@ export type Translations = {
 		readonly notificationsDeniedAlert: string;
 		readonly notificationsDefault: string;
 		readonly notificationTitle: string;
-		readonly notificationBody: string;
+		readonly notificationTitleAdvance: string;
 		readonly notificationTitleEnd: string;
-		readonly notificationBodyEnd: string;
 		readonly advanceNotification: string;
 		readonly advanceNotificationDesc: string;
 		readonly never: string;
@@ -2176,6 +2191,7 @@ export type Translations = {
 		readonly focusComplete: string;
 		readonly continueFocus: string;
 		readonly startLongBreak: string;
+		readonly summary: string;
 		readonly minutes: string;
 		readonly skip: string;
 		readonly continue: string;
@@ -2198,6 +2214,13 @@ export type Translations = {
 		readonly thisWeek: string;
 		readonly future: string;
 		readonly noMatchingTask: string;
+		readonly focusDurationDetail: (minutes: number, seconds: number) => string;
+		readonly pomodoroCount: (count: number) => string;
+		readonly allDay: string;
+		readonly due: string;
+		readonly overdue: string;
+		readonly dueSoon: string;
+		readonly pendingStatus: string;
 	};
 	readonly todo: {
 		readonly title: string;

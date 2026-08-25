@@ -12,7 +12,7 @@ import {
 	Play,
 	Plus,
 	RotateCcw,
-	SkipForward,
+	Flag,
 	Square,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -49,8 +49,7 @@ export function PomodoroTimer() {
 	const t = useTranslations(lang);
 	const { isTaskMode, close } = usePomodoroDialog();
 	const isDesktop = useDesktopOnly();
-	const { state } = useStore();
-	const { tasks } = state;
+	const { updateTask } = useStore();
 	const {
 		pomodoro,
 		currentTask,
@@ -168,9 +167,8 @@ export function PomodoroTimer() {
 	const shouldShowSkipBreakSwitch = shortBreakCount > 0 || longBreakCount > 0;
 
 	const isWorkPhase = pomodoro.phase === "work";
-	const focusTimeElapsed = pomodoro.startTime
-		? Math.floor((Date.now() - pomodoro.startTime.getTime()) / 1000)
-		: pomodoro.totalSeconds - pomodoro.remainingSeconds;
+	// 专注时长按实际计时(排除暂停时间):总时长 - 剩余时长
+	const focusTimeElapsed = pomodoro.totalSeconds - pomodoro.remainingSeconds;
 	const hasFocusedOneMinute = focusTimeElapsed >= 60;
 
 	const handleStop = useCallback(() => {
@@ -185,11 +183,65 @@ export function PomodoroTimer() {
 		stopTimer();
 	}, [stopTimer]);
 
+	// 自然完成专注时,自动把实际起止时间写入绑定的任务
+	const hasWrittenTask = useRef(false);
 	useEffect(() => {
-		if (pomodoro.status === "finished" && isWorkPhase && hasFocusedOneMinute) {
-			stopTimerWithSummary(false);
+		if (pomodoro.status !== "finished") {
+			hasWrittenTask.current = false;
+			return;
 		}
-	}, [pomodoro.status, isWorkPhase, hasFocusedOneMinute, stopTimerWithSummary]);
+		if (!isWorkPhase || !currentTask || hasWrittenTask.current) return;
+		const start = pomodoro.startTime;
+		const end = pomodoro.actualEndTime;
+		if (!start || !end) return;
+		hasWrittenTask.current = true;
+		updateTask(currentTask.id, {
+			date: currentTask.date || format(start, "yyyy-MM-dd"),
+			startTime: format(start, "HH:mm"),
+			endTime: format(end, "HH:mm"),
+			status: "completed",
+		});
+	}, [
+		pomodoro.status,
+		pomodoro.phase,
+		pomodoro.startTime,
+		pomodoro.actualEndTime,
+		isWorkPhase,
+		currentTask,
+		updateTask,
+	]);
+
+	// 自动开始下一阶段(autoStartBreaks / autoStartWork)
+	const hasAutoStarted = useRef(false);
+	useEffect(() => {
+		if (pomodoro.status !== "finished") {
+			hasAutoStarted.current = false;
+			return;
+		}
+		if (hasAutoStarted.current) return;
+		hasAutoStarted.current = true;
+
+		if (isWorkPhase) {
+			// 完整番茄周期结束后才按 autoStartBreaks 自动进入休息；
+			// 自定义短时长(未达到设置专注时长)完成后停留在"已完成"界面,由用户手动继续或重置
+			const { hasBreak } = getUpcomingPhaseInfo();
+			if (hasBreak && pomodoro.settings.autoStartBreaks) {
+				switchToNextPhase();
+				startTimer();
+			}
+		} else if (pomodoro.settings.autoStartWork) {
+			switchToNextPhase();
+			startTimer();
+		}
+	}, [
+		pomodoro.status,
+		isWorkPhase,
+		pomodoro.settings.autoStartBreaks,
+		pomodoro.settings.autoStartWork,
+		getUpcomingPhaseInfo,
+		switchToNextPhase,
+		startTimer,
+	]);
 
 	if (pomodoro.status === "summary") {
 		return (
@@ -483,7 +535,7 @@ export function PomodoroTimer() {
 									className="data-[state=checked]:bg-primary"
 								/>
 								<span className="text-sm text-muted-foreground">
-									{t.pomodoro.skipBreaks || "跳过休息时间"}
+									{t.pomodoro.skipBreaks}
 								</span>
 							</div>
 
@@ -526,7 +578,7 @@ export function PomodoroTimer() {
 
 			{pomodoro.status === "finished" &&
 				(() => {
-					const { hasBreak, nextPhase, isFullSession } = getUpcomingPhaseInfo();
+					const { isFullSession } = getUpcomingPhaseInfo();
 					const completedMinutes = Math.floor(pomodoro.totalSeconds / 60);
 					const completedSeconds = pomodoro.totalSeconds % 60;
 
@@ -542,84 +594,42 @@ export function PomodoroTimer() {
 										{t.pomodoro.complete}
 									</h2>
 									<p className="text-muted-foreground">
-										{lang === "zh"
-											? `专注时长: ${completedMinutes}分${completedSeconds > 0 ? `${completedSeconds}秒` : ""}`
-											: `Focus duration: ${completedMinutes}m${completedSeconds > 0 ? `${completedSeconds}s` : ""}`}
+										{t.pomodoro.focusDurationDetail(
+											completedMinutes,
+											completedSeconds,
+										)}
 									</p>
 									{isFullSession && pomodoro.phase === "work" && (
 										<p className="text-sm text-muted-foreground mt-1">
-											{lang === "zh"
-												? `已完成 ${pomodoro.completedSessions + 1} 个番茄钟`
-												: `${pomodoro.completedSessions + 1} pomodoros completed`}
+											{t.pomodoro.pomodoroCount(
+												pomodoro.completedSessions + 1,
+											)}
 										</p>
 									)}
 								</div>
 							</div>
 
-							<div className="flex flex-col items-center gap-3">
-								{hasBreak && (
-									<div className="flex items-center gap-2 px-4 py-2 rounded-full bg-muted/30 mb-2">
-										{nextPhase === "shortBreak" ? (
-											<>
-												<Coffee className="w-4 h-4 text-emerald-500" />
-												<span className="text-sm">
-													{t.pomodoro.shortBreak}:{" "}
-													{pomodoro.settings.shortBreakDuration}min
-												</span>
-											</>
-										) : (
-											<>
-												<Battery className="w-4 h-4 text-blue-500" />
-												<span className="text-sm">
-													{t.pomodoro.longBreak}:{" "}
-													{pomodoro.settings.longBreakDuration}min
-												</span>
-											</>
-										)}
-									</div>
-								)}
-
+							<div className="flex flex-col items-center gap-4">
 								<div className="flex items-center gap-3">
-									{hasBreak && (
-										<Button
-											variant="outline"
-											className="rounded-full"
-											onClick={() => {
-												switchToNextPhase();
-												startTimer();
-											}}
-										>
-											{nextPhase === "shortBreak" ? (
-												<>
-													<Coffee className="w-4 h-4 mr-2" />
-													{t.pomodoro.break}
-												</>
-											) : (
-												<>
-													<Battery className="w-4 h-4 mr-2" />
-													{t.pomodoro.startLongBreak}
-												</>
-											)}
-										</Button>
-									)}
-
 									<Button
+										variant="outline"
 										className="rounded-full"
 										onClick={() => {
 											switchToNextPhase();
 										}}
 									>
-										{hasBreak ? (
-											<>
-												<SkipForward className="w-4 h-4 mr-2" />
-												{t.pomodoro.skip}
-											</>
-										) : (
-											<>
-												<Play className="w-4 h-4 mr-2" />
-												{t.pomodoro.continueFocus}
-											</>
-										)}
+										<Play className="w-4 h-4 mr-2" />
+										{t.pomodoro.continueFocus}
+									</Button>
+
+									<Button
+										className="rounded-full"
+										onClick={() => {
+											stopTimerWithSummary(true);
+										}}
+									>
+										<Flag className="w-4 h-4 mr-2" />
+										{t.pomodoro.summary}
 									</Button>
 								</div>
 
@@ -688,6 +698,15 @@ export function PomodoroTimer() {
 									onClick={pauseTimer}
 								>
 									<Pause className="w-5 h-5" />
+								</Button>
+
+								<Button
+									size="icon"
+									className="w-9 h-9 rounded-full"
+									variant="ghost"
+									onClick={handleStop}
+								>
+									<Square className="w-4 h-4" />
 								</Button>
 
 								<Button

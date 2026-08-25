@@ -188,13 +188,25 @@ async function showNotification(
 	}
 }
 
+/**
+ * 各类任务通知的展示文本
+ * - advance：提前提醒（任务开始前 advanceMinutes 分钟）
+ * - start：任务开始时
+ * - end：任务结束时
+ */
+export interface TaskNotificationMessages {
+	startTitle: string;
+	startBody: string;
+	endTitle?: string;
+	endBody?: string;
+	advanceTitle?: string;
+	advanceBody?: string;
+}
+
 export function scheduleTaskNotification(
 	task: Task,
-	startTitle: string,
-	startBody?: string,
+	messages: TaskNotificationMessages,
 	settings?: NotificationSettings,
-	endTitle?: string,
-	endBody?: string,
 ) {
 	console.log(`${LOG_PREFIX} scheduleTaskNotification called for task:`, {
 		taskId: task.id,
@@ -289,8 +301,8 @@ export function scheduleTaskNotification(
 					`${LOG_PREFIX} Advance timer fired for task ${task.id}, showing notification...`,
 				);
 				showNotification(
-					startTitle,
-					startBody ?? `${task.startTime} – ${task.endTime ?? ""}`,
+					messages.advanceTitle ?? messages.startTitle,
+					messages.advanceBody ?? messages.startBody,
 					`${task.id}-advance`,
 				).catch((error) => {
 					console.error(
@@ -318,8 +330,8 @@ export function scheduleTaskNotification(
 					`${LOG_PREFIX} Start timer fired for task ${task.id}, showing notification...`,
 				);
 				showNotification(
-					startTitle,
-					startBody ?? `${task.startTime} – ${task.endTime ?? ""}`,
+					messages.startTitle,
+					messages.startBody,
 					`${task.id}-start`,
 				).catch((error) => {
 					console.error(
@@ -349,8 +361,8 @@ export function scheduleTaskNotification(
 					`${LOG_PREFIX} End timer fired for task ${task.id}, showing notification...`,
 				);
 				showNotification(
-					endTitle ?? startTitle,
-					endBody ?? `${task.startTime} – ${task.endTime}`,
+					messages.endTitle ?? messages.startTitle,
+					messages.endBody ?? messages.startBody,
 					`${task.id}-end`,
 				).catch((error) => {
 					console.error(

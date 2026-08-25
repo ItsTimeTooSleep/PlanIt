@@ -50,6 +50,12 @@ export default [
 				{ argsIgnorePattern: "^_", varsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" },
 			],
 			"@typescript-eslint/no-explicit-any": "warn",
+			// 以下规则源于 eslint-plugin-react-hooks v7 针对 React Compiler 的检查。
+			// 本项目未启用 React Compiler，这些规则会对既有的合法模式（模态框打开重置表单、
+			// store hydration 首次加载、动画高度计算中读取 ref 等）产生误报，故显式关闭。
+			"react-hooks/set-state-in-effect": "off",
+			"react-hooks/refs": "off",
+			"react-hooks/preserve-manual-memoization": "off",
 		},
 		settings: {
 			react: {

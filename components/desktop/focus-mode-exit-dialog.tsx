@@ -200,7 +200,7 @@ export function FocusModeExitDialog({
 
 							<div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
 								<p className="text-sm text-center italic text-muted-foreground">
-									"{encouragement}"
+									&ldquo;{encouragement}&rdquo;
 								</p>
 							</div>
 
@@ -227,7 +227,7 @@ export function FocusModeExitDialog({
 										: "Please type the following to confirm exit:"}
 								</p>
 								<p className="text-lg font-semibold text-center py-2">
-									"{targetPhrase}"
+									&ldquo;{targetPhrase}&rdquo;
 								</p>
 							</div>
 
@@ -244,7 +244,7 @@ export function FocusModeExitDialog({
 
 							<div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
 								<p className="text-sm text-center italic text-muted-foreground">
-									"{encouragement}"
+									&ldquo;{encouragement}&rdquo;
 								</p>
 							</div>
 
@@ -299,7 +299,7 @@ export function FocusModeExitDialog({
 
 							<div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
 								<p className="text-sm text-center italic text-muted-foreground">
-									"{encouragement}"
+									&ldquo;{encouragement}&rdquo;
 								</p>
 							</div>
 

@@ -5,7 +5,6 @@ import {
 	endOfToday,
 	endOfWeek,
 	format,
-	isAfter,
 	isBefore,
 	isWithinInterval,
 	parseISO,
@@ -167,7 +166,7 @@ export function TodoView() {
 				} else if (timeFilter === "overdue") {
 					matchesTime = isBefore(taskDate, today);
 				} else if (timeFilter === "upcoming") {
-					matchesTime = isAfter(taskDate, endOfToday());
+					matchesTime = !isBefore(taskDate, startOfToday());
 				}
 			} else {
 				matchesTime = timeFilter === "all";
@@ -276,7 +275,7 @@ export function TodoView() {
 			} else if (timeFilter === "overdue") {
 				return isBefore(taskDate, today);
 			} else if (timeFilter === "upcoming") {
-				return isAfter(taskDate, endOfToday());
+				return !isBefore(taskDate, startOfToday());
 			}
 			return true;
 		});
@@ -403,7 +402,7 @@ export function TodoView() {
 			} else if (timeFilter === "overdue") {
 				return isBefore(taskDate, today);
 			} else if (timeFilter === "upcoming") {
-				return isAfter(taskDate, endOfToday());
+				return !isBefore(taskDate, startOfToday());
 			}
 			return true;
 		});
