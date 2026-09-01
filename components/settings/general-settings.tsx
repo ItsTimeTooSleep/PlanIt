@@ -127,6 +127,30 @@ export function GeneralSettings() {
 				/>
 			</SettingRow>
 
+			<SettingRow
+				label={t.settings.promptActualTimeOnComplete}
+				description={t.settings.promptActualTimeOnCompleteDesc}
+			>
+				<Switch
+					checked={state.settings.promptActualTimeOnComplete}
+					onCheckedChange={(checked) =>
+						updateSettings({ promptActualTimeOnComplete: checked })
+					}
+				/>
+			</SettingRow>
+
+			<SettingRow
+				label={t.settings.showTaskModalActions}
+				description={t.settings.showTaskModalActionsDesc}
+			>
+				<Switch
+					checked={state.settings.showTaskModalActions}
+					onCheckedChange={(checked) =>
+						updateSettings({ showTaskModalActions: checked })
+					}
+				/>
+			</SettingRow>
+
 			<SettingGroup bordered>
 				<SettingRow label={t.settings.sound} description={t.settings.soundDesc}>
 					<Switch

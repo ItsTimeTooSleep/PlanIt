@@ -97,6 +97,9 @@ export function TaskModal({
 	const t = useTranslations(lang);
 	const { state, addTask, updateTask, deleteTasks } = useStore();
 
+	/** 是否在编辑任务窗口中显示“保存”/“取消”按钮；关闭后修改直接生效 */
+	const showTaskModalActions = state.settings.showTaskModalActions ?? true;
+
 	const _today = format(new Date(), "yyyy-MM-dd");
 	const tomorrow = format(addDays(new Date(), 1), "yyyy-MM-dd");
 
@@ -116,6 +119,7 @@ export function TaskModal({
 	>("days");
 	const [notes, setNotes] = useState("");
 	const [status, setStatus] = useState<TaskStatus>("pending");
+	const [actualMinutes, setActualMinutes] = useState("");
 	const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 	const [showNotesSyncConfirm, setShowNotesSyncConfirm] = useState(false);
 	const [pendingNotes, setPendingNotes] = useState<string>("");
@@ -156,6 +160,11 @@ export function TaskModal({
 			setRepeatUnit(task.repeatRule.customUnit ?? "days");
 			setNotes(task.notes ?? "");
 			setStatus(task.status);
+			setActualMinutes(
+				task.actualDurationMinutes != null
+					? String(task.actualDurationMinutes)
+					: "",
+			);
 			setIsMultiStep(task.isMultiStep ?? false);
 			setSteps(task.steps ?? []);
 			// 计算初始截止日期偏移
@@ -184,6 +193,7 @@ export function TaskModal({
 			setRepeatUnit("days");
 			setNotes("");
 			setStatus(defaultStatus ?? "pending");
+			setActualMinutes("");
 			setDueDateOffset(0);
 			setShowAdvancedOptions(false);
 			setIsMultiStep(false);
@@ -358,6 +368,10 @@ export function TaskModal({
 			},
 			notes: notesContent || undefined,
 			status,
+			actualDurationMinutes:
+				status === "completed" && actualMinutes.trim() !== ""
+					? Math.max(0, parseInt(actualMinutes, 10) || 0)
+					: undefined,
 			createdAt: task?.createdAt ?? new Date().toISOString(),
 			isMultiStep: isMultiStep && steps.length > 0,
 			steps: isMultiStep && steps.length > 0 ? steps : undefined,
@@ -402,6 +416,62 @@ export function TaskModal({
 	}
 
 	const isRecurring = task ? isPartOfRecurringGroup(task, state.tasks) : false;
+
+	/**
+	 * 关闭弹窗的统一入口：
+	 * - 显示操作按钮时：与原来一致，直接关闭（不保存）
+	 * - 隐藏操作按钮（直接生效）时：关闭即自动保存当前修改
+	 */
+	const handleDialogClose = useCallback(() => {
+		if (showTaskModalActions) {
+			onClose();
+			return;
+		}
+		// 自动保存模式：标题或日期/截止日期未填写时视为未开始编辑，直接关闭
+		if (!title.trim() || (!date && !dueDate)) {
+			onClose();
+			return;
+		}
+		// 重复任务备注变更需先确认同步范围
+		const currentNotes = task?.notes?.trim() || "";
+		const newNotes = notes.trim();
+		if (task && isRecurring && currentNotes !== newNotes) {
+			setPendingNotes(notes.trim());
+			setShowNotesSyncConfirm(true);
+			return;
+		}
+		performSave(notes.trim());
+	}, [
+		showTaskModalActions,
+		onClose,
+		title,
+		date,
+		dueDate,
+		task,
+		isRecurring,
+		notes,
+		performSave,
+	]);
+
+	/** 计划用时（分钟）：由开始/结束时间计算，仅当两者都存在时有效 */
+	const plannedMinutes = useMemo(() => {
+		if (!startTime || !endTime || isAllDay) return null;
+		const [sh, sm] = startTime.split(":").map(Number);
+		const [eh, em] = endTime.split(":").map(Number);
+		const diff = eh * 60 + em - (sh * 60 + sm);
+		return diff > 0 ? diff : null;
+	}, [startTime, endTime, isAllDay]);
+
+	// 状态切换为“完成”时，若任务有计划时间且尚未填写实际耗时，则自动填充计划时间
+	useEffect(() => {
+		if (
+			status === "completed" &&
+			actualMinutes === "" &&
+			plannedMinutes != null
+		) {
+			setActualMinutes(String(plannedMinutes));
+		}
+	}, [status, plannedMinutes, actualMinutes]);
 
 	function handleDateRangeSelect(
 		date: string,
@@ -494,7 +564,7 @@ export function TaskModal({
 	);
 
 	return (
-		<Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+		<Dialog open={open} onOpenChange={(v) => !v && handleDialogClose()}>
 			<DialogContent
 				className="max-w-md max-h-[90vh] overflow-y-auto"
 				onKeyDown={handleKeyDown}
@@ -1162,6 +1232,35 @@ export function TaskModal({
 						</Select>
 					</div>
 
+					{/* 实际花费时间：状态为“完成”时动态显示 */}
+					{status === "completed" && (
+						<div className="flex flex-col gap-1.5 p-3 bg-muted/30 rounded-lg">
+							<Label htmlFor="task-actual-duration" className="text-sm">
+								{t.task.actualDuration}
+							</Label>
+							<div className="flex items-center gap-2">
+								<Input
+									id="task-actual-duration"
+									type="number"
+									min={0}
+									value={actualMinutes}
+									onChange={(e) => setActualMinutes(e.target.value)}
+									placeholder="0"
+									className="w-28"
+								/>
+								<span className="text-sm text-muted-foreground">
+									{t.task.actualDurationMinutesHint}
+								</span>
+								{plannedMinutes != null && (
+									<span className="text-xs text-muted-foreground ml-auto">
+										{t.task.actualDurationPlanned} ({plannedMinutes}{" "}
+										{t.task.actualDurationMinutesHint})
+									</span>
+								)}
+							</div>
+						</div>
+					)}
+
 					{/* Notes */}
 					<div className="flex flex-col gap-1.5">
 						<Label htmlFor="task-notes">{t.task.notes}</Label>
@@ -1175,28 +1274,30 @@ export function TaskModal({
 					</div>
 				</div>
 
-				<DialogFooter className="flex-col sm:flex-row gap-2 mt-2">
-					{task && (
-						<Button
-							variant="destructive"
-							onClick={() => setShowDeleteConfirm(true)}
-							className="sm:mr-auto"
-						>
-							<Trash2 className="w-4 h-4 mr-1" />
-							{t.common.delete}
+				{showTaskModalActions && (
+					<DialogFooter className="flex-col sm:flex-row gap-2 mt-2">
+						{task && (
+							<Button
+								variant="destructive"
+								onClick={() => setShowDeleteConfirm(true)}
+								className="sm:mr-auto"
+							>
+								<Trash2 className="w-4 h-4 mr-1" />
+								{t.common.delete}
+							</Button>
+						)}
+						<Button variant="outline" onClick={onClose}>
+							{t.common.cancel}
 						</Button>
-					)}
-					<Button variant="outline" onClick={onClose}>
-						{t.common.cancel}
-					</Button>
-					<Button
-						onClick={handleSave}
-						disabled={!title.trim() || (!date && !dueDate)}
-						title={!date && !dueDate ? t.task.dateOrDueDateRequired : undefined}
-					>
-						{t.common.save}
-					</Button>
-				</DialogFooter>
+						<Button
+							onClick={handleSave}
+							disabled={!title.trim() || (!date && !dueDate)}
+							title={!date && !dueDate ? t.task.dateOrDueDateRequired : undefined}
+						>
+							{t.common.save}
+						</Button>
+					</DialogFooter>
+				)}
 
 				{/* Delete Confirmation Dialog */}
 				<TaskDeleteDialog

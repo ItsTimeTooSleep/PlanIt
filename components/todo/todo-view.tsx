@@ -136,6 +136,7 @@ export function TodoView() {
 	const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 	const [editingTask, setEditingTask] = useState<Task | null>(null);
 	const [exitingTaskIds, setExitingTaskIds] = useState<Set<string>>(new Set());
+	const [searchQuery, setSearchQuery] = useState("");
 	const previousTasksRef = useRef<Record<string, Task>>({});
 
 	const locale = lang === "zh" ? zhCN : enUS;
@@ -296,11 +297,17 @@ export function TodoView() {
 				matchesTag = task.tagIds.includes(tagFilter);
 			}
 
+			let matchesSearch = true;
+			const query = searchQuery.trim().toLowerCase();
+			if (query) {
+				matchesSearch = task.title.toLowerCase().includes(query);
+			}
+
 			const isExiting = isStepTask
 				? exitingTaskIds.has(originalTaskId)
 				: exitingTaskIds.has(task.id);
 
-			return (matchesStatus && matchesTag) || isExiting;
+			return (matchesStatus && matchesTag && matchesSearch) || isExiting;
 		});
 
 		expandedTasks.sort((a, b) => {
@@ -469,6 +476,8 @@ export function TodoView() {
 				tags={state.tags}
 				completedCount={allTasksCompletedCount}
 				totalCount={allTasksWithTimeAndTagFilter.length}
+				searchQuery={searchQuery}
+				onSearchChange={setSearchQuery}
 				onTimeFilterChange={setTimeFilter}
 				onStatusFilterChange={setStatusFilter}
 				onTagFilterChange={setTagFilter}

@@ -112,6 +112,18 @@ export function CalendarSettings() {
 					unit="px"
 				/>
 			</SettingRow>
+
+			<SettingRow
+				label={t.calendarSettings.autoTrimEndOnComplete}
+				description={t.calendarSettings.autoTrimEndOnCompleteDesc}
+			>
+				<Switch
+					checked={calendarSettings.autoTrimEndOnComplete}
+					onCheckedChange={(v) =>
+						updateCalendarSetting("autoTrimEndOnComplete", v)
+					}
+				/>
+			</SettingRow>
 		</div>
 	);
 }

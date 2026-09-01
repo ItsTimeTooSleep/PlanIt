@@ -29,6 +29,7 @@ import { getTaskIdsToDelete, isPartOfRecurringGroup } from "@/lib/task-utils";
 import type { DeleteRecurringOption, Tag, Task, TaskStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { TaskDeleteDialog } from "../task-delete-dialog";
+import { CompleteTaskDialog } from "./complete-task-dialog";
 
 interface TaskItemProps {
 	task: Task;
@@ -51,6 +52,7 @@ export function TaskItem({
 	const t = useTranslations(lang);
 	const { state, updateTask, deleteTasks } = useStore();
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+	const [showCompleteTimeDialog, setShowCompleteTimeDialog] = useState(false);
 	const [isHighlighted, setIsHighlighted] = useState(false);
 	const [isExiting, setIsExiting] = useState(false);
 	const itemRef = useRef<HTMLDivElement>(null);
@@ -112,6 +114,20 @@ export function TaskItem({
 
 	const handleToggleStatus = useCallback(() => {
 		const isStepTask = task.id.includes("-step-");
+		const isCompleting = task.status !== "completed";
+
+		// 完成一个无计划时间的非步骤任务，且设置了开启弹窗时，弹出窗口记录实际耗时
+		if (
+			isCompleting &&
+			!isStepTask &&
+			state.settings.promptActualTimeOnComplete &&
+			!task.startTime &&
+			!task.endTime
+		) {
+			setShowCompleteTimeDialog(true);
+			return;
+		}
+
 		if (isStepTask) {
 			// 更新步骤状态
 			const originalTaskId = task.id.split("-step-")[0];
@@ -133,7 +149,17 @@ export function TaskItem({
 				task.status === "completed" ? "pending" : "completed";
 			updateTask(task.id, { status: newStatus });
 		}
-	}, [task.id, task.status, state.tasks, updateTask]);
+	}, [task.id, task.status, state.tasks, state.settings.promptActualTimeOnComplete, updateTask]);
+
+	const handleCompleteTimeConfirm = useCallback(
+		(minutes: number | null) => {
+			updateTask(task.id, {
+				status: "completed",
+				actualDurationMinutes: minutes ?? undefined,
+			});
+		},
+		[task.id, updateTask],
+	);
 
 	const handleMarkSkip = useCallback(() => {
 		const isStepTask = task.id.includes("-step-");
@@ -373,6 +399,13 @@ export function TaskItem({
 				onClose={() => setShowDeleteDialog(false)}
 				onConfirm={handleDeleteConfirm}
 				isRecurring={isRecurring}
+			/>
+
+			<CompleteTaskDialog
+				open={showCompleteTimeDialog}
+				onClose={() => setShowCompleteTimeDialog(false)}
+				taskTitle={task.title}
+				onConfirm={handleCompleteTimeConfirm}
 			/>
 		</>
 	);

@@ -189,9 +189,14 @@ export function MonthView({
 												key={task.id}
 												className="flex items-center gap-1.5 py-0.5 cursor-pointer hover:opacity-80 group min-w-0"
 												onClick={(e) => {
-													e.stopPropagation();
-													onOpenTask(task);
-												}}
+												e.stopPropagation();
+												onOpenTask(task);
+											}}
+											onContextMenu={(e) => {
+												e.preventDefault();
+												e.stopPropagation();
+												onOpenTask(task);
+											}}
 												style={{
 													opacity: isDimmed ? 0.6 : 1,
 													overflow: "hidden",

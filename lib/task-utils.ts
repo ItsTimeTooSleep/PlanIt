@@ -29,6 +29,35 @@ export function taskDurationMinutes(task: Task): number {
 	return timeToMinutes(task.endTime) - timeToMinutes(task.startTime);
 }
 
+/**
+ * 完成任务时，若开启了"自动调整计划结束时间"设置，且当前时间处于该任务的计划时间范围内，
+ * 返回裁剪后的结束时间（HH:MM），否则返回 undefined
+ * @param task - 目标任务
+ * @param enabled - 是否开启自动裁剪设置
+ * @param now - 当前时间（默认系统当前时间）
+ */
+export function getAutoTrimmedEndTimeOnComplete(
+	task: Task,
+	enabled: boolean,
+	now: Date = new Date(),
+): string | undefined {
+	if (!enabled) return undefined;
+	// 全天任务或无计划时间、无计划日期的任务不处理
+	if (task.isAllDay || !task.date || !task.startTime || !task.endTime) {
+		return undefined;
+	}
+	// 仅当计划日期是今天时才可能"当前处于计划时间内"
+	if (task.date !== format(now, "yyyy-MM-dd")) return undefined;
+
+	const nowMinutes = now.getHours() * 60 + now.getMinutes();
+	const startMinutes = timeToMinutes(task.startTime);
+	const endMinutes = timeToMinutes(task.endTime);
+	// 当前时间需落在 [开始时间, 结束时间] 区间内
+	if (nowMinutes < startMinutes || nowMinutes > endMinutes) return undefined;
+
+	return minutesToTime(nowMinutes);
+}
+
 export function taskDurationHours(task: Task): number {
 	return taskDurationMinutes(task) / 60;
 }

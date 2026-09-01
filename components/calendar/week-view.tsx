@@ -45,6 +45,7 @@ interface WeekViewProps {
 	};
 	onSelectMultiple?: (ids: string[]) => void;
 	onDeleteTask?: (task: Task) => void;
+	onOpenScheduleDue?: () => void;
 }
 
 // ── Ghost block shown during drag ──────────────────────────────────────────
@@ -98,6 +99,7 @@ export function WeekView({
 	calendarSettings,
 	onSelectMultiple,
 	onDeleteTask,
+	onOpenScheduleDue,
 }: WeekViewProps) {
 	const lang = useLanguage();
 	const _t = useTranslations(lang);
@@ -1115,8 +1117,19 @@ export function WeekView({
 													((nowMin - dayStartTime * 60) / 60) * hourHeight,
 											}}
 										>
-											<div className="absolute w-3 h-3 rounded-full bg-primary shadow-lg shadow-primary/30 -translate-y-1/2" />
+											{/* 蓝色横条：不拦截鼠标，按住往下拖可正常创建任务 */}
 											<div className="absolute left-3 right-0 h-0.5 bg-gradient-to-r from-primary to-primary/40 -translate-y-1/2" />
+											{/* 圆点：仅悬停圆点有动画、点击可安排未规划任务 */}
+											<div
+												className="pointer-events-auto cursor-pointer group absolute left-0 -translate-y-1/2"
+												onPointerDown={(e) => e.stopPropagation()}
+												onClick={() => onOpenScheduleDue?.()}
+												title={_t.scheduleDueModal.title}
+											>
+												<div className="flex items-center justify-center p-1">
+													<div className="w-3.5 h-3.5 rounded-full bg-primary shadow-lg shadow-primary/40 transition-all duration-200 group-hover:scale-150 group-hover:shadow-primary/70" />
+												</div>
+											</div>
 										</div>
 									)}
 
@@ -1441,25 +1454,30 @@ function WeekTaskBlock({
 					zIndex: isActive ? 50 : selected ? 15 : 10,
 				}}
 				onClick={(_e) => {
-					if (selectMode) {
-						onToggleSelect();
-					} else if (!didDrag.current) {
-						onOpenTask();
-					}
-				}}
-				onPointerDown={(e) => {
-					if (e.button !== 0) return;
-					if (selectMode) {
-						onToggleSelect();
-						return;
-					}
-					didDrag.current = false;
-					pressTimer.current = setTimeout(() => {
-						onLongPress();
-						didDrag.current = true;
-					}, 600);
-					onDragStart("move", e);
-				}}
+				if (selectMode) {
+					onToggleSelect();
+				} else if (!didDrag.current) {
+					onOpenTask();
+				}
+			}}
+			onContextMenu={(e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				onOpenTask();
+			}}
+			onPointerDown={(e) => {
+				if (e.button !== 0) return;
+				if (selectMode) {
+					onToggleSelect();
+					return;
+				}
+				didDrag.current = false;
+				pressTimer.current = setTimeout(() => {
+					onLongPress();
+					didDrag.current = true;
+				}, 600);
+				onDragStart("move", e);
+			}}
 				onPointerMove={() => {
 					didDrag.current = true;
 					if (pressTimer.current) clearTimeout(pressTimer.current);
@@ -1545,6 +1563,11 @@ function WeekTaskBlock({
 				if (!selectMode) {
 					onClick();
 				}
+			}}
+			onContextMenu={(e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				onOpenTask();
 			}}
 			onPointerDown={(e) => {
 				if (e.button !== 0) return;

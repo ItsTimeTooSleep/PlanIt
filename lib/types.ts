@@ -91,6 +91,8 @@ export interface CalendarSettings {
 	timeSnap: number; // time snap precision in minutes (1, 5, 10, 15)
 	snapEnabled: boolean; // whether smart snap is enabled
 	snapThreshold: number; // snap threshold in minutes (default 10)
+	/** 完成任务时，若当前处于该任务的计划时间内，自动将计划结束时间调整至当前时间 */
+	autoTrimEndOnComplete: boolean;
 }
 
 export interface TaskStep {
@@ -113,6 +115,8 @@ export interface Task {
 	tagIds: string[];
 	repeatRule: RepeatRule;
 	notes?: string;
+	/** 实际花费时间（分钟），完成任务时记录 */
+	actualDurationMinutes?: number;
 	status: TaskStatus;
 	createdAt: string;
 	isMultiStep?: boolean;
@@ -152,6 +156,10 @@ export interface AppSettings {
 	startupPage: StartupPage;
 	/** 新建任务时基于历史任务标题的文字匹配推荐 */
 	taskTitleSuggest: boolean;
+	/** 在待办列表点击完成任务、且任务无计划时间时，弹出窗口补充实际花费时间 */
+	promptActualTimeOnComplete: boolean;
+	/** 编辑任务窗口中是否显示“保存”/“取消”按钮；关闭后修改直接生效 */
+	showTaskModalActions: boolean;
 	firstLaunchDate?: string;
 }
 

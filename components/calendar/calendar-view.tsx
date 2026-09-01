@@ -44,10 +44,11 @@ import {
 } from "@/components/ui/popover";
 import { useTranslations } from "@/lib/i18n";
 import { useLanguage, useStore } from "@/lib/store";
-import type { Task } from "@/lib/types";
+import type { CalendarSettings, Task } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { DateNoteModal } from "./date-note-modal";
 import { MonthView } from "./month-view";
+import { ScheduleDueTasksModal } from "./schedule-due-tasks-modal";
 import { WeekView } from "./week-view";
 
 type CalView = "week" | "month";
@@ -80,32 +81,12 @@ export function CalendarView() {
 	const [selectedDateForNote, setSelectedDateForNote] = useState<string | null>(
 		null,
 	);
-	const [tempStartTime, setTempStartTime] = useState(
-		state.settings.calendar.dayStartTime,
-	);
-	const [tempEndTime, setTempEndTime] = useState(
-		state.settings.calendar.dayEndTime,
-	);
-	const [tempHourDivisions, setTempHourDivisions] = useState(
-		state.settings.calendar.hourDivisions,
-	);
-	const [tempHourHeight, setTempHourHeight] = useState(
-		state.settings.calendar.hourHeight,
-	);
-	const [tempTimeSnap, setTempTimeSnap] = useState(
-		state.settings.calendar.timeSnap ?? 15,
-	);
-	const [tempSnapEnabled, setTempSnapEnabled] = useState(
-		state.settings.calendar.snapEnabled ?? true,
-	);
-	const [tempSnapThreshold, setTempSnapThreshold] = useState(
-		state.settings.calendar.snapThreshold ?? 10,
-	);
 	const [isBatchMenuSticky, setIsBatchMenuSticky] = useState(false);
 	const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 	const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
 	const [dateRangePickerOpen, setDateRangePickerOpen] = useState(false);
 	const [taskToSchedule, setTaskToSchedule] = useState<Task | null>(null);
+	const [scheduleDueModalOpen, setScheduleDueModalOpen] = useState(false);
 
 	const today = useMemo(
 		() => format(new Date(), "yyyy-MM-dd"),
@@ -222,13 +203,6 @@ export function CalendarView() {
 	}
 
 	function openSettings() {
-		setTempStartTime(state.settings.calendar.dayStartTime);
-		setTempEndTime(state.settings.calendar.dayEndTime);
-		setTempHourDivisions(state.settings.calendar.hourDivisions);
-		setTempHourHeight(state.settings.calendar.hourHeight);
-		setTempTimeSnap(state.settings.calendar.timeSnap ?? 15);
-		setTempSnapEnabled(state.settings.calendar.snapEnabled ?? true);
-		setTempSnapThreshold(state.settings.calendar.snapThreshold ?? 10);
 		setSettingsOpen(true);
 	}
 
@@ -283,19 +257,13 @@ export function CalendarView() {
 		}
 	}
 
-	function saveCalendarSettings() {
+	function updateCalendarSetting<K extends keyof CalendarSettings>(
+		key: K,
+		value: CalendarSettings[K],
+	) {
 		updateSettings({
-			calendar: {
-				dayStartTime: tempStartTime,
-				dayEndTime: tempEndTime,
-				hourDivisions: tempHourDivisions,
-				hourHeight: tempHourHeight,
-				timeSnap: tempTimeSnap,
-				snapEnabled: tempSnapEnabled,
-				snapThreshold: tempSnapThreshold,
-			},
+			calendar: { ...state.settings.calendar, [key]: value },
 		});
-		setSettingsOpen(false);
 	}
 
 	useEffect(() => {
@@ -589,6 +557,7 @@ export function CalendarView() {
 						onEnterSelectMode={() => setSelectMode(true)}
 						calendarSettings={state.settings.calendar}
 						onDeleteTask={handleDeleteTaskRequest}
+						onOpenScheduleDue={() => setScheduleDueModalOpen(true)}
 					/>
 				) : (
 					<MonthView
@@ -642,9 +611,12 @@ export function CalendarView() {
 										{t.calendarSettings.startTime}
 									</Label>
 									<select
-										value={tempStartTime}
+										value={state.settings.calendar.dayStartTime}
 										onChange={(e) =>
-											setTempStartTime(parseInt(e.target.value, 10))
+											updateCalendarSetting(
+												"dayStartTime",
+												parseInt(e.target.value, 10),
+											)
 										}
 										className="w-full p-2 rounded-md border border-border bg-background"
 									>
@@ -660,9 +632,12 @@ export function CalendarView() {
 										{t.calendarSettings.endTime}
 									</Label>
 									<select
-										value={tempEndTime}
+										value={state.settings.calendar.dayEndTime}
 										onChange={(e) =>
-											setTempEndTime(parseInt(e.target.value, 10))
+											updateCalendarSetting(
+												"dayEndTime",
+												parseInt(e.target.value, 10),
+											)
 										}
 										className="w-full p-2 rounded-md border border-border bg-background"
 									>
@@ -684,8 +659,13 @@ export function CalendarView() {
 								{t.calendarSettings.timeSnapDesc}
 							</p>
 							<select
-								value={tempTimeSnap}
-								onChange={(e) => setTempTimeSnap(parseInt(e.target.value, 10))}
+								value={state.settings.calendar.timeSnap}
+								onChange={(e) =>
+									updateCalendarSetting(
+										"timeSnap",
+										parseInt(e.target.value, 10),
+									)
+								}
 								className="w-full p-2 rounded-md border border-border bg-background"
 							>
 								{[1, 5, 10, 15].map((m) => (
@@ -702,17 +682,26 @@ export function CalendarView() {
 								<button
 									type="button"
 									role="switch"
-									aria-checked={tempSnapEnabled}
-									onClick={() => setTempSnapEnabled(!tempSnapEnabled)}
+									aria-checked={state.settings.calendar.snapEnabled}
+									onClick={() =>
+										updateCalendarSetting(
+											"snapEnabled",
+											!state.settings.calendar.snapEnabled,
+										)
+									}
 									className={cn(
 										"relative inline-flex h-5 w-9 items-center rounded-full transition-colors",
-										tempSnapEnabled ? "bg-primary" : "bg-muted",
+										state.settings.calendar.snapEnabled
+											? "bg-primary"
+											: "bg-muted",
 									)}
 								>
 									<span
 										className={cn(
 											"inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
-											tempSnapEnabled ? "translate-x-4" : "translate-x-0.5",
+											state.settings.calendar.snapEnabled
+												? "translate-x-4"
+												: "translate-x-0.5",
 										)}
 									/>
 								</button>
@@ -722,16 +711,19 @@ export function CalendarView() {
 							</p>
 						</div>
 
-						{tempSnapEnabled && (
+						{state.settings.calendar.snapEnabled && (
 							<div className="flex flex-col gap-1.5">
 								<Label>{t.calendarSettings.snapThreshold}</Label>
 								<p className="text-xs text-muted-foreground">
 									{t.calendarSettings.snapThresholdDesc}
 								</p>
 								<select
-									value={tempSnapThreshold}
+									value={state.settings.calendar.snapThreshold}
 									onChange={(e) =>
-										setTempSnapThreshold(parseInt(e.target.value, 10))
+										updateCalendarSetting(
+											"snapThreshold",
+											parseInt(e.target.value, 10),
+										)
 									}
 									className="w-full p-2 rounded-md border border-border bg-background"
 								>
@@ -745,13 +737,14 @@ export function CalendarView() {
 						)}
 
 						<div className="flex flex-col gap-1.5">
-							<Label>
-								{lang === "zh" ? "每小时分割数" : "Divisions per hour"}
-							</Label>
+							<Label>{t.calendarSettings.hourDivisions}</Label>
 							<select
-								value={tempHourDivisions}
+								value={state.settings.calendar.hourDivisions}
 								onChange={(e) =>
-									setTempHourDivisions(parseInt(e.target.value, 10))
+									updateCalendarSetting(
+										"hourDivisions",
+										parseInt(e.target.value, 10),
+									)
 								}
 								className="w-full p-2 rounded-md border border-border bg-background"
 							>
@@ -765,27 +758,15 @@ export function CalendarView() {
 						</div>
 
 						<div className="flex flex-col gap-1.5">
-							<Label>
-								{lang === "zh"
-									? "日历高度 (每小时像素)"
-									: "Calendar Height (px per hour)"}
-							</Label>
+							<Label>{t.calendarSettings.hourHeightLabel}</Label>
 							<div className="flex items-center gap-2">
 								<input
 									type="number"
-									value={tempHourHeight}
+									value={state.settings.calendar.hourHeight}
 									onChange={(e) => {
 										const value = parseInt(e.target.value, 10);
 										if (!Number.isNaN(value) && value >= 24 && value <= 300) {
-											setTempHourHeight(value);
-										}
-									}}
-									onBlur={(e) => {
-										const value = parseInt(e.target.value, 10);
-										if (Number.isNaN(value) || value < 24) {
-											setTempHourHeight(24);
-										} else if (value > 300) {
-											setTempHourHeight(300);
+											updateCalendarSetting("hourHeight", value);
 										}
 									}}
 									min={24}
@@ -796,17 +777,6 @@ export function CalendarView() {
 							</div>
 						</div>
 					</div>
-					<DialogFooter>
-						<Button variant="outline" onClick={() => setSettingsOpen(false)}>
-							{t.common.cancel}
-						</Button>
-						<Button
-							onClick={saveCalendarSettings}
-							disabled={tempStartTime >= tempEndTime}
-						>
-							{t.common.save}
-						</Button>
-					</DialogFooter>
 				</DialogContent>
 			</Dialog>
 
@@ -847,6 +817,12 @@ export function CalendarView() {
 				}}
 				onSelect={handleSelectDate}
 				initialDate={taskToSchedule?.dueDate}
+			/>
+
+			{/* Schedule unscheduled due tasks */}
+			<ScheduleDueTasksModal
+				open={scheduleDueModalOpen}
+				onClose={() => setScheduleDueModalOpen(false)}
 			/>
 		</div>
 	);

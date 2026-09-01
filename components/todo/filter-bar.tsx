@@ -11,6 +11,7 @@ import {
 	Eye,
 	List,
 	Plus,
+	Search,
 	Tag as TagIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useTranslations } from "@/lib/i18n";
 import { useLanguage } from "@/lib/store";
@@ -51,6 +53,8 @@ interface FilterBarProps {
 	tags: Tag[];
 	completedCount: number;
 	totalCount: number;
+	searchQuery: string;
+	onSearchChange: (query: string) => void;
 	onTimeFilterChange: (filter: TimeFilter) => void;
 	onStatusFilterChange: (filter: StatusFilter) => void;
 	onTagFilterChange: (tagId: string | null) => void;
@@ -72,6 +76,8 @@ export function FilterBar({
 	tags,
 	completedCount,
 	totalCount,
+	searchQuery,
+	onSearchChange,
 	onTimeFilterChange,
 	onStatusFilterChange,
 	onTagFilterChange,
@@ -91,10 +97,21 @@ export function FilterBar({
 	return (
 		<div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border/60">
 			<div className="max-w-5xl mx-auto px-6 py-3 space-y-3">
-				<div className="flex items-center justify-between">
-					<h1 className="text-xl font-bold tracking-tight">{t.todo.title}</h1>
-					<div className="flex items-center gap-2">
-						<div className="flex items-center gap-2 text-xs text-muted-foreground mr-2">
+				<div className="flex items-center justify-between gap-4">
+					<h1 className="text-xl font-bold tracking-tight shrink-0">
+						{t.todo.title}
+					</h1>
+					<div className="relative flex-1 max-w-sm min-w-0">
+						<Search className="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/60" />
+						<Input
+							value={searchQuery}
+							onChange={(e) => onSearchChange(e.target.value)}
+							placeholder={t.todo.searchPlaceholder}
+							className="h-8 pl-8 text-sm"
+						/>
+					</div>
+					<div className="flex items-center gap-2 shrink-0">
+						<div className="flex items-center gap-2 text-xs text-muted-foreground">
 							<Progress
 								value={totalCount > 0 ? (completedCount / totalCount) * 100 : 0}
 								className="h-1.5 w-16"

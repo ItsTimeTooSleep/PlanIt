@@ -76,6 +76,9 @@ const zh = {
 		notes: "备注",
 		notesPlaceholder: "添加备注...",
 		status: "状态",
+		actualDuration: "实际花费时间",
+		actualDurationMinutesHint: "分钟",
+		actualDurationPlanned: "已按计划时间自动填写",
 		markComplete: "标记完成",
 		markSkip: "标记跳过",
 		markPending: "标记待处理",
@@ -154,6 +157,10 @@ const zh = {
 		rowHeight: "行高",
 		hourDivisions: "每小时分割",
 		divisions: "段",
+		hourHeightLabel: "日历高度（每小时像素）",
+		autoTrimEndOnComplete: "完成后自动调整计划结束时间",
+		autoTrimEndOnCompleteDesc:
+			"任务处于计划时间内被完成时，自动将计划结束时间调整至当前时间",
 	},
 
 	weekdays: {
@@ -344,6 +351,10 @@ const zh = {
 		playOnTaskDrag: "任务拖拽时播放",
 		taskTitleSuggest: "历史任务推荐",
 		taskTitleSuggestDesc: "新建任务输入标题时，基于历史任务标题进行文字匹配推荐",
+		promptActualTimeOnComplete: "完成任务时补充实际时间",
+		promptActualTimeOnCompleteDesc: "在待办列表中点击完成任务时，若任务无计划时间则弹出窗口记录实际花费时间",
+		showTaskModalActions: "编辑任务窗口操作按钮",
+		showTaskModalActionsDesc: "在编辑任务窗口中显示“保存”和“取消”按钮；关闭后，修改将直接生效",
 		startupPage: "启动页面",
 		startupPageDesc: "应用启动时显示的页面",
 		startupPageHome: "主页",
@@ -506,8 +517,14 @@ const zh = {
 		noTasks: "暂无任务",
 		noTasksDesc: "创建一个新任务开始你的规划",
 		addTask: "新建任务",
+		searchPlaceholder: "搜索任务标题",
 		completedCount: (done: number, total: number) =>
 			`已完成 ${done} / ${total}`,
+		completeTimeTitle: "记录实际花费时间",
+		completeTimeDesc: "该任务未设置计划时间，完成前可记录实际花费的时间",
+		completeTimeMinutesPlaceholder: "输入分钟数",
+		completeTimePresets: "快速选择",
+		completeTimeNoRecord: "仅标记完成",
 	},
 
 	note: {
@@ -670,6 +687,17 @@ const zh = {
 		date: "日期",
 		startTime: "开始时间",
 		endTime: "结束时间",
+	},
+	scheduleDueModal: {
+		title: "安排未规划任务",
+		description: "选择截止日期在今天或未来、但尚未安排计划时间的任务，并为其选择计划时间",
+		searchPlaceholder: "搜索任务标题",
+		noTasks: "暂无符合条件的任务",
+		selected: (title: string) => `已选择：${title}`,
+		setPlanTime: "安排计划时间",
+		noSelection: "请先选择一个任务",
+		applied: "已为所选任务安排计划时间",
+		dueLabel: "截止",
 	},
 	widgets: {
 		calculator: "计算器",
@@ -964,6 +992,9 @@ const en = {
 		notes: "Notes",
 		notesPlaceholder: "Add notes...",
 		status: "Status",
+		actualDuration: "Actual Time Spent",
+		actualDurationMinutesHint: "minutes",
+		actualDurationPlanned: "Auto-filled from the planned time",
 		markComplete: "Mark Complete",
 		markSkip: "Mark Skipped",
 		markPending: "Mark Pending",
@@ -1044,6 +1075,10 @@ const en = {
 		rowHeight: "Row height",
 		hourDivisions: "Hour divisions",
 		divisions: "divs",
+		hourHeightLabel: "Calendar Height (px per hour)",
+		autoTrimEndOnComplete: "Auto-adjust planned end time on complete",
+		autoTrimEndOnCompleteDesc:
+			"When a task is completed within its planned time, automatically adjust the planned end time to the current time",
 	},
 
 	weekdays: {
@@ -1240,6 +1275,12 @@ const en = {
 		taskTitleSuggest: "Task Title Suggestions",
 		taskTitleSuggestDesc:
 			"Suggest matching task titles from history while typing a new task",
+		promptActualTimeOnComplete: "Prompt for actual time on complete",
+		promptActualTimeOnCompleteDesc:
+			"When completing a task with no planned time in the To Do list, show a dialog to record the actual time spent",
+		showTaskModalActions: "Task Edit Window Action Buttons",
+		showTaskModalActionsDesc:
+			"Show \"Save\" and \"Cancel\" buttons in the task edit window; when off, changes apply immediately",
 		startupPage: "Startup Page",
 		startupPageDesc: "Page to display when app starts",
 		startupPageHome: "Home",
@@ -1401,10 +1442,17 @@ const en = {
 		allDayEvents: "All-Day Events",
 		scheduledTasks: "Scheduled Tasks",
 		noTasks: "No tasks yet",
-		noTasksDesc: "Create a new task to get started",
+		noTasksDesc: "Create a new task to start planning",
 		addTask: "Add Task",
+		searchPlaceholder: "Search tasks",
 		completedCount: (done: number, total: number) =>
 			`${done} / ${total} completed`,
+		completeTimeTitle: "Record Actual Time Spent",
+		completeTimeDesc:
+			"This task has no planned time. Optionally record the actual time spent before completing.",
+		completeTimeMinutesPlaceholder: "Enter minutes",
+		completeTimePresets: "Quick pick",
+		completeTimeNoRecord: "Mark complete only",
 	},
 
 	note: {
@@ -1568,6 +1616,17 @@ const en = {
 		date: "Date",
 		startTime: "Start time",
 		endTime: "End time",
+	},
+	scheduleDueModal: {
+		title: "Schedule Unscheduled Tasks",
+		description: "Select a task with a due date on or after today that isn't scheduled yet, then pick a plan time",
+		searchPlaceholder: "Search task title",
+		noTasks: "No matching tasks",
+		selected: (title: string) => `Selected: ${title}`,
+		setPlanTime: "Set plan time",
+		noSelection: "Select a task first",
+		applied: "Plan time scheduled for the selected task",
+		dueLabel: "Due",
 	},
 	widgets: {
 		calculator: "Calculator",
@@ -1857,6 +1916,9 @@ export type Translations = {
 		readonly notes: string;
 		readonly notesPlaceholder: string;
 		readonly status: string;
+		readonly actualDuration: string;
+		readonly actualDurationMinutesHint: string;
+		readonly actualDurationPlanned: string;
 		readonly markComplete: string;
 		readonly markSkip: string;
 		readonly markPending: string;
@@ -1933,6 +1995,9 @@ export type Translations = {
 		readonly rowHeight: string;
 		readonly hourDivisions: string;
 		readonly divisions: string;
+		readonly hourHeightLabel: string;
+		readonly autoTrimEndOnComplete: string;
+		readonly autoTrimEndOnCompleteDesc: string;
 	};
 	readonly weekdays: {
 		readonly 0: string;
@@ -2116,6 +2181,10 @@ export type Translations = {
 		readonly playOnTaskDrag: string;
 		readonly taskTitleSuggest: string;
 		readonly taskTitleSuggestDesc: string;
+		readonly promptActualTimeOnComplete: string;
+		readonly promptActualTimeOnCompleteDesc: string;
+		readonly showTaskModalActions: string;
+		readonly showTaskModalActionsDesc: string;
 		readonly startupPage: string;
 		readonly startupPageDesc: string;
 		readonly startupPageHome: string;
@@ -2274,7 +2343,13 @@ export type Translations = {
 		readonly noTasks: string;
 		readonly noTasksDesc: string;
 		readonly addTask: string;
+		readonly searchPlaceholder: string;
 		readonly completedCount: (done: number, total: number) => string;
+		readonly completeTimeTitle: string;
+		readonly completeTimeDesc: string;
+		readonly completeTimeMinutesPlaceholder: string;
+		readonly completeTimePresets: string;
+		readonly completeTimeNoRecord: string;
 	};
 	readonly note: {
 		readonly title: string;
@@ -2430,6 +2505,17 @@ export type Translations = {
 		readonly date: string;
 		readonly startTime: string;
 		readonly endTime: string;
+	};
+	readonly scheduleDueModal: {
+		readonly title: string;
+		readonly description: string;
+		readonly searchPlaceholder: string;
+		readonly noTasks: string;
+		readonly selected: (title: string) => string;
+		readonly setPlanTime: string;
+		readonly noSelection: string;
+		readonly applied: string;
+		readonly dueLabel: string;
 	};
 	readonly widgets: {
 		readonly calculator: string;

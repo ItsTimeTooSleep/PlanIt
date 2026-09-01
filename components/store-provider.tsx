@@ -18,6 +18,7 @@ import {
 } from "@/lib/notifications";
 import { playSound } from "@/lib/sound";
 import { StoreContext, type StoreContextValue } from "@/lib/store";
+import { getAutoTrimmedEndTimeOnComplete } from "@/lib/task-utils";
 import type {
 	AppSettings,
 	AppState,
@@ -34,6 +35,27 @@ import type {
 
 const APP_VERSION = "1.0.0";
 const APP_NAME = "PlanIt";
+
+/**
+ * 完成任务时自动裁剪计划结束时间：
+ * 若开启了设置、当前时间处于任务的计划时间范围内，且本次更新未显式指定 endTime，
+ * 则将 endTime 调整为当前时间
+ */
+function applyAutoTrimEndTime(
+	task: Task,
+	updates: Partial<Task>,
+	autoTrimEnabled: boolean,
+): Partial<Task> {
+	if (updates.status !== "completed" || updates.endTime !== undefined) {
+		return updates;
+	}
+	const trimmedEndTime = getAutoTrimmedEndTimeOnComplete(
+		task,
+		autoTrimEnabled,
+	);
+	if (!trimmedEndTime) return updates;
+	return { ...updates, endTime: trimmedEndTime };
+}
 
 const DEFAULT_POMODORO: PomodoroState = {
 	taskId: null,
@@ -83,6 +105,7 @@ const DEFAULT_STATE: AppState = {
 			timeSnap: 1,
 			snapEnabled: true,
 			snapThreshold: 5,
+			autoTrimEndOnComplete: false,
 		},
 		sound: {
 			enabled: true,
@@ -92,6 +115,8 @@ const DEFAULT_STATE: AppState = {
 			playOnTaskDrag: true,
 		},
 		taskTitleSuggest: true,
+		promptActualTimeOnComplete: true,
+		showTaskModalActions: true,
 	},
 	pomodoro: DEFAULT_POMODORO,
 };
@@ -395,13 +420,59 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
 	const updateTask = useCallback(
 		(id: string, updates: Partial<Task>, recordHistory: boolean = true) => {
+			const applyUpdate = (prev: AppState): AppState | null => {
+				const existingTask = prev.tasks.find((t) => t.id === id);
+				if (!existingTask) return null;
+
+				const effectiveUpdates = applyAutoTrimEndTime(
+					existingTask,
+					updates,
+					prev.settings.calendar.autoTrimEndOnComplete,
+				);
+
+				const next = {
+					...prev,
+					tasks: prev.tasks.map((t) =>
+						t.id === id ? { ...t, ...effectiveUpdates } : t,
+					),
+				};
+
+				// 播放任务音效
+				if (effectiveUpdates.status) {
+					const updatedTask = next.tasks.find((t) => t.id === id);
+					if (updatedTask) {
+						playTaskSound(updatedTask, effectiveUpdates.status, next.settings);
+					}
+				}
+
+				if (next.settings.notifications.enabled) {
+					const updatedTask = next.tasks.find((t) => t.id === id);
+					if (updatedTask) {
+						const t = translations[next.settings.language];
+						scheduleTaskNotification(
+							updatedTask,
+							buildNotificationMessages(t, updatedTask),
+							next.settings.notifications,
+						);
+					}
+				}
+
+				return next;
+			};
+
 			if (recordHistory) {
 				set((prev) => {
 					const existingTask = prev.tasks.find((t) => t.id === id);
 					if (!existingTask) return prev;
 
+					const effectiveUpdates = applyAutoTrimEndTime(
+						existingTask,
+						updates,
+						prev.settings.calendar.autoTrimEndOnComplete,
+					);
+
 					const previousState: Partial<Task> = {};
-					Object.keys(updates).forEach((key) => {
+					Object.keys(effectiveUpdates).forEach((key) => {
 						(previousState as Record<string, unknown>)[key] =
 							existingTask[key as keyof Task];
 					});
@@ -409,66 +480,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 					historyManager.push({
 						type: "update_task",
 						timestamp: Date.now(),
-						data: { taskId: id, previousState, newState: updates },
+						data: { taskId: id, previousState, newState: effectiveUpdates },
 					});
 
-					const next = {
-						...prev,
-						tasks: prev.tasks.map((t) =>
-							t.id === id ? { ...t, ...updates } : t,
-						),
-					};
-
-					// 播放任务音效
-					if (updates.status) {
-						const updatedTask = next.tasks.find((t) => t.id === id);
-						if (updatedTask) {
-							playTaskSound(updatedTask, updates.status, next.settings);
-						}
-					}
-
-					if (next.settings.notifications.enabled) {
-						const updatedTask = next.tasks.find((t) => t.id === id);
-						if (updatedTask) {
-							const t = translations[next.settings.language];
-							scheduleTaskNotification(
-							updatedTask,
-							buildNotificationMessages(t, updatedTask),
-							next.settings.notifications,
-						);
-						}
-					}
+					const next = applyUpdate(prev);
+					if (!next) return prev;
 					save(next);
 					return next;
 				});
 			} else {
 				set((prev) => {
-					const next = {
-						...prev,
-						tasks: prev.tasks.map((t) =>
-							t.id === id ? { ...t, ...updates } : t,
-						),
-					};
-
-					// 播放任务音效
-					if (updates.status) {
-						const updatedTask = next.tasks.find((t) => t.id === id);
-						if (updatedTask) {
-							playTaskSound(updatedTask, updates.status, next.settings);
-						}
-					}
-
-					if (next.settings.notifications.enabled) {
-						const updatedTask = next.tasks.find((t) => t.id === id);
-						if (updatedTask) {
-							const t = translations[next.settings.language];
-							scheduleTaskNotification(
-							updatedTask,
-							buildNotificationMessages(t, updatedTask),
-							next.settings.notifications,
-						);
-						}
-					}
+					const next = applyUpdate(prev);
+					if (!next) return prev;
 					return next;
 				});
 			}
